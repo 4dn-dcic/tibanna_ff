@@ -11,15 +11,19 @@ Overview of the Tibanna code structure
 Tibanna Pony (4DN) and Zebra (CGAP) are built upon Tibanna Unicorn (public, independent of any data portal). Code for Pony and Zebra uses code for Unicorn by either importing or inheriting. The code shared between Pony and Zebra that are not a part of Unicorn is stored in the shared component ``ffcommon``. All of these use AWSEM (Automonous Workflow Step Executor Machine) at the core, which is an EC2 instance that is auto-configured by Tibanna that does its job automonously and terminates itself at the end.
 
 
-Directory structure
-+++++++++++++++++++
+Repository & Directory structure
+++++++++++++++++++++++++++++++++
 
-- tibanna : code for Unicorn
-- tibanna_4dn : code for Pony
-- tibanna_cgap : code for Zebra
-- tibanna_ffcommon : code shared between Pony and Zebra that are not part of Unicorn
-- awsf : code that runs on AWSEM (commonly used by Unicorn, Pony and Zebra)
+- https://github.com/4dn-dcic/tibanna (repo)
 
+    - tibanna : code for Unicorn
+    - awsf : code that runs on AWSEM (commonly used by Unicorn, Pony and Zebra)
+
+- https://github.com/4dn-dcic/tibanna_ff (repo)
+
+    - tibanna_4dn : code for Pony
+    - tibanna_cgap : code for Zebra
+    - tibanna_ffcommon : code shared between Pony and Zebra that are not part of Unicorn
 
 Each of the three variants (Unicorn, Pony or Zebra) consists of a core API (``core.py``), CLI (``__main__.py``), lambdas (``/lambdas``) and set of python modules that are used by the former three.
 
@@ -30,7 +34,7 @@ Installation
 Installation and dependencies
 +++++++++++++++++++++++++++++
 
-``pip install tibanna`` would install only ``tibanna`` but not ``tibanna_cgap`` or ``tibanna_4dn``, though it specifies the latter two as entry points as well. In order to use ``tibanna_4dn`` or ``tibanna_cgap``, one should additionally install ``dcicutils`` (currently equivalent to the more official way). Alternatively (official), the dependencies for pony or zebra must be intalled by ``pip install -r requirements-4dn.txt`` or ``pip install -r requiremnets-cgap.txt`` in the repo directory (after ``git clone https://github.com/4dn-dcic/tibanna; cd tibanna``)
+``pip install tibanna`` would install only ``tibanna`` and ``pip install tibanna_ff` would install ``tibanna_ffcommon``, ``tibanna_4dn`` and ``tibanna_cgap``, though it specifies the latter two as entry points as well. In order to use ``tibanna_4dn`` or ``tibanna_cgap``, one should additionally install ``dcicutils`` (currently equivalent to the more official way). Alternatively (official), the dependencies for pony or zebra must be intalled by ``pip install -r requirements-4dn.txt`` or ``pip install -r requiremnets-cgap.txt`` in the repo directory (after ``git clone https://github.com/4dn-dcic/tibanna; cd tibanna``)
 
 
 Environment variables
