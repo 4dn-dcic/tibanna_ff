@@ -14,12 +14,12 @@ Tibanna Pony (``tibanna_4dn``) and Zebra (``tibanna_cgap``) are built upon Tiban
 Repository & Directory structure
 ++++++++++++++++++++++++++++++++
 
-- https://github.com/4dn-dcic/tibanna (repo)
+- https://github.com/4dn-dcic/tibanna
 
     - ``tibanna`` : code for Unicorn
     - ``awsf`` : code that runs on AWSEM (commonly used by Unicorn, Pony and Zebra)
 
-- https://github.com/4dn-dcic/tibanna_ff (repo)
+- https://github.com/4dn-dcic/tibanna_ff
 
     - ``tibanna_4dn`` : code for Pony
     - ``tibanna_cgap`` : code for Zebra
@@ -57,7 +57,7 @@ To install ``tibanna_4dn`` and ``tibanna_cgap``,
 ::
 
     pip install tibanna_ff
-
+    # or pip install tibanna-ff
 
 ::
 

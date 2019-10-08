@@ -19,4 +19,6 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
+   pony
+   zebra
    dev
