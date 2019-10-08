@@ -5,7 +5,7 @@ CLI for tibanna_4dn package
 # -*- coding: utf-8 -*-
 import argparse
 import inspect
-from tibanna._version import __version__  # for now use the same version as tibanna
+from tibanna_ffcommon._version import __version__  # for now use the same version as tibanna
 # from botocore.errorfactory import ExecutionAlreadyExists
 from .vars import (
     TIBANNA_DEFAULT_STEP_FUNCTION_NAME
