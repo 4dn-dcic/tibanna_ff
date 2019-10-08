@@ -8,7 +8,7 @@ This section is for developers who want to understand the structure of the code 
 Overview of the Tibanna code structure
 --------------------------------------
 
-Tibanna Pony (4DN) and Zebra (CGAP) are built upon Tibanna Unicorn (public, independent of any data portal). Code for Pony and Zebra uses code for Unicorn by either importing or inheriting. The code shared between Pony and Zebra that are not a part of Unicorn is stored in the shared component ``ffcommon``. All of these use AWSEM (Automonous Workflow Step Executor Machine) at the core, which is an EC2 instance that is auto-configured by Tibanna that does its job automonously and terminates itself at the end.
+Tibanna Pony (``tibanna_4dn``) and Zebra (``tibanna_cgap``) are built upon Tibanna Unicorn (``tibanna``, independent of any data portal). Code for Pony and Zebra uses code for Unicorn by either importing or inheriting. The code shared between Pony and Zebra that are not a part of Unicorn is stored in the shared component ``tibanna_ffcommon``. All of these use AWSEM (Automonous Workflow Step Executor Machine) at the core, which is an EC2 instance that is auto-configured by Tibanna that does its job automonously and terminates itself at the end.
 
 
 Repository & Directory structure
@@ -16,14 +16,14 @@ Repository & Directory structure
 
 - https://github.com/4dn-dcic/tibanna (repo)
 
-    - tibanna : code for Unicorn
-    - awsf : code that runs on AWSEM (commonly used by Unicorn, Pony and Zebra)
+    - ``tibanna`` : code for Unicorn
+    - ``awsf`` : code that runs on AWSEM (commonly used by Unicorn, Pony and Zebra)
 
 - https://github.com/4dn-dcic/tibanna_ff (repo)
 
-    - tibanna_4dn : code for Pony
-    - tibanna_cgap : code for Zebra
-    - tibanna_ffcommon : code shared between Pony and Zebra that are not part of Unicorn
+    - ``tibanna_4dn`` : code for Pony
+    - ``tibanna_cgap`` : code for Zebra
+    - ``tibanna_ffcommon`` : code shared between Pony and Zebra that are not part of Unicorn
 
 Each of the three variants (Unicorn, Pony or Zebra) consists of a core API (``core.py``), CLI (``__main__.py``), lambdas (``/lambdas``) and set of python modules that are used by the former three.
 
@@ -34,7 +34,43 @@ Installation
 Installation and dependencies
 +++++++++++++++++++++++++++++
 
-``pip install tibanna`` would install only ``tibanna`` and ``pip install tibanna_ff` would install ``tibanna_ffcommon``, ``tibanna_4dn`` and ``tibanna_cgap``, though it specifies the latter two as entry points as well. In order to use ``tibanna_4dn`` or ``tibanna_cgap``, one should additionally install ``dcicutils`` (currently equivalent to the more official way). Alternatively (official), the dependencies for pony or zebra must be intalled by ``pip install -r requirements-4dn.txt`` or ``pip install -r requiremnets-cgap.txt`` in the repo directory (after ``git clone https://github.com/4dn-dcic/tibanna; cd tibanna``)
+To install ``tibanna``,
+
+::
+
+    pip install tibanna
+
+
+::
+
+    > import tibanna
+
+
+::
+
+    tibanna -h
+
+
+
+To install ``tibanna_4dn`` and ``tibanna_cgap``,
+
+::
+
+    pip install tibanna_ff
+
+
+::
+
+    > import tibanna_4dn
+    > import tibanna_cgap
+    > import tibanna_ffcommon
+
+
+::
+
+    tibanna_4dn -h
+    tibanna_cgap -h
+
 
 
 Environment variables
@@ -123,7 +159,7 @@ Running Workflow
 
 
 
-The above three can be used interchageably, as long as the correct stepfunctionname is used. i.e. the following command still works and would submit a job to ``tibanna_pony`` even if the entry point ``tibanna_cgap`` was used.
+The above three can be used interchageably, as long as the correct step function name is used. i.e. the following command still works and would submit a job to ``tibanna_pony`` even if the entry point ``tibanna_cgap`` was used.
 
 
 ::
