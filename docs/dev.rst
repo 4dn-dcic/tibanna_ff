@@ -167,3 +167,70 @@ The above three can be used interchageably, as long as the correct step function
     tibanna_cgap run_workflow -i <input_json> --sfn=tibanna_pony
 
 
+
+
+Behaviors
+---------
+
+Config
+++++++
+
+The `config` of pony/zebra input json is directly passed to unicorn and is pretty much the same.
+
+
+Input file handling
++++++++++++++++++++
+
+
+
+Dimension
+~~~~~~~~~
+
+An input file may have dimension 0~3 (single element, a 1D array, a 2D array, or a 3D array).
+
+
+Extra files
+~~~~~~~~~~~
+
+An input file may have extra files. Extra files are equivalent to secondary files in CWL, and usually includes index files (e.g. ``px2``, ``idx``, ``tbi``, ``bai``, ``fai``, ...). If there are multiple extra files, they should have different formats (extensions). The workflow objects and Tibanna input jsons do not have to specify any extra files and all the extra files associated with a specified input file's File object is automatically transferred along with the file itself to the AWSEM instance.
+
+However, it is required that the input file's File object does contain a corresponding extra file, if CWL requires a secondary file for that input.
+
+
+Renaming files
+~~~~~~~~~~~~~~
+
+The file key on S3 follows the convention ``<uuid>/<accession>.<extension>``. Some workflows require some input files to have specific names and to handle this problem, we use the field ``rename`` in the individual input file dictionary in the input json to specify the target name. When the file is downloaded to the AWSEM instance, before running the workflow, the file will be renamed to this target name. By default, it will be the same as the key on S3.
+
+
+Output handling
++++++++++++++++
+
+There are four types of output - ``processed file``, ``QC file``, ``report file`` and ``to-be-input-extra file``.
+
+
+Output processed file handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Quality metric handling
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Report-type output handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Handling output that becomes an extra file of an input file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Custom fields
++++++++++++++
+
+Custom fields for processed files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Custom fields for quality metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Custom fields for workflow run
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
