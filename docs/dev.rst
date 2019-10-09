@@ -206,17 +206,23 @@ The file key on S3 follows the convention ``<uuid>/<accession>.<extension>``. So
 Output handling
 +++++++++++++++
 
-There are four types of output - ``processed file``, ``QC file``, ``report file`` and ``to-be-input-extra file``.
+There are four types of output - ``processed file``, ``QC file``, ``report file`` and ``to-be-extra-input file``.
 
 
 Output processed file handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Tibanna creates a FileProcessed item for each processed file output in the beginning of the workflow run (through ``start_run``) and patches the object at the end of the run for ``status``, ``md5`` and ``file_size`` (through ``update_ffmeta``).
+
 Quality metric handling
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+For QC type output, Tibanna does not create a FileProcessed item but instead creates a QualityMetric item. The quality metric item is created at the *end* of a workflow run, not at the *beginning*, since it is linked from one of the File items (either input or output) involved and if we create a new QualityMetric object in the beginning, it would inevitably replace the existing one, and if the run failed, the new one would remain linked despite the fact that the run failed.
+
 Report-type output handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 
 Handling output that becomes an extra file of an input file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
