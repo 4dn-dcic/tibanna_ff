@@ -230,7 +230,9 @@ There are four types of output - ``processed file``, ``QC file``, ``report file`
 Output processed file handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Tibanna creates a FileProcessed item for each processed file output in the beginning of the workflow run (through ``start_run``) and patches the object at the end of the run for ``status``, ``md5`` and ``file_size`` (through ``update_ffmeta``).
+Tibanna creates a FileProcessed item for each processed file output in the beginning of the workflow run (through ``start_run``) with status ``to be uploaded by workflow``. At the end of the run, it patches the ``FileProcessed`` objects with ``status`` (``uploaded``), ``md5`` and ``file_size`` (through ``update_ffmeta``).
+
+If an output processed file has an extra file, likewise the metadata for the extra files will also be created in the beginning of the run, with status ``to be uploaded by workflow``. At the end of the run, the extra files will be patched with ``status`` (``uploaded``), ``md5`` and ``file_size`` (through ``update_ffmeta``). In order for an output processed file to have an extra file(s), the ``secondary_file_formats`` must be specified in the ``workflow`` ``arguments`` field for the corresponding output processed file.
 
 
 Quality metric handling
@@ -266,16 +268,56 @@ A report-type output is different from a QC-type output in that no ``QualityMetr
 Handling output that becomes an extra file of an input file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+An example of an ``Output to-be-extra-input file`` is the output of workflow ``bed2beddb`` where the output ``beddb`` file will be attached as an ``extra_file`` of the input ``bed`` file, instead of creating a separate processed file with the ``beddb`` format.
+
+By default, a second run of the same workflow run fails to start, to avoid overwriting the output extra file without any metadata log, unless ``"overwrite_input_extra": true`` is set in the ``config`` of the input json.
+
+The extra file in the input ``File`` metadata is created at the beginning of the run (through ``start_run``) with status ``to be uploaded by workflow`` and the AWSEM instance will upload the output file to the right bucket with the right key including the right extension (the extension of the extra file). If this upload fails, ``check_task`` will throw and AWSEM error. The last step ``update_ffmeta`` will make sure that the key with the right extension exists in the right bucket, but it does *not* check that the file is new or not. If it does, it will update the status of the extra file to ``uploaded``.
+
 
 Custom fields
 +++++++++++++
 
+In case we want to pass one custom fields to ``WorkflowRun``, ``FileProcessed`` or ``QualityMetric`` objects that are created by a workflow run, we can do that by adding custom fields to the input json. Common examples of custom field would be ``lab`` and ``award`` for pony and ``project`` and ``institution`` for zebra. One could also set ``genome_assembly`` to be passed to a ``FileProcessed`` object.
+
+
+Custom fields for workflow run
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``wfr_meta`` field specifies custom fields to be passed to a ``WorkflowRun`` object.
+
+::
+
+    "wfr_meta": { "key1": "value1", "key2": "value2" ,,, }
+
+In the above example, the ``WorkflowRun`` object will have field ``key1`` with value ``value1`` and field ``key2`` with value ``value2``.
+
+
 Custom fields for processed files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``custom_pf_fields`` field specifies custom fields to be passed to a ``FileProcessed`` object. This field has one additional level to specify whether the field should apply to all processed files (``ALL``) or a specific processed file (the argument name of the specific processed file).
+
+::
+
+    "custom_pf_fields": {
+        "ALL": { "key1": "value1", "key2": "value2" },
+        "out_bam": {"key3": "value3" }
+    }
+    
+In the above example, if we have two output files with argument names ``out_bam`` and ``out_bw``, the processed file(s) associated with both ``out_bam`` and ``out_bw`` will have field ``key1`` with value ``value1`` and field ``key2`` with value ``value2``, but only the processed file(s) associated with ``out_bam`` will have field ``key3`` with value ``value3``.
+
+
 
 Custom fields for quality metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Custom fields for workflow run
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``custom_qc_fields`` field specifies custom fields to be passed to a ``FileProcessed`` object, and all the ``QualityMetric`` objects generated (including ``QualityMetricWorkflowrun``) will have the fields specified by ``custom_qc_fields``.
+
+::
+
+    "custom_qc_fields": { "key1": "value1", "key2": "value2" ,,, }
+
+
+In the above example, all the ``QualityMetric`` objects will have field ``key1`` with value ``value1`` and field ``key2`` with value ``value2``.
 
