@@ -234,6 +234,15 @@ Additional fields for pony and zebra
 - ``"email" : true|false`` (default ``false``) : if this flag is set to be ``true``, it will send an email from ``4dndcic@gmail.com`` to itself (in case of ``pony``) or ``cgap.everyone@gmail.com`` to itself (in case of ``zebra``). To enable this to work, I had manually registered and verified these two emails on AWS Simple Email Service (SES). Since, it requires a manual registration of an email, it is not currently supported by Unicorn.
 
 
+There are also recommended fields for pony and zebra, even though they are not pony/zebra-specific (unicorn also supports these features).
+
+Recommended fields for pony and zebra
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``"public_postrun_json" : true`` : it is recommended to set this flag to ``true`` so that the postrun json files are open to public.
+- ``"key_name": "4dn-encoded"`` : for security reasons, it is recommended to use the ``4dn-encoded`` key rather than just passwords for sshing to an AWSEM instance.
+
+
 Input file handling
 +++++++++++++++++++
 
