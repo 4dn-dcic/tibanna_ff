@@ -96,8 +96,8 @@ To use ``tibanna_4dn`` or ``tibanna_cgap``, the following environment variable i
 
 
 
-Key functions
--------------
+Key CLI functions
+-----------------
 
 Tibanna Deployment
 ++++++++++++++++++
@@ -168,8 +168,8 @@ The above three can be used interchageably, as long as the correct step function
 
 
 
-Lambda functions
-----------------
+Lambda code
+-----------
 
 The code for individual AWS Lambda functions is defined in individual ``.py`` files inside the ``lambdas`` directory under the package directory (e.g. ``tibanna_4dn``, ``tibanna_cgap``, or in case of unicorn, ``tibanna`` in the ``tibanna`` repo.)
 
