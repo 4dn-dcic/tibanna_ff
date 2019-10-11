@@ -2,7 +2,7 @@
 Tibanna Zebra for CGAP
 ======================
 
-Tibanna Zebra is an extension of Tibanna Unicorn used specifically for CGAP (Clinical Genome Analysis Platform). Zebra has two additional steps that communicate with the 4DN Data Portal and handle 4DN metadata. Zebra is only for CGAP and requires access keys to the Data Portal and the CGAP AWS account.
+Tibanna Zebra is an extension of Tibanna Unicorn used specifically for CGAP (Clinical Genome Analysis Platform). Zebra has two additional steps that communicate with the CGAP Data Portal and handle CGAP metadata. Zebra is only for CGAP and requires access keys to the Data Portal and the CGAP AWS account.
 
 
 =================  ==================
