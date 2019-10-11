@@ -172,15 +172,33 @@ The above three can be used interchageably, as long as the correct step function
 Behaviors
 ---------
 
+Metadata (overview)
++++++++++++++++++++
+
+Pony and Zebra behave in a very similar way, with just a few very specific differences (see below). For every workflow run, they create a ``WorkflowRun`` object (``WorkflowRunAwsem`` more specifically, which inherits from ``WorkflowRun``) with a new ``uuid`` and an ``awsem_job_id`` that matches the job id of the run. They also create ``FileProcessed`` items for output files that we want to keep (``Output processed file``) that has a legit file format defined in the portal (e.g. ``bam``), sometimes has an accompanying file (``extra_file``), again with a legit file format (e.g. ``bai``). Not all workflow runs create a processed file output and depending on the type of output, a ``QualityMetric`` object may be created (``Output QC file``) or some field of the input file may be filled (e.g. ``md5sum`` and ``file_size``) (``Output report file``) or a new extra file of an input file (``Output to-be-extra-input file``) may be created. Each of the ``FileProcessed`` and ``QualityMetric`` objects created is assigned a new ``uuid``. Input files, processed files and ``QualityMetric`` objects are linked from the current ``WorkflowRun`` object and the ``QualityMetric`` objects are linked from a specified file (either input or processed).
+
+If you rerun the same workflow run, it will not overwrite the existing ``WorkflowRun``, ``FileProcessed`` or ``QualityMetric`` objects, but will create new ones. However, if a ``QualityMetric`` item is linked from any input file, this link would be replaced by the new ``QualityMetric``. The old ``QualityMetric`` will still exist but just not linked from the input file any more. However, if the workflow run creates a new ``extra_file`` of an input file, a rerun will replace the file on ``S3`` without changing the metadata of the input file. This is harder to trace, so to be safe, one can use an option ``"overwrite_input_extra" : true`` to allow the overwrite - without this option, by default, the rerun will fail to start.
+
+The metadata are created at the beginning of a workflow run except ``QualityMetric`` objects. At the end of a run, they are patched with the status. If the run is successful, the ``WorkflowRun`` object is patched a status ``complete``. If there was an error, it is patched a status ``error``.
+
+A resource metric report is linked from ``WorkflowRun`` at the end of each run as a ``QualityMetricWorkflowrun`` object. 
+
+
 Config
 ++++++
 
-The `config` of pony/zebra input json is directly passed to unicorn and is pretty much the same.
+The ``config`` of pony/zebra input json is directly passed to unicorn and is pretty much the same. There are some additional ``fields`` for pony and zebra that can be specified in ``config``.
+
+Additional fields for pony and zebra
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``"overwrite_input_extra" : true|false`` (default ``false``) : if an output file type is ``Output to-be-extra-input file``, a rerun of the same workflow run will fail to start unless this flag is set to be ``true``, to protect an existing extra file of an input file created by a previous run or an existing run that will create an extra file of an input file. One should use this flag only if one is sure that the previous or the current run has a problem and the output needs to be overwritten.
+
+- ``"email" : true|false`` (default ``false``) : if this flag is set to be ``true``, it will send an email from ``4dndcic@gmail.com`` to itself (in case of ``pony``) or ``cgap.everyone@gmail.com`` to itself (in case of ``zebra``). To enable this to work, I had manually registered and verified these two emails on AWS Simple Email Service (SES). Since, it requires a manual registration of an email, it is not currently supported by Unicorn.
 
 
 Input file handling
 +++++++++++++++++++
-
 
 
 Dimension
@@ -203,8 +221,8 @@ Renaming files
 The file key on S3 follows the convention ``<uuid>/<accession>.<extension>``. Some workflows require some input files to have specific names and to handle this problem, we use the field ``rename`` in the individual input file dictionary in the input json to specify the target name. When the file is downloaded to the AWSEM instance, before running the workflow, the file will be renamed to this target name. By default, it will be the same as the key on S3.
 
 
-Output handling
-+++++++++++++++
+Output file handling
+++++++++++++++++++++
 
 There are four types of output - ``processed file``, ``QC file``, ``report file`` and ``to-be-extra-input file``.
 
