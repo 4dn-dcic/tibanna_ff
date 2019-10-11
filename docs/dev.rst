@@ -232,14 +232,35 @@ Output processed file handling
 
 Tibanna creates a FileProcessed item for each processed file output in the beginning of the workflow run (through ``start_run``) and patches the object at the end of the run for ``status``, ``md5`` and ``file_size`` (through ``update_ffmeta``).
 
+
 Quality metric handling
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+
 For QC type output, Tibanna does not create a FileProcessed item but instead creates a QualityMetric item. The quality metric item is created at the *end* of a workflow run, not at the *beginning*, since it is linked from one of the File items (either input or output) involved and if we create a new QualityMetric object in the beginning, it would inevitably replace the existing one, and if the run failed, the new one would remain linked despite the fact that the run failed.
+
+An example QC type output is the output of a ``fastqc`` run or a ``pairsqc`` run, which is a zipped file containing an html file, some text files and image files to be used by the html. However, a regular, non-QC workflow may also create a QC-type output. For example, each of the first few steps of the CGAP upstream pipeline creates a bam file along with a simple QC called ``bam-check`` which simply checks that the bam file has a header and is not truncated. These workflows have two (or more, in case there are additional output) output files, one ``Out processed file`` which is the ``bam`` file and one ``Output QC file`` which is the ``bam-check` report. This ``bam-check`` report does not have any html file and is not zipped. It's a single text file, which is parsed to create a ``QualityMetricBamcheck`` object.
+
+To allow flexibility in the format of QC type output, certain qc flags are specified in the ``Workflow`` object (*not* in the tibanna input json), in the ``arguments`` field. There may be multiple QC type output files for a single workflow run, and for each, the following must be specified
+
+- ``"qc_zipped": true|false`` : the output file is zipped
+- ``"qc_html": true|false`` : the output file is an html file
+- ``"qc_json": true|false`` : the output file is a json file
+- ``"qc_table": true|false`` : the output file is a table file (tab-delimited text file)
+- ``"qc_zipped_html": <name_of_html_file>`` : the name of the html file in case the output zipped file contains an html file
+- ``"qc_zipped_tables": <array_of_name(or_suffix)_of_table_files>`` : the name of the table files in case the output zipped file contains table files.
+- ``"qc_type": <name_of_quality_metric_type>`` : name of the QC metric type (e.g. ``quality_metric_fastqc``, ``quality_metric_bamcheck``)
+- ``"argument_to_be_attached_to": <argument>`` : the workflow argument name of the file (either input or output) from which the ``QualityMetric`` object should be linked. (e.g. if the QualityMetric object will be link to the processed bam file whose argument name is ``raw_bam``, this field can be set to ``raw_bam``.) 
+
+
+As you can see above, a text-style QC output can either be a JSON or a TSV format. The main difference is that if the output is a TSV format, the corresponding fields must exist and be specified in the schema of the QualityMetric item. A JSON-format output goes directly to the QualityMetric item, and to allow this, the schema must have ``additional_properties`` to be set ``true``.
+
+
 
 Report-type output handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+A report-type output is different from a QC-type output in that no ``QualityMetric`` object is created out of it. A good example of a report-type output is ``md5`` which calculates the ``md5sum`` of an input file and the result report output file that contains the ``md5sum`` value is parsed and the value is patched to the ``md5sum`` (and ``content_md5sum`` if the file is compressed) of the input ``File`` item.
 
 
 Handling output that becomes an extra file of an input file
