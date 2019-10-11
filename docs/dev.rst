@@ -196,7 +196,7 @@ The ``.py`` files for the Lambdas do not have the suffix ``pony`` in their file 
 Zebra
 +++++
 
-A Zebra consists of four Lambda functions - in addition to ``run_task_zebra``, ``check_task_zebra``, it has ``start_run_zebra`` and ``update_ffmeta_zebra``. Additionally, ``tibanna_4dn``'s ``deploy_zebra`` and ``deploy_core`` functions allow deploying other Lambdas that are not a part of a Zebra step function. These include the following:
+A Zebra consists of four Lambda functions - in addition to ``run_task_zebra``, ``check_task_zebra``, it has ``start_run_zebra`` and ``update_ffmeta_zebra``. Additionally, ``tibanna_cgap``'s ``deploy_zebra`` and ``deploy_core`` functions allow deploying other Lambdas that are not a part of a Zebra step function. These include the following:
 
 - ``run_workflow_zebra`` : a Lambda function that triggers a workflow run on the ``tibanna_pony`` step function, that serves as a fourfront endpoint.
 - ``validate_md5_s3_trigger_zebra`` : a Lambda function that gets triggered upon file upload to a fourfront bucket. Once triggered, it invokes ``tibanna_initiator_zebra`` step function which in turn invokes ``validate_md5_s3_initiator_zebra`` Lambda.
