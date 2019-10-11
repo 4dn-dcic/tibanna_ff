@@ -39,14 +39,11 @@ Example job description
       "config": {
         "ebs_size": 30,
         "ebs_type": "io1",
-        "json_bucket": "4dn-aws-pipeline-run-json",
         "ebs_iops": 500,
         "shutdown_min": 30,
-        "copy_to_s3": true,
-        "launch_instance": true,
-        "password": "dragonfly",
+        "password": "",
         "log_bucket": "tibanna-output",
-        "key_name": "",
+        "key_name": "4dn-encoded",
         "spot_instance": true,
         "spot_duration": 360,
         "behavior_on_capacity_limit": "wait_and_retry"
