@@ -9,8 +9,10 @@ from tibanna_cgap.zebra_utils import (
 )
 import pytest
 from dcicutils import ff_utils
-from tests.tibanna.zebra.conftest import valid_env
-
+from tests.tibanna.zebra.conftest import (
+    valid_env,
+    minimal_postrunjson_template
+)
 
 @valid_env
 def test_fourfront_starter(start_run_event_md5):
@@ -26,6 +28,8 @@ def test_fourfront_starter(start_run_event_md5):
 @valid_env
 def test_qclist_handling():
     data = {'ff_meta': {'workflow': 'cgap:workflow_bwa-mem_no_unzip-check_v10'},
+            'config': {'log_bucket': 'somelogbucket'},
+            'postrunjson': minimal_postrunjson_template(),
             '_tibanna': {'env': 'fourfront-cgap', 'settings': {'1': '1'}}}
     updater = FourfrontUpdater(**data)
     assert updater
