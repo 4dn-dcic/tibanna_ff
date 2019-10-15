@@ -23,6 +23,8 @@ from tibanna.nnested_array import (
     create_dim
 )
 from tibanna.utils import (
+    does_key_exist,
+    read_s3,
     printlog
 )
 from tibanna.base import (
@@ -732,7 +734,7 @@ class FourfrontUpdaterAbstract(object):
         self.jobid = jobid
         self.config = Config(**config) if config else None
         self.ff_meta = self.WorkflowRunMetadata(**ff_meta) if ff_meta else None
-        self.postrunjson = AwsemPostRunJson(**postrunjson) if postrunjson else None
+        self.postrunjson = self.get_postrunjson(postrunjson)
         if pf_meta:
             self.pf_output_files = {pf['uuid']: self.ProcessedFileMetadata(**pf) for pf in pf_meta}
         else:
@@ -749,6 +751,17 @@ class FourfrontUpdaterAbstract(object):
             self.ff_meta.awsem_postrun_json = self.get_postrunjson_url(config, jobid, metadata_only)
         self.patch_items = dict()  # a collection of patch jsons (key = uuid)
         self.post_items = dict()  # a collection of patch jsons (key = uuid)
+
+    def get_postrunjson(self, postrunjson_in_input):
+        try:
+            return AwsemPostRunJson(**postrunjson_in_input)  # it will fail here if it doesn't have Job or config.
+        except:
+            postrunjsonfilename = "%s.postrun.json" % self.jobid
+            if not does_key_exist(self.config.log_bucket, postrunjsonfilename):
+                postrunjson_location = "https://s3.amazonaws.com/%s/%s" % (self.config.log_bucket, postrunjsonfilename)
+                raise Exception("Postrun json not found at %s" % postrunjson_location)
+            postrunjsoncontent = json.loads(read_s3(self.config.log_bucket, postrunjsonfilename))
+            return AwsemPostRunJson(**postrunjsoncontent)
 
     def create_wfr_qc(self):
         qc_object = self.create_qc_template()

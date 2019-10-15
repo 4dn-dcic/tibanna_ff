@@ -23,6 +23,21 @@ def test_postrunjson_link(update_ffmeta_event_data_repliseq):
     assert updater.ff_meta.awsem_postrun_json == 'https://s3.amazonaws.com/tibanna-output/Gkx8WiCOHJPq.postrun.json'
 
 
+def test_get_postrunjson(update_ffmeta_event_data_repliseq):
+    # get postrun json from the input json of update_ffmeta
+    updater = FourfrontUpdater(**update_ffmeta_event_data_repliseq)
+    assert updater.postrunjson.Job.App.App_name == 'repliseq-parta'
+
+
+def test_get_postrunjson2(update_ffmeta_event_data_repliseq):
+    # postrun json is truncated in the input json of update_ffmeta
+    # get it from actual s3 bucket
+    data = update_ffmeta_event_data_repliseq
+    data['postrunjson'] = {'log': 'postrunjson is too long'}
+    updater = FourfrontUpdater(**update_ffmeta_event_data_repliseq)
+    assert updater.postrunjson.Job.App.App_name == 'repliseq-parta'
+
+
 @valid_env
 def test_post_patch(update_ffmeta_event_data_fastqc2):
     updater = FourfrontUpdater(**update_ffmeta_event_data_fastqc2)
