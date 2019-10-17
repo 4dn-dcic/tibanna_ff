@@ -33,8 +33,14 @@ def start_run_event_bwa_check():
 
 
 @valid_env
-def post_new_processedfile(file_format, key, **kwargs):
-    new_pf = ProcessedFileMetadata(file_format=file_format, other_fields=kwargs).as_dict()
+def post_new_processedfile(file_format, key, extra_file_formats=None, **kwargs):
+    if extra_file_formats:
+        extra_files = [{'file_format': ef} for ef in extra_file_formats]
+    else:
+        extra_files = None
+    new_pf = ProcessedFileMetadata(file_format=file_format,
+                                   extra_files=extra_files,
+                                   other_fields=kwargs).as_dict()
     res = ff_utils.post_metadata(new_pf, 'FileProcessed', key=key)
     return res['@graph'][0]['uuid']
 
