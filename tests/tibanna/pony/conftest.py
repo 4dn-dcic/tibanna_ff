@@ -1,7 +1,17 @@
 import pytest
 from dcicutils.s3_utils import s3Utils
+from dcicutils import ff_utils
 import os
 import json
+import uuid
+from tests.tibanna.ffcommon.conftest import read_event_file
+from tibanna_4dn.pony_utils import (
+    ProcessedFileMetadata
+)
+from tibanna_4dn.vars import (
+    DEFAULT_LAB,
+    DEFAULT_AWARD
+)
 
 
 def pytest_runtest_setup(item):
@@ -183,34 +193,33 @@ def update_ffmeta_hicbam(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_hicbam.json')
 
 
+@valid_env
+def post_new_processedfile(file_format, key, **kwargs):
+    new_pf = ProcessedFileMetadata(file_format=file_format, other_fields=kwargs).as_dict()
+    res = ff_utils.post_metadata(new_pf, 'FileProcessed', key=key)
+    return res['@graph'][0]['uuid']
+
+
+@valid_env
+def post_new_qc(qctype, key, **kwargs):
+    if not qctype.startswith('QualityMetric'):
+        raise Exception("qctype must begin with QualityMetric")
+    qc_object = {"uuid": str(uuid.uuid4()),
+                 "lab": DEFAULT_LAB,
+                 "award": DEFAULT_AWARD}
+    for k, v in kwargs.items():
+        qc_object[k] = v
+    res = ff_utils.post_metadata(qc_object, qctype, key=key)
+    return res['@graph'][0]['uuid']
+
+
 def get_test_json(file_name):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     event_file_name = os.path.join(dir_path, '..', '..', '..', 'test_json', 'pony', file_name)
-    return read_event_file(event_file_name, None, ff_keys)
+    return read_event_file(event_file_name, ff_keys)
 
 
-def get_event_file_for(lambda_name, sbg_keys=None, ff_keys=None, event_file='event.json'):
+def get_event_file_for(lambda_name, ff_keys=None, event_file='event.json'):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     event_file_name = os.path.join(dir_path, lambda_name, event_file)
-    return read_event_file(event_file_name, sbg_keys, ff_keys)
-
-
-def read_event_file(event_file_name, sbg_keys=None, ff_keys=None):
-    with open(event_file_name) as json_data:
-        data = json.load(json_data)
-        if sbg_keys is not None:
-            data['token'] = sbg_keys
-        if ff_keys is not None:
-            data['ff_keys'] = ff_keys
-        return data
-
-
-def minimal_postrunjson_template():
-    return {'Job': {'App': {},
-                    'Input': {'Input_files_data': {},
-                              'Input_parameters': {},
-                              'Secondary_files_data':{}},
-                    'Output': {},
-                    'JOBID': '',
-                    'start_time': ''},
-            'config': {'log_bucket': ''}}
+    return read_event_file(event_file_name, ff_keys)
