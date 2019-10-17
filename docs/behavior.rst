@@ -42,16 +42,21 @@ Workflow Run Identifier
 Tibanna provides two identifiers for each workflow run: AWSEM Job ID and Execution ARN. They look like below for example:
 
 - AWSEM Job ID: 12-letter random string
+
   - e.g. Aq1vSsEAEiSM
   - e.g. esAlf8LRZvNd
   - e.g. XbYhNcbtFKwG
+
 - Execution ARN: AWS arn style that contains info about AWS account, region, step function and execution name on the step function.
+
   - e.g. arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:hic-bam-run_workflow_test_6dc8d3d6-8eb9-42b0-bfa8-81bcbe57273c
 
 In addition to these two, Tibanna Pony and Zebra runs are also associated with WorkflowRun uuid, which is uniquely created for each workflow run. It is an identifier for a WorkflowRun object.
 
 - WorkflowRun uuid
+
   - e.g. b94e6891-c649-4178-88e9-fad59f04dd7a
+
     - One can access the workflow run on the 4DN data portal if it's released to public or if you're logged in and have permission to view this object.
       https://data.4dnucleome.org/b94e6891-c649-4178-88e9-fad59f04dd7a
 
