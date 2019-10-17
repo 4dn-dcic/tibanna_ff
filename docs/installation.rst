@@ -30,8 +30,12 @@ To install ``tibanna_4dn`` and ``tibanna_cgap``,
     pip install tibanna_ff
     # or pip install tibanna-ff
 
+If you install ``tibanna_ff``, ``tibanna`` will also be installed as its dependency. (no need to install ``tibanna`` separately)
+
+
 ::
 
+    > import tibanna
     > import tibanna_4dn
     > import tibanna_cgap
     > import tibanna_ffcommon
@@ -39,6 +43,7 @@ To install ``tibanna_4dn`` and ``tibanna_cgap``,
 
 ::
 
+    tibanna -h
     tibanna_4dn -h
     tibanna_cgap -h
 
@@ -63,3 +68,19 @@ To use ``tibanna_4dn`` or ``tibanna_cgap``, the following environment variable i
 ::
 
     export S3_ENCRYPT_KEY=<fourfront_s3_encrypt_key>
+
+
+Optionally, for both cases, the following environment variable can be set up to be able to skip specifying ``--sfn <step_function_name>`` for most functions including ``run_workflow`` and ``stat``.
+
+
+::
+
+    export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=<step_function_name>
+
+
+For example,
+
+::
+
+    export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=tibanna_unicorn_monty
+

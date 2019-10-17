@@ -1,11 +1,30 @@
-=========
-Behaviors
-=========
+==========================
+Behaviors of workflow runs
+==========================
+
+This section describes the expected behavior of a workflow run in the context of various options and features that Tibanna_pony or Tibanna_zebra supports. Overall, Pony and Zebra behave in a very similar way, with just a few very specific differences (see below). The features and behaviors of Pony is tightly associated with ``fourfront`` (https://github.com/4dn-dcic/fourfront) and those of Zebra with ``cgap-portal`` (https://github.com/dbmi-bgm/cgap-portal).
+
 
 Metadata (overview)
 +++++++++++++++++++
 
-Pony and Zebra behave in a very similar way, with just a few very specific differences (see below). For every workflow run, they create a ``WorkflowRun`` object (``WorkflowRunAwsem`` more specifically, which inherits from ``WorkflowRun``) with a new ``uuid`` and an ``awsem_job_id`` that matches the job id of the run. They also create ``FileProcessed`` items for output files that we want to keep (``Output processed file``) that has a legit file format defined in the portal (e.g. ``bam``), sometimes has an accompanying file (``extra_file``), again with a legit file format (e.g. ``bai``). Not all workflow runs create a processed file output and depending on the type of output, a ``QualityMetric`` object may be created (``Output QC file``) or some field of the input file may be filled (e.g. ``md5sum`` and ``file_size``) (``Output report file``) or a new extra file of an input file (``Output to-be-extra-input file``) may be created. Each of the ``FileProcessed`` and ``QualityMetric`` objects created is assigned a new ``uuid``. Input files, processed files and ``QualityMetric`` objects are linked from the current ``WorkflowRun`` object and the ``QualityMetric`` objects are linked from a specified file (either input or processed).
+The database schemas implemented in ``fourfront`` and ``cgap-portal`` that are relevant to Pony and Zebra are the following:
+
+- Created by Tibanna Pony and Zebra
+
+  - WorkflowRun
+  - FileProcessed
+  - QualityMetric (and those inherited from QualityMetric)
+
+- May be handled as an input of a workflow run
+
+  - FileFastq
+  - FileReference
+  - FileProcessed (a processed file created from a previous run can be an input)
+  - Workflow (workflow itself is an input of a workflow run)
+
+
+For every workflow run, Pony and zebra both create a ``WorkflowRun`` object (``WorkflowRunAwsem`` more specifically, which inherits from ``WorkflowRun``) with a new ``uuid`` and an ``awsem_job_id`` that matches the job id of the run. They also create ``FileProcessed`` items for output files that we want to keep (``Output processed file``) that has a legit file format defined in the portal (e.g. ``bam``), sometimes has an accompanying file (``extra_file``), again with a legit file format (e.g. ``bai``). Not all workflow runs create a processed file output and depending on the type of output, a ``QualityMetric`` object may be created (``Output QC file``) or some field of the input file may be filled (e.g. ``md5sum`` and ``file_size``) (``Output report file``) or a new extra file of an input file (``Output to-be-extra-input file``) may be created. Each of the ``FileProcessed`` and ``QualityMetric`` objects created is assigned a new ``uuid``. Input files, processed files and ``QualityMetric`` objects are linked from the current ``WorkflowRun`` object and the ``QualityMetric`` objects are linked from a specified file (either input or processed).
 
 If you rerun the same workflow run, it will not overwrite the existing ``WorkflowRun``, ``FileProcessed`` or ``QualityMetric`` objects, but will create new ones. However, if a ``QualityMetric`` item is linked from any input file, this link would be replaced by the new ``QualityMetric``. The old ``QualityMetric`` will still exist but just not linked from the input file any more. However, if the workflow run creates a new ``extra_file`` of an input file, a rerun will replace the file on ``S3`` without changing the metadata of the input file. This is harder to trace, so to be safe, one can use an option ``"overwrite_input_extra" : true`` to allow the overwrite - without this option, by default, the rerun will fail to start.
 

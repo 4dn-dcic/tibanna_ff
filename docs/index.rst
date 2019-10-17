@@ -40,6 +40,5 @@ Contents:
    overview
    installation
    cli
-   lambda
    behavior
    execution_json

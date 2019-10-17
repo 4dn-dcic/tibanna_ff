@@ -2,6 +2,15 @@
 Key CLI functions
 =================
 
+CLI entrypoints for unicorn, pony and zebra are as follows. With ``-h`` option, one can see the list of subcommands available for each.
+
+::
+
+    tibanna -h
+    tibanna_4dn -h
+    tibanna_cgap -h
+
+
 Tibanna Deployment
 ++++++++++++++++++
 
