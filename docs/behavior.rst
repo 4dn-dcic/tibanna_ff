@@ -39,23 +39,24 @@ A resource metric report is linked from ``WorkflowRun`` at the end of each run a
 Workflow Run Identifier
 +++++++++++++++++++++++
 
-Tibanna provides two identifiers for each workflow run: AWSEM Job ID and Execution ARN. They look like below for example:
+Tibanna provides two identifiers for each workflow run: AWSEM Job ID (or in short, job id) and Execution ARN. They look like below for example:
 
-- AWSEM Job ID: 12-letter random string
+- AWSEM Job ID (job id): 12-letter random string; each EC2 instance is tagged with a corresponding AWSEM Job ID.
 
-  - e.g. Aq1vSsEAEiSM
-  - e.g. esAlf8LRZvNd
-  - e.g. XbYhNcbtFKwG
+  - e.g. ``Aq1vSsEAEiSM``
+  - e.g. ``esAlf8LRZvNd``
+  - e.g. ``XbYhNcbtFKwG``
 
-- Execution ARN: AWS arn style that contains info about AWS account, region, step function and execution name on the step function.
+- Execution ARN: AWS ARN-style string that contains info about AWS account, region, step function and execution name on the step function.
 
-  - e.g. arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:hic-bam-run_workflow_test_6dc8d3d6-8eb9-42b0-bfa8-81bcbe57273c
+  - e.g. ``arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:hic-bam-run_workflow_test_6dc8d3d6-8eb9-42b0-bfa8-81bcbe57273c``
 
-In addition to these two, Tibanna Pony and Zebra runs are also associated with WorkflowRun uuid, which is uniquely created for each workflow run. It is an identifier for a WorkflowRun object.
+
+In addition to these two identifiers, a Tibanna Pony or Zebra run is also associated with a WorkflowRun uuid, which is uniquely created for each workflow run. It is an identifier for a WorkflowRun object.
 
 - WorkflowRun uuid
 
-  - e.g. b94e6891-c649-4178-88e9-fad59f04dd7a
+  - e.g. ``b94e6891-c649-4178-88e9-fad59f04dd7a``
 
     - One can access the workflow run on the 4DN data portal if it's released to public or if you're logged in and have permission to view this object.
       https://data.4dnucleome.org/b94e6891-c649-4178-88e9-fad59f04dd7a
@@ -79,7 +80,7 @@ There are also recommended fields for pony and zebra, even though they are not p
 Recommended fields for pony and zebra
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``"public_postrun_json" : true`` : it is recommended to set this flag to ``true`` so that the postrun json files are open to public.
+- ``"public_postrun_json" : true`` : it is recommended to set this flag to ``true`` so that the postrun json files are open to public (and can be accessed through Web Browser). Both public and private postrun json files can be accessed through CLI command ``tibanna log -j jobid -p`` given the right AWS credentials are set up.
 - ``"key_name": "4dn-encoded"`` : for security reasons, it is recommended to use the ``4dn-encoded`` key rather than just passwords for sshing to an AWSEM instance.
 
 
