@@ -39,9 +39,11 @@ Example job description
            }
       ],
       "config": {
+        "instance_type": "t3.large",
+        "EBS_optimized": true,
         "ebs_size": 30,
-        "ebs_type": "io1",
-        "ebs_iops": 500,
+        "ebs_type": "gp2",
+        "ebs_iops": 500,  ## applicable for only ebs_type = io1 (not for gp2)
         "shutdown_min": 30,
         "password": "",
         "log_bucket": "tibanna-output",
