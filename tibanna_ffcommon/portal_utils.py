@@ -256,6 +256,10 @@ class FFInputAbstract(SerializableObject):
         return extra_file_keys
 
     def add_secondary_files_to_args(self, input_file, args):
+        """This function adds any existing secondary files to the args field to pass to
+        run_task as part of UnicornInput. args (input) is a dictionary and must have
+        'input_files' as a key. input_file (input) is an element of input_files list
+        in the pony/zebra input json. This function connect to the portal to get metadata."""
         if not args or 'input_files' not in args:
             raise Exception("args must contain key 'input_files'")
         if 'secondary_files'not in args:
@@ -267,6 +271,7 @@ class FFInputAbstract(SerializableObject):
                                                 self.get_extra_file_key_given_input_uuid_and_key,
                                                 fe_map=fe_map)
         if extra_file_keys and len(extra_file_keys) > 0:
+            extra_file_keys = list(filter(lambda x: x, extra_file_keys))
             if len(extra_file_keys) == 1:
                 extra_file_keys = extra_file_keys[0]
             if extra_file_keys:

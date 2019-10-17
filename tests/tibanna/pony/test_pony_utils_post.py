@@ -58,9 +58,45 @@ def test_fourfront_starter6(start_run_fixedname_data):
 
 @valid_env
 def test_fourfront_starter7(start_run_hicprocessingbam_customfield_wALL_data):
+    """testing a case where input_bam is a list with two elements
+    and without an extra file. It should not add any null secondary files."""
     starter = FourfrontStarter(**start_run_hicprocessingbam_customfield_wALL_data)
     assert starter
     starter.run()
+    outjson = starter.inp.as_dict()
+    assert 'secondary_files' in outjson['args']
+    assert len(outjson['args']['secondary_files']) == 0
+
+
+@valid_env
+def test_fourfront_starter7b(start_run_hicprocessingbam_customfield_wALL_data):
+    """testing a case where input_bam is a list with a single element
+    and without an extra file. It should not add any null secondary files."""
+    data = start_run_hicprocessingbam_customfield_wALL_data
+    data['input_files'][0]['uuid'] = [data['input_files'][0]['uuid'][0]]
+    data['input_files'][0]['object_key'] = [data['input_files'][0]['object_key'][0]]
+    starter = FourfrontStarter(**start_run_hicprocessingbam_customfield_wALL_data)
+    assert starter
+    starter.run()
+    outjson = starter.inp.as_dict()
+    assert 'secondary_files' in outjson['args']
+    assert len(outjson['args']['secondary_files']) == 0
+
+
+@valid_env
+def test_fourfront_starter7c(start_run_hicprocessingbam_customfield_wALL_data):
+    """testing a case where input_bam is a list with three elements,
+    two without an extra file and one with an extra file.
+    It should not add one element to the secondary files."""
+    data = start_run_hicprocessingbam_customfield_wALL_data
+    data['input_files'][0]['uuid'].append('8a64c5e9-b669-425c-a78a-3177abc9ebd5')
+    data['input_files'][0]['object_key'].append('4DNFI9WF1Y8W.bam')
+    starter = FourfrontStarter(**start_run_hicprocessingbam_customfield_wALL_data)
+    assert starter
+    starter.run()
+    outjson = starter.inp.as_dict()
+    assert 'secondary_files' in outjson['args']
+    assert len(outjson['args']['secondary_files']) == 1
 
 
 @valid_env
