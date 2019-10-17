@@ -128,6 +128,9 @@ Quality metric handling
 
 For QC type output, Tibanna does not create a FileProcessed item but instead creates a QualityMetric item. The quality metric item is created at the *end* of a workflow run, not at the *beginning*, since it is linked from one of the File items (either input or output) involved and if we create a new QualityMetric object in the beginning, it would inevitably replace the existing one, and if the run failed, the new one would remain linked despite the fact that the run failed.
 
+Format of QC output
+-------------------
+
 An example QC type output is the output of a ``fastqc`` run or a ``pairsqc`` run, which is a zipped file containing an html file, some text files and image files to be used by the html. However, a regular, non-QC workflow may also create a QC-type output. For example, each of the first few steps of the CGAP upstream pipeline creates a bam file along with a simple QC called ``bam-check`` which simply checks that the bam file has a header and is not truncated. These workflows have two (or more, in case there are additional output) output files, one ``Out processed file`` which is the ``bam`` file and one ``Output QC file`` which is the ``bam-check`` report. This ``bam-check`` report does not have any html file and is not zipped. It's a single text file, which is parsed to create a ``QualityMetricBamcheck`` object.
 
 To allow flexibility in the format of QC type output, certain qc flags are specified in the ``Workflow`` object (*not* in the tibanna input json), in the ``arguments`` field. There may be multiple QC type output files for a single workflow run, and for each, the following must be specified
@@ -144,7 +147,15 @@ To allow flexibility in the format of QC type output, certain qc flags are speci
 
 As you can see above, a text-style QC output can either be a JSON or a TSV format. The main difference is that if the output is a TSV format, the corresponding fields must exist and be specified in the schema of the QualityMetric item. A JSON-format output goes directly to the QualityMetric item, and to allow this, the schema must have ``additional_properties`` to be set ``true``.
 
-We may have multiple QC output files for a single workflow, but with restrictions. Tibanna will segregate the QC output files by ``argument_to_be_attached_to``. Let's say there are three QC output files and two of them are associated with ``out_bam`` and the third one is associated with ``out_bw``. The first two will be merged into a single ``QualityMetric`` object, and the third one will be its own ``QualityMetric`` object, i.e. Tibanna will create two ``QualityMetric`` objects even though there are three QC output files, because there are only two distinct groups based on ``argument_to_be_attached_to``. The first two QC output files must have the same ``qc_type``, but may be a different format - e.g. one of them is html and the other one is JSON. A ``File`` item is never associated with more than two ``QualityMetric`` objects of the same type.
+
+Multiple QC metrics
+-------------------
+
+A single workflow run may produce multiple QualityMetric objects and Tibanna Pony/Zebra supports it.
+
+On the CGAP portal, a single File item may have multiple QualityMetric objects, but only through QualityMetricQclist. A File item cannot directly link to multiple QualityMetric objects, since the field ``quality_metric`` in a File object is not a list. A QualityMetricQclist object has a field ``qc_list`` which is a list of links to other QualityMetric objects. 4DN portal currently does not support QualityMetricQclist.
+
+When there are multiple QC-type output, Tibanna Pony/Zebra will segregate the QC output files by ``argument_to_be_attached_to``. Let's say there are three QC output files and two of them are associated with ``out_bam`` and the third one is associated with ``out_bw``. The first two will be merged into a single ``QualityMetric`` object, and the third one will be its own ``QualityMetric`` object, i.e. Tibanna will create two ``QualityMetric`` objects even though there are three QC output files, because there are only two distinct groups based on ``argument_to_be_attached_to``. The first two QC output files must have the same ``qc_type``, but may be a different format - e.g. one of them is html and the other one is JSON. A ``File`` item is never associated with more than two ``QualityMetric`` objects of the same type.
 
 Tibanna checks if the ``File`` item to associate a new ``QualityMetric`` object already has any ``QualityMetric`` associated with it. If it does, Tibanna does the following.
 
