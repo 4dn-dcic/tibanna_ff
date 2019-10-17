@@ -30,7 +30,7 @@ Tibanna Deployment
 
 
 
-The above three are *not* interchangeable and each should be used to deploy a tibanna stepfunction of its own kind.
+The above three are *not* interchangeable and each should be used to deploy a tibanna step function, lambdas and IAM permissions of its own kind.
 
 Even for deploying a single lambda function, we should use the right entry point as below.
 

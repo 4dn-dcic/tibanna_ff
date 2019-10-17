@@ -12,6 +12,8 @@ To install ``tibanna``,
     pip install tibanna
 
 
+If ``tibanna`` is installed correctly, you can do the following.
+
 ::
 
     > import tibanna
@@ -19,6 +21,7 @@ To install ``tibanna``,
 
 ::
 
+    # this requires AWS credential set up as well
     tibanna -h
 
 
@@ -32,6 +35,7 @@ To install ``tibanna_4dn`` and ``tibanna_cgap``,
 
 If you install ``tibanna_ff``, ``tibanna`` will also be installed as its dependency. (no need to install ``tibanna`` separately)
 
+If ``tibanna_ff`` is installed correctly, you can do the following.
 
 ::
 
@@ -43,6 +47,7 @@ If you install ``tibanna_ff``, ``tibanna`` will also be installed as its depende
 
 ::
 
+    # these require AWS credential set up as well
     tibanna -h
     tibanna_4dn -h
     tibanna_cgap -h

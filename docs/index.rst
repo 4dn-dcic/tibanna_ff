@@ -2,11 +2,11 @@
 Overview
 ========
 
-
-Tibanna_ff is an extension of Tibanna_ that integrates with 4DN/CGAP data portals. Tibanna is a software tool that helps you run genomic pipelines on the the Amazon (AWS) cloud. Tibanna_ff does the same but in integration with 4DN/CGAP data portal.
+Tibanna_ff_ is an extension of Tibanna_ that integrates with 4DN/CGAP data portals. Tibanna is a software tool that helps you run genomic pipelines on the the Amazon (AWS) cloud. Tibanna_ff does the same but in integration with 4DN/CGAP data portal.
 
 
 .. _Tibanna: https://github.com/4dn-dcic/tibanna
+.. _Tibanna_ff: https://github.com/4dn-dcic/tibanna_ff
 
 This documentation is written mostly for developers who want to understand the structure of the code arragements and details of the features and behaviors that are intended for Tibanna Unicorn, Pony and Zebra (the latter two specifically designed for 4DNucleome and CGAP (Clinical Genome Analysis Platform) data portals).
 
