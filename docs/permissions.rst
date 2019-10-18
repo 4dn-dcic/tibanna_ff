@@ -23,7 +23,7 @@ One can set up usergroups while deploying a pony/zebra like the way a usergroup 
 Without usergroup
 +++++++++++++++++
 
-If a pony/zebra is deployed without usergroup, it gives the pony/zebra access to all the buckets. You have to be an admin in order to use this kind of pony/zebra. It applies to cases where you deploy a pony/zebra without any other options, or with a suffix.
+If a pony/zebra is deployed without usergroup, it gives the pony/zebra access to all the buckets. You have to be an admin in order to use this kind of pony/zebra. It applies to cases where you deploy a pony/zebra without any other options, or with a suffix (``-s`` option).
 
 ::
 
