@@ -26,7 +26,7 @@ Also, before running any tests, make sure to first build based on the current re
 Test portals
 ++++++++++++
 
-Currently ``fourfront-webdev`` is used as a main Tibanna test portal for 4DN, and ``fourfront-cgap`` for CGAP).
+Currently ``fourfront-webdev`` is used as a main Tibanna test portal for 4DN, and ``fourfront-cgap`` for CGAP.
 
 
 Local tests
