@@ -46,3 +46,4 @@ Contents:
    cli
    behavior
    execution_json
+   tests
