@@ -26,7 +26,7 @@ Also, before running any tests, make sure to first build based on the current re
 Test portals
 ++++++++++++
 
-Currently ``fourfront-webdev`` is used as a main Tibanna test portal for 4DN, and ``fourfront-cgap`` for CGAP.
+Currently ``fourfront-webdev`` is used as a main Tibanna test portal for 4DN, and ``fourfront-cgap`` is for CGAP.
 
 
 Local tests
@@ -58,6 +58,12 @@ To run individual test (to save time for testing while still working on the code
 
     pytest tests/tibanna/pony/test_fourfrontupdater.py
     
+    
+Travis test
++++++++++++
+
+Travis test is currently set up to run at every push and every PR. Travis test currently runs only local tests.
+
 
 Tests on deployed dev tibanna
 +++++++++++++++++++++++++++++
