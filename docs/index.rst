@@ -46,5 +46,6 @@ Contents:
    cli
    behavior
    execution_json
+   permissions
    tests
    production
