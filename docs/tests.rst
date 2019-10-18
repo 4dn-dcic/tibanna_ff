@@ -87,21 +87,6 @@ Zebra
    tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/md5.json
    tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/fastqc.json
    tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/bwa-check.json
-   
-
-Production Deployment
-+++++++++++++++++++++
-
-After all the tests pass, we should deploy production tibanna.
-
-::
-
-    tibanna_4dn deploy_pony
-    tibanna_4dn deploy_pony -s tmp_md5  # md5/fastqc triggers
-    tibanna_4dn deploy_pony -g default_luisa  # luisa's tibanna, with different permission
-    
-    tibanna_cgap deploy_zebra
-    tibanna_cgap deploy_zebra -s tmp_md5  # md5/fastqc triggers
 
 
 Other tests that we should include in the future
