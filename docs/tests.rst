@@ -78,10 +78,10 @@ Pony
 ::
 
    tibanna_4dn deploy_pony -s dev
-   tibanna_4dn run_workflow -s tibanna_pony_dev -s test_json/pony/md5.json
-   tibanna_4dn run_workflow -s tibanna_pony_dev -s test_json/pony/fastqc.json
-   tibanna_4dn run_workflow -s tibanna_pony_dev -s test_json/pony/bwa-mem.json
-   tibanna_4dn run_workflow -s tibanna_pony_dev -s test_json/pony/bed2beddb.json
+   tibanna_4dn run_workflow -s tibanna_pony_dev -i test_json/pony/md5.json
+   tibanna_4dn run_workflow -s tibanna_pony_dev -i test_json/pony/fastqc.json
+   tibanna_4dn run_workflow -s tibanna_pony_dev -i test_json/pony/bwa-mem.json
+   tibanna_4dn run_workflow -s tibanna_pony_dev -i test_json/pony/bed2beddb.json
 
 
 Zebra
