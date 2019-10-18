@@ -72,7 +72,9 @@ To run a deployment-based test, do
    tibanna_4dn run_workflow -s tibanna_pony_dev -s <testjson>
    
    tibanna_cgap deploy_zebra -s dev
-   tibanna_cgap run_workflow -s tibanna_zebra_dev -s <testjson>
+   tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/md5.json
+   tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/fastqc.json
+   tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/bwa-check.json
    
 
 Production Deployment
