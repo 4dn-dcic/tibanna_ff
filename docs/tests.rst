@@ -101,3 +101,13 @@ After all the tests pass, we should deploy production tibanna.
     tibanna_cgap deploy_zebra -s tmp_md5  # md5/fastqc triggers
 
 
+Other tests that we should include in the future
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+The following tests are currently not set up and is done manually. Ideally they should be automated in the future.
+
+- CLI test
+- md5/fastqc trigger test
+- initiator test
+- permission tests
+
