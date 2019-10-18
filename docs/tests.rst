@@ -5,6 +5,24 @@ Tests
 Whenever changes are made, we need to run tests.
 
 
+Prerequisites
++++++++++++++
+
+To run tests, first do
+
+::
+
+    pip install -r reqirements-test.txt
+
+
+Also, before running any tests, make sure to first build based on the current repo content.
+
+::
+
+    python setup.py install
+    
+
+
 Test portals
 ++++++++++++
 
