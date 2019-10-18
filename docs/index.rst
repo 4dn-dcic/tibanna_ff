@@ -47,3 +47,4 @@ Contents:
    behavior
    execution_json
    tests
+   production
