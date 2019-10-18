@@ -64,12 +64,21 @@ Tests on deployed dev tibanna
 
 Testing on a dev tibanna requires spinning up EC2 instances and it costs $$. So this test should be done only when we're confident about our modifications and after all the local tests already passed.
 
-To run a deployment-based test, do
+To run a deployment-based test, do the following.
+
+Pony
+~~~~
 
 ::
 
    tibanna_4dn deploy_pony -s dev
    tibanna_4dn run_workflow -s tibanna_pony_dev -s <testjson>
+   
+
+Zebra
+~~~~~
+
+::
    
    tibanna_cgap deploy_zebra -s dev
    tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/md5.json
