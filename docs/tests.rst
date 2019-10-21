@@ -98,7 +98,8 @@ Zebra
 Integrated test (coming soon)
 +++++++++++++++++++++++++++++
 
-The following run_workflow tests are added as part of more rigorous automatic tests.
+The following run_workflow tests are added as part of more rigorous automatic tests. The runs are submitted to a newly deployed dev Tibanna, before deploying a production Tibanna. These tests involve actually spinning up small EC2 instances. Assuming they run in parallel and including the sleep test, the total duration of the test would be about 1 hr. 
+
 
 Four different output types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
