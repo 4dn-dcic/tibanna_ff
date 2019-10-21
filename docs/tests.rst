@@ -107,13 +107,13 @@ Four different output types
 Pony
 ----
 
-- ``md5``, ``fastqc``, ``bwa-mem`` (with a small reference index file), ``bed2beddb`` (or ``bedgraph2bw``)
+- ``md5`` (``report``), ``fastqc`` (``QC``), ``bwa-mem`` (``processed``) (with a small reference index file), ``bedGraphToBigWig`` (``to-be-extra-input``)
 - ``QCList`` is not available for Fourfront.
 
 Zebra
 -----
 
-- ``md5``, ``fastqc``, ``bwa-check`` (with a small reference index file).
+- ``md5`` (``report``), ``fastqc`` (``QC``), ``bwa-check`` (``processed``) (with a small reference index file), ``bedGraphToBigWig`` (``to-be-extra-input``)
   - We don't have to-be-extra-input type on CGAP yet.
 - ``QCList`` test by running ``bamqc`` on top of ``bwa-check`` and then rerunning ``bamqc`` (must replace the first one).
 
@@ -144,8 +144,8 @@ Pony
   - rerun the same File item with a different md5 content (must fail)
   - rerun a different File item with the same md5 content (must fail)
 - overwrite_extra test
-  - rerun the same ``bed2beddb`` job with different file content with overwrite_extra = True (must overwrite)
-  - rerun the same ``bed2beddb`` job with overwrite_extra = False (must fail)
+  - rerun the same ``bedGraphToBigWig`` job with different file content with overwrite_extra = True (must overwrite)
+  - rerun the same ``bedGraphToBigWig`` job with overwrite_extra = False (must fail)
 
 Zebra
 -----
