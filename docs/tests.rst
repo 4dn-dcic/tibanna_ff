@@ -123,13 +123,13 @@ Input array types
 Pony
 ----
 
-- ```merge_fastq`` with very small fastq files (1D array)
+- ``merge_fastq`` with very small fastq files (1D array)
 - ``merge_and_cut`` test workflow item (3D array)
 
 Zebra
 -----
 
-- ```merge_bam``` with very small bam files (1D array)
+- ``merge_bam`` with very small bam files (1D array)
 - ``merge_and_cut`` test workflow item (3D array)
 
 
