@@ -14,11 +14,7 @@ One can set up usergroups while deploying a pony/zebra like the way a usergroup 
 
     tibanna_4dn deploy_pony -g <usergroupname>
     
-    
-e.g.)
-
-::
-
+    # e.g.
     tibanna_4dn deploy_pony -g default_luisa
 
 
