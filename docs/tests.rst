@@ -95,6 +95,91 @@ Zebra
    tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/bwa-check.json
 
 
+Integrated test (coming soon)
++++++++++++++++++++++++++++++
+
+The following run_workflow tests are added as part of more rigorous automatic tests.
+
+Four different output types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pony
+----
+
+- ``md5``, ``fastqc``, ``bwa-mem`` (with a small reference index file), ``bed2beddb`` (or ``bedgraph2bw``)
+- ``QCList`` is not available for Fourfront.
+
+Zebra
+-----
+
+- ``md5``, ``fastqc``, ``bwa-check`` (with a small reference index file).
+  - We don't have to-be-extra-input type on CGAP yet.
+- ``QCList`` test by running ``bamqc`` on top of ``bwa-check`` and then rerunning ``bamqc`` (must replace the first one).
+
+
+Input array types
+~~~~~~~~~~~~~~~~~
+
+Pony
+----
+
+- ```merge_fastq`` with very small fastq files (1D array)
+- ``merge_and_cut`` test workflow item (3D array)
+
+Zebra
+-----
+
+- ```merge_bam``` with very small bam files (1D array)
+- ``merge_and_cut`` test workflow item (3D array)
+
+
+Reruns
+~~~~~~
+
+Pony
+----
+
+- md5 conflict test
+  - rerun the same File item with a different md5 content (must fail)
+  - rerun a different File item with the same md5 content (must fail)
+- overwrite_extra test
+  - rerun the same ``bed2beddb`` job with different file content with overwrite_extra = True (must overwrite)
+  - rerun the same ``bed2beddb`` job with overwrite_extra = False (must fail)
+
+Zebra
+-----
+
+- md5 conflict test
+  - rerun the same File item with a different md5 content (must fail)
+  - rerun a different File item with the same md5 content (must fail)
+  
+WDL
+~~~
+
+Pony
+----
+
+- ``merge`` WDL test workflow item (also 2D array test)
+
+Zebra
+-----
+
+- ``merge`` WDL test workflow item (also 2D array test)
+
+
+Workflow Run QC
+~~~~~~~~~~~~~~~
+
+- check html & tsv
+
+EC2 test
+~~~~~~~~
+
+- EC2 unintended termination test (force kill externally)
+- EC2 idle test (sleep for 1hr)
+
+
+
 Other tests that we should include in the future
 ++++++++++++++++++++++++++++++++++++++++++++++++
 
