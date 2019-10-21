@@ -18,7 +18,7 @@ def test_md5():
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
     assert 'status' in postrunjson['Job']
-    assert postrunjson['Job']['status']
+    assert postrunjson['Job']['status'] == '0'
 
 
 def test_fastqc():
@@ -30,4 +30,4 @@ def test_fastqc():
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
     assert 'status' in postrunjson['Job']
-    assert postrunjson['Job']['status']
+    assert postrunjson['Job']['status'] == '0'
