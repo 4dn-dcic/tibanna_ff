@@ -8,7 +8,7 @@ Permissions for Tibanna Pony/Zebra users are set up in a way similar to the way 
 With usergroup
 ++++++++++++++
 
-One can set up usergroups while deploying a pony/zebra like the way a usergroup is set up while deploying a unicorn (using ``-g`` option). They work the same way.
+One can set up usergroups while deploying a pony/zebra like the way a usergroup is set up while deploying a unicorn (using ``-g`` option). They work the same way. Bucket permission doesn't have to be specified. By default, all the buckets listed in the ``IAM_BUCKETS`` variables defined in ``tibanna_4dn/vars.py`` or ``tibanna_cgap/vars.py`` are added to the user group. These buckets are those used for 4DN and CGAP **test environments**, respectively.
 
 ::
 
