@@ -10,7 +10,8 @@ from tibanna_4dn.pony_utils import (
 )
 from tibanna_4dn.vars import (
     DEFAULT_LAB,
-    DEFAULT_AWARD
+    DEFAULT_AWARD,
+    DEV_FILE_BUCKET
 )
 
 
@@ -191,6 +192,20 @@ def update_ffmeta_tmpdata(ff_keys):
 @pytest.fixture(scope='session')
 def update_ffmeta_hicbam(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_hicbam.json')
+
+
+@valid_env
+def post_new_fastqfile(key, upload_file=None):
+    ffobject = {"uuid": str(uuid.uuid4()),
+                "lab": DEFAULT_LAB,
+                "award": DEFAULT_AWARD}
+    res = ff_utils.post_metadata(ffobject, 'FileFastq', key=key)
+    if upload_file:
+        uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = uuid + '/' + accession + '.fastq.gz'
+        boto3.client('s3').upload_file(upload_file, DEV_FILE_BUCKET, upload_key)
+    return res['@graph'][0]['uuid']
 
 
 @valid_env

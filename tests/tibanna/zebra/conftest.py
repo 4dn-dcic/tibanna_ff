@@ -10,7 +10,8 @@ from tibanna_cgap.zebra_utils import (
 )
 from tibanna_cgap.vars import (
     DEFAULT_INSTITUTION,
-    DEFAULT_PROJECT
+    DEFAULT_PROJECT,
+    DEV_FILE_BUCKET
 )
 
 def pytest_runtest_setup(item):
@@ -30,6 +31,20 @@ def start_run_event_md5():
 @pytest.fixture(scope='session')
 def start_run_event_bwa_check():
     return get_event_file_for('start_run', event_file='event_bwa-check.json')
+
+
+@valid_env
+def post_new_fastqfile(key, upload_file=None):
+    ffobject = {"uuid": str(uuid.uuid4()),
+                "lab": DEFAULT_LAB,
+                "award": DEFAULT_AWARD}
+    res = ff_utils.post_metadata(ffobject, 'FileFastq', key=key)
+    if upload_file:
+        uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = uuid + '/' + accession + '.fastq.gz'
+        boto3.client('s3').upload_file(upload_file, DEV_FILE_BUCKET, upload_key)
+    return res['@graph'][0]['uuid']
 
 
 @valid_env
