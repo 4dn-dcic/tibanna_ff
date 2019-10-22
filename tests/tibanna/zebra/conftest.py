@@ -10,7 +10,8 @@ from tibanna_cgap.zebra_utils import (
 )
 from tibanna_cgap.vars import (
     DEFAULT_INSTITUTION,
-    DEFAULT_PROJECT
+    DEFAULT_PROJECT,
+    DEV_FILE_BUCKET
 )
 
 def pytest_runtest_setup(item):
@@ -33,7 +34,22 @@ def start_run_event_bwa_check():
 
 
 @valid_env
-def post_new_processedfile(file_format, key, extra_file_formats=None, **kwargs):
+def post_new_fastqfile(key, upload_file=None):
+    ffobject = {"uuid": str(uuid.uuid4()),
+                "lab": DEFAULT_LAB,
+                "award": DEFAULT_AWARD}
+    res = ff_utils.post_metadata(ffobject, 'FileFastq', key=key)
+    if upload_file:
+        uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = uuid + '/' + accession + '.fastq.gz'
+        boto3.client('s3').upload_file(upload_file, DEV_FILE_BUCKET, upload_key)
+    return res['@graph'][0]['uuid']
+
+
+@valid_env
+def post_new_processedfile(file_format, key, extra_file_formats=None,
+                           upload_file=None, extension=None, **kwargs):
     if extra_file_formats:
         extra_files = [{'file_format': ef} for ef in extra_file_formats]
     else:
@@ -42,6 +58,11 @@ def post_new_processedfile(file_format, key, extra_file_formats=None, **kwargs):
                                    extra_files=extra_files,
                                    other_fields=kwargs).as_dict()
     res = ff_utils.post_metadata(new_pf, 'FileProcessed', key=key)
+    if upload_file:
+        uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = uuid + '/' + accession + '.' + extension
+        boto3.client('s3').upload_file(upload_file, DEV_FILE_BUCKET, upload_key)
     return res['@graph'][0]['uuid']
 
 

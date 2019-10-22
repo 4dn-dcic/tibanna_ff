@@ -19,3 +19,6 @@ HIGLASS_BUCKETS = []
 IAM_BUCKETS = ['elasticbeanstalk-fourfront-cgap-wfoutput',
                'elasticbeanstalk-fourfront-cgap-files',
                'tibanna-output']
+
+DEV_ENV = 'fourfront-webdev'
+DEV_FILE_BUCKET = 'elasticbeanstalk-%s-wfoutput' % DEV_ENV
