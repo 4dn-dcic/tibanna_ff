@@ -40,6 +40,7 @@ from tibanna.awsem import (
 from tibanna.vars import (
     METRICS_URL
 )
+from .vars import BUCKET_NAME
 from .config import (
     higlass_config
 )
@@ -63,7 +64,7 @@ class FFInputAbstract(SerializableObject):
 
         self.input_files = kwargs.get('input_files', [])
         for infile in self.input_files:
-            if not infile:
+            if not infile or 'uuid' not in infile or 'workflow_argument_name' not in infile:
                 raise MalFormattedFFInputException("malformed input, check input_files in your input json")
 
         self.workflow_uuid = workflow_uuid
@@ -81,7 +82,7 @@ class FFInputAbstract(SerializableObject):
         self._tibanna = _tibanna
         self.tibanna_settings = None
         if _tibanna:
-            env = _tibanna.get('env', '-'.join(self.output_bucket.split('-')[1:-1]))
+            env = _tibanna.get('env')
             try:
                 self.tibanna_settings = TibannaSettings(env, settings=_tibanna)
             except Exception as e:
@@ -95,6 +96,26 @@ class FFInputAbstract(SerializableObject):
             self.config.public_postrun_json = True
         if not hasattr(config, 'email'):
             self.config.email = False
+
+        # fill in input_files info if object_key and bucket_name is not provided
+        for infile in self.input_files:
+            if 'object_key' not in infile or 'bucket_name' not in infile:
+                try:
+                    infile_meta = get_metadata(infile['uuid'],
+                                               key=self.tibanna_settings.ff_keys,
+                                               ff_env=self.tibanna_settings.env,
+                                               add_on='frame=object')
+                except Exception as e:
+                    raise FdnConnectionException(e)
+            if 'object_key' not in infile:
+                infile['object_key'] = infile_meta['upload_key'].replace(infile['uuid'] + '/', '')
+            if 'bucket_name' not in infile:
+                infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env,
+                                                    infile_meta['@type'][0])
+
+        # fill in output_bucket
+        if not self.output_bucket:
+            self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
 
     def as_dict(self):
         d_shallow = self.__dict__.copy()

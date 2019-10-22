@@ -13,13 +13,12 @@ TIBANNA_DEFAULT_STEP_FUNCTION_NAME = os.environ.get('TIBANNA_DEFAULT_STEP_FUNCTI
 DEFAULT_AWARD = '1U01CA200059-01'
 DEFAULT_LAB = '4dn-dcic-lab'
 
-HIGLASS_BUCKETS = ['elasticbeanstalk-fourfront-webprod-wfoutput',
-                   'elasticbeanstalk-fourfront-webdev-wfoutput']
-
-IAM_BUCKETS = ['elasticbeanstalk-fourfront-webdev-wfoutput',
-               'elasticbeanstalk-fourfront-webdev-files',
-               'tibanna-output']
+HIGLASS_BUCKETS = [BUCKET_NAME('fourfront-webprod', 'FileProcessed'),
+                   BUCKET_NAME('fourfront-webdev', 'FileProcessed')]
 
 DEV_ENV = 'fourfront-webdev'
-DEV_FILE_BUCKET = 'elasticbeanstalk-%s-wfoutput' % DEV_ENV
+IAM_BUCKETS = [BUCKET_NAME(DEV_ENV, 'FileProcessed'),
+               BUCKET_NAME(DEV_ENV, 'FileFastq'),
+               'tibanna-output']
+
 DEV_SFN = 'tibanna_' + LAMBDA_TYPE + '_' + DEV_SUFFIX

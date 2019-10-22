@@ -11,7 +11,8 @@ from tibanna_cgap.zebra_utils import (
 from tibanna_cgap.vars import (
     DEFAULT_INSTITUTION,
     DEFAULT_PROJECT,
-    DEV_FILE_BUCKET
+    BUCKET_NAME,
+    DEV_ENV
 )
 
 def pytest_runtest_setup(item):
@@ -43,7 +44,7 @@ def post_new_fastqfile(key, upload_file=None):
         uuid = res['@graph'][0]['uuid']
         accession = res['@graph'][0]['accession']
         upload_key = uuid + '/' + accession + '.fastq.gz'
-        boto3.client('s3').upload_file(upload_file, DEV_FILE_BUCKET, upload_key)
+        boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileFastq'), upload_key)
     return res['@graph'][0]['uuid']
 
 
@@ -62,7 +63,7 @@ def post_new_processedfile(file_format, key, extra_file_formats=None,
         uuid = res['@graph'][0]['uuid']
         accession = res['@graph'][0]['accession']
         upload_key = uuid + '/' + accession + '.' + extension
-        boto3.client('s3').upload_file(upload_file, DEV_FILE_BUCKET, upload_key)
+        boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileProcessed'), upload_key)
     return res['@graph'][0]['uuid']
 
 
@@ -77,6 +78,12 @@ def post_new_qc(qctype, key, **kwargs):
         qc_object[k] = v
     res = ff_utils.post_metadata(qc_object, qctype, key=key)
     return res['@graph'][0]['uuid']
+
+
+def get_test_json(file_name):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    event_file_name = os.path.join(dir_path, '..', '..', '..', 'test_json', 'pony', file_name)
+    return read_event_file(event_file_name)
 
 
 def get_event_file_for(lambda_name, ff_keys=None, event_file='event.json'):

@@ -243,7 +243,7 @@ def post_new_qc(qctype, key, **kwargs):
 def get_test_json(file_name):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     event_file_name = os.path.join(dir_path, '..', '..', '..', 'test_json', 'pony', file_name)
-    return read_event_file(event_file_name, ff_keys)
+    return read_event_file(event_file_name)
 
 
 def get_event_file_for(lambda_name, ff_keys=None, event_file='event.json'):

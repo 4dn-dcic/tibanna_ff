@@ -9,7 +9,7 @@ from tibanna_ffcommon.portal_utils import (
     FormatExtensionMap,
     parse_formatstr
 )
-from tibanna_4dn.vars import AWS_REGION, LAMBDA_TYPE
+from tibanna_4dn.vars import AWS_REGION, LAMBDA_TYPE, BUCKET_NAME
 
 
 config = {
@@ -191,10 +191,7 @@ _workflows = {'md5':
 
 
 def _make_input(env, bucket, workflow, object_key, uuid, run_name, dependency=None):
-    if env in ['data', 'staging']:
-        output_bucket = "elasticbeanstalk-fourfront-webprod-wfoutput"
-    else:
-        output_bucket = "elasticbeanstalk-%s-wfoutput" % env
+    output_bucket = BUCKET_NAME(env, 'FileProcessed')
     workflow_uuid = _workflows[workflow]['uuid']
     workflow_arg_name = _workflows[workflow]['arg_name']
 

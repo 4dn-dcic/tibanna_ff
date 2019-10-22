@@ -7,29 +7,22 @@
     "run_type": "bwa-mem"
   },
   "app_name": "bwa-mem",
-  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
   "workflow_uuid": "0fbe4db8-0b5f-448e-8b58-3f8c84baabf5",
   "parameters": {
     "nThreads": 1
   },
   "input_files": [
     {
-      "object_key": "4DNFIPZSGK3D.bwaIndex.tgz",
       "workflow_argument_name": "bwa_index",
-      "uuid": "d812aadb-c1a0-42a1-a7b0-99af00a42f21",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-files"
+      "uuid": "d812aadb-c1a0-42a1-a7b0-99af00a42f21"
     },
     {
       "workflow_argument_name": "fastq1",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
-      "uuid": "1150b428-272b-4a0c-b3e6-4b405c148f7c",
-      "object_key": "4DNFIVOZN511.fastq.gz"
+      "uuid": "1150b428-272b-4a0c-b3e6-4b405c148f7c"
     },
     {
       "workflow_argument_name": "fastq2",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
-      "uuid": "f4864029-a8ad-4bb8-93e7-5108f462ccaa",
-      "object_key": "4DNFIRSRJH45.fastq.gz"
+      "uuid": "f4864029-a8ad-4bb8-93e7-5108f462ccaa"
     }
   ],
   "config": {
