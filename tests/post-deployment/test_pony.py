@@ -3,15 +3,14 @@ import os
 import json
 import time
 from tibanna_4dn.core import API
+from tibanna_4dn.vars import DEV_SFN
 
-
-SFN = 'tibanna_pony_pre'
 JSON_DIR = 'test_json/pony/'
 
 
 def test_md5():
     api = API()
-    res = api.run_workflow(os.path.abspath(os.path.join(JSON_DIR, 'md5.json')), sfn=SFN)
+    res = api.run_workflow(os.path.abspath(os.path.join(JSON_DIR, 'md5.json')), sfn=DEV_SFN)
     assert 'jobid' in res
     assert 'exec_arn' in res['_tibanna']
     time.sleep(360)
@@ -23,7 +22,7 @@ def test_md5():
 
 def test_fastqc():
     api = API()
-    res = api.run_workflow(os.path.abspath(os.path.join(JSON_DIR, 'fastqc.json')), sfn=SFN)
+    res = api.run_workflow(os.path.abspath(os.path.join(JSON_DIR, 'fastqc.json')), sfn=DEV_SFN)
     assert 'jobid' in res
     assert 'exec_arn' in res['_tibanna']
     time.sleep(360)

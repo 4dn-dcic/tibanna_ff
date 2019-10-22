@@ -3,15 +3,14 @@ import os
 import json
 import time
 from tibanna_cgap.core import API
+from tibanna_cgap.vars import DEV_SFN
 
-
-SFN = 'tibanna_zebra_pre'
 JSON_DIR = 'test_json/zebra/'
 
 
 def test_md5():
     api = API()
-    res = api.run_workflow(os.path.abspath(os.path.join(JSON_DIR, 'md5.json')), sfn=SFN)
+    res = api.run_workflow(os.path.abspath(os.path.join(JSON_DIR, 'md5.json')), sfn=DEV_SFN)
     assert 'jobid' in res
     time.sleep(360)
     assert api.check_status(res['exec_arn']) == 'SUCCEEDED'
@@ -21,7 +20,7 @@ def test_md5():
 
 
 def test_fastqc():
-    res = API().run_workflow(os.path.abspath(os.path.join(JSON_DIR, 'fastqc.json')), sfn=SFN)
+    res = API().run_workflow(os.path.abspath(os.path.join(JSON_DIR, 'fastqc.json')), sfn=DEV_SFN)
     assert 'jobid' in res
     time.sleep(360)
     assert api.check_status(res['exec_arn']) == 'SUCCEEDED'

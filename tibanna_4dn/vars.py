@@ -23,3 +23,4 @@ IAM_BUCKETS = ['elasticbeanstalk-fourfront-webdev-wfoutput',
 
 DEV_ENV = 'fourfront-webdev'
 DEV_FILE_BUCKET = 'elasticbeanstalk-%s-wfoutput' % DEV_ENV
+DEV_SFN = 'tibanna_' + LAMBDA_TYPE + '_' + DEV_SUFFIX

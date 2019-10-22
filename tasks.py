@@ -3,9 +3,7 @@ import pytest
 from invoke import run, task
 from tibanna_4dn.core import API as API_4dn
 from tibanna_cgap.core import API as API_cgap
-
-
-DEV_SUFFIX = 'pre'
+from tibanna_ffcommon.vars import DEV_SUFFIX
 
 
 @task
