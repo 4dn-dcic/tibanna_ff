@@ -49,7 +49,7 @@ def test(ctx, watch=False, last_failing=False, no_flake=False, k='',  extra='',
     else:
         API_4dn().deploy_pony(suffix=DEV_SUFFIX)
         API_cgap().deploy_zebra(suffix=DEV_SUFFIX)
-        pytest.main(['tests/post-deployment'])
+        pytest.main(['--workers', '100', 'tests/post-deployment'])
 
 
 def flake():
