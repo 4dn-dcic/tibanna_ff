@@ -1,4 +1,7 @@
 {
+  "description": [
+     "This input json file runs bwa-mem which is a part of 4DN Hi-C pipeline, with a small genome index with only chr21/22."
+  ], 
   "_tibanna": {
     "env": "fourfront-webdev",
     "run_type": "bwa-mem"
@@ -7,13 +10,13 @@
   "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
   "workflow_uuid": "0fbe4db8-0b5f-448e-8b58-3f8c84baabf5",
   "parameters": {
-    "nThreads": 4
+    "nThreads": 1
   },
   "input_files": [
     {
-      "object_key": "4DNFIZQZ39L9.bwaIndex.tgz",
+      "object_key": "4DNFIPZSGK3D.bwaIndex.tgz",
       "workflow_argument_name": "bwa_index",
-      "uuid": "1f53df95-4cf3-41cc-971d-81bb16c486dd",
+      "uuid": "d812aadb-c1a0-42a1-a7b0-99af00a42f21",
       "bucket_name": "elasticbeanstalk-fourfront-webdev-files"
     },
     {
@@ -30,9 +33,9 @@
     }
   ],
   "config": {
-    "ebs_size": 30,
+    "instance_type": "t3.micro",
     "log_bucket": "tibanna-output",
-    "key_name": "4dn-encoded"
+    "key_name": "4dn-encode"
   },
   "custom_pf_fields": {
     "out_bam": {
