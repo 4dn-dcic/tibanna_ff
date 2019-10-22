@@ -11,7 +11,8 @@ from tibanna_4dn.pony_utils import (
 from tibanna_4dn.vars import (
     DEFAULT_LAB,
     DEFAULT_AWARD,
-    DEV_FILE_BUCKET
+    BUCKET_NAME,
+    DEV_ENV
 )
 
 
@@ -204,7 +205,7 @@ def post_new_fastqfile(key, upload_file=None):
         uuid = res['@graph'][0]['uuid']
         accession = res['@graph'][0]['accession']
         upload_key = uuid + '/' + accession + '.fastq.gz'
-        boto3.client('s3').upload_file(upload_file, DEV_FILE_BUCKET, upload_key)
+        boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileFastq'), upload_key)
     return res['@graph'][0]['uuid']
 
 
@@ -223,7 +224,7 @@ def post_new_processedfile(file_format, key, extra_file_formats=None,
         uuid = res['@graph'][0]['uuid']
         accession = res['@graph'][0]['accession']
         upload_key = uuid + '/' + accession + '.' + extension
-        boto3.client('s3').upload_file(upload_file, DEV_FILE_BUCKET, upload_key)
+        boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileProcessed'), upload_key)
     return res['@graph'][0]['uuid']
 
 

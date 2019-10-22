@@ -55,8 +55,6 @@ class FFInputAbstract(SerializableObject):
     def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='', _tibanna=None, **kwargs):
         if not workflow_uuid:
             raise MalFormattedFFInputException("missing field in input json: workflow_uuid")
-        if not output_bucket:
-            raise MalFormattedFFInputException("missing field in input json: output_bucket")
         if not config:
             raise MalFormattedFFInputException("missing field in input json: config")
         self.config = Config(**config)
