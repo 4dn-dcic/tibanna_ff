@@ -32,7 +32,6 @@
     "instance_type": "c4.8xlarge",
     "EBS_optimized": true,
     "ebs_type": "io1",
-    "json_bucket": "4dn-aws-pipeline-run-json",
     "ebs_iops": 500,
     "shutdown_min": 30,
     

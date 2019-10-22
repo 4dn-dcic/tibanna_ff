@@ -65,7 +65,6 @@
   "config": { 
     "ebs_size": 0,
     "ebs_type": "gp2",
-    "json_bucket": "4dn-aws-pipeline-run-json",
     "EBS_optimized": "",
     "ebs_iops": "",
     "shutdown_min": 240,

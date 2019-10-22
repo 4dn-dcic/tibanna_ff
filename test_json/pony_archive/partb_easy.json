@@ -4,7 +4,6 @@
     
       "ebs_type" : "io1",
       "ebs_iops" : 500,
-      "json_bucket": "4dn-aws-pipeline-run-json",
       "password": "",
       "shutdown_min" : 10,
       

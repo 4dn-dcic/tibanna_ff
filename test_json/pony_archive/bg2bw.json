@@ -26,7 +26,6 @@
     "EBS_optimized": false,
     "ebs_size": 10,
     "ebs_type": "gp2",
-    "json_bucket": "4dn-aws-pipeline-run-json",
     "ebs_iops": "",
     "shutdown_min": 30,
     "password": "dragonfly",

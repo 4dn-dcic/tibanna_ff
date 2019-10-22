@@ -18,8 +18,7 @@ HIGLASS_BUCKETS = ['elasticbeanstalk-fourfront-webprod-wfoutput',
 
 IAM_BUCKETS = ['elasticbeanstalk-fourfront-webdev-wfoutput',
                'elasticbeanstalk-fourfront-webdev-files',
-               'tibanna-output',
-               '4dn-aws-pipeline-run-json']
+               'tibanna-output']
 
 DEV_ENV = 'fourfront-webdev'
 DEV_FILE_BUCKET = 'elasticbeanstalk-%s-wfoutput' % DEV_ENV

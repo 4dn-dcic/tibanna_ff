@@ -20,7 +20,6 @@
         "ebs_type": "gp2", 
         "ebs_iops": "", 
         "EBS_optimized": false, 
-        "json_bucket": "4dn-aws-pipeline-run-json", 
         "shutdown_min": 30, 
         "instance_type": "t2.micro", 
         "key_name": "4dn-encode", 
