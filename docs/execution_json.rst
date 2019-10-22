@@ -13,6 +13,9 @@ Example job description
 ::
 
     {
+        "description": [
+           "This input json run a bwa-mem workflow, which is part of 4DN Hi-C pipeline, on hg38 genome reference."
+        ],
         "app_name": "bwa-mem",
         "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
         "workflow_uuid": "0fbe4db8-0b5f-448e-8b58-3f8c84baabf5",
@@ -75,6 +78,7 @@ Example job description
       }
     }
 
+- The ``description`` field is an optional field for humans and they are ignored by Tibanna.
 - The ``app_name`` field contains the name of the workflow.
 - The ``output_bucket`` field specifies the bucket where all the output files go to.
 - The ``workflow_uuid`` field contains the uuid of the 4DN workflow metadata.
