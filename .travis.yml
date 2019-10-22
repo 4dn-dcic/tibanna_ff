@@ -2,6 +2,9 @@ language: python
 sudo: false
 cache:
   pip: false
+env:
+  global:
+  - AWS_DEFAULT_REGION=us-west-1
 jobs:
   include:
   - stage: unit tests
