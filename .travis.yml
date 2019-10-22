@@ -2,11 +2,6 @@ language: python
 sudo: false
 cache:
   pip: false
-env:
-  global:
-  - AWS_ACCOUNT_NUMBER=643366669028
-  - TIBANNA_AWS_REGION=us-east-1
-  - AWS_S3_ROLE_NAME=S3_access
 jobs:
   include:
   - stage: unit tests
@@ -19,7 +14,7 @@ jobs:
     - pip install codacy-coverage
     script:
     - if [ "$TRAVIS_BRANCH" != "doc" ]; then
-      invoke test --no-flake --no-post; fi  # temporarily ignore test_webdev which uses tibanna_pony
+      invoke test --no-flake --no-post; fi
     after_success:
     - echo "finished running tests on repo"
     - python-codacy-coverage -r coverage.xml
