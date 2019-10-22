@@ -14,7 +14,8 @@ Example job description
 
     {
         "description": [
-           "This input json run a bwa-mem workflow, which is part of 4DN Hi-C pipeline, on hg38 genome reference."
+           "This input json run a bwa-mem workflow, which is part of 4DN Hi-C pipeline",
+           "on hg38 genome reference."
         ],
         "app_name": "bwa-mem",
         "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
