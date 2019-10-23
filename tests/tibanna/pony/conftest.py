@@ -251,3 +251,10 @@ def get_event_file_for(lambda_name, ff_keys=None, event_file='event.json'):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     event_file_name = os.path.join(dir_path, lambda_name, event_file)
     return read_event_file(event_file_name, ff_keys)
+
+
+def dev_key():
+    data = {'env': DEV_ENV,
+            'settings': {'1': '1'}}
+    tibanna = TibannaSettings(**data)
+    return tibanna.ff_key
