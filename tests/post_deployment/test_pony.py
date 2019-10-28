@@ -58,12 +58,19 @@ def test_fastqc():
 
 
 def test_bwa():
+    # prep new File
+    data = get_test_json('md5.json')
+    fq1_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
+    fq2_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R2.fastq.gz'))
+    # prep input json
+    data['fastq1'][0]['uuid'] = fq1_uuid
+    data['fastq2'][0]['uuid'] = fq2_uuid
     data = get_test_json('bwa-mem.json')
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
     assert 'exec_arn' in res['_tibanna']
-    time.sleep(60 * 20)  # runs for 15 min
+    time.sleep(360)
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
     assert 'status' in postrunjson['Job']

@@ -5,6 +5,9 @@ import os
 import json
 import uuid
 from tests.tibanna.ffcommon.conftest import read_event_file
+from tibanna_ffcommon.portal_utils import (
+    TibannaSettings
+)
 from tibanna_cgap.zebra_utils import (
     ProcessedFileMetadata
 )
@@ -96,4 +99,4 @@ def dev_key():
     data = {'env': DEV_ENV,
             'settings': {'1': '1'}}
     tibanna = TibannaSettings(**data)
-    return tibanna.ff_key
+    return tibanna.ff_keys
