@@ -2,6 +2,7 @@ import pytest
 import os
 import json
 import time
+import uuid
 from tibanna_4dn.core import API
 from tibanna_4dn.vars import DEV_SFN
 from tests.tibanna.pony.conftest import post_new_fastqfile, get_test_json, dev_key
@@ -40,10 +41,9 @@ def test_md5():
 
 def test_fastqc():
     key = dev_key()
-    data = get_test_json('md5.json')
+    data = get_test_json('fastqc.json')
     fq_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
     data['input_files'][0]['uuid'] = fq_uuid
-    data = get_test_json('fastqc.json')
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
@@ -58,6 +58,7 @@ def test_fastqc():
 
 
 def test_bwa():
+    key = dev_key()
     # prep new File
     data = get_test_json('md5.json')
     fq1_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
@@ -65,7 +66,6 @@ def test_bwa():
     # prep input json
     data['fastq1'][0]['uuid'] = fq1_uuid
     data['fastq2'][0]['uuid'] = fq2_uuid
-    data = get_test_json('bwa-mem.json')
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
