@@ -4,6 +4,7 @@ from dcicutils import ff_utils
 import os
 import json
 import uuid
+import boto3
 from tests.tibanna.ffcommon.conftest import read_event_file
 from tibanna_ffcommon.portal_utils import (
     TibannaSettings
@@ -40,13 +41,14 @@ def start_run_event_bwa_check():
 @valid_env
 def post_new_fastqfile(key, upload_file=None):
     ffobject = {"uuid": str(uuid.uuid4()),
+                "file_format": "fastq",
                 "lab": DEFAULT_LAB,
                 "award": DEFAULT_AWARD}
     res = ff_utils.post_metadata(ffobject, 'FileFastq', key=key)
     if upload_file:
-        uuid = res['@graph'][0]['uuid']
+        f_uuid = res['@graph'][0]['uuid']
         accession = res['@graph'][0]['accession']
-        upload_key = uuid + '/' + accession + '.fastq.gz'
+        upload_key = f_uuid + '/' + accession + '.fastq.gz'
         boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileFastq'), upload_key)
     return res['@graph'][0]['uuid']
 
@@ -63,9 +65,9 @@ def post_new_processedfile(file_format, key, extra_file_formats=None,
                                    other_fields=kwargs).as_dict()
     res = ff_utils.post_metadata(new_pf, 'FileProcessed', key=key)
     if upload_file:
-        uuid = res['@graph'][0]['uuid']
+        f_uuid = res['@graph'][0]['uuid']
         accession = res['@graph'][0]['accession']
-        upload_key = uuid + '/' + accession + '.' + extension
+        upload_key = f_uuid + '/' + accession + '.' + extension
         boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileProcessed'), upload_key)
     return res['@graph'][0]['uuid']
 

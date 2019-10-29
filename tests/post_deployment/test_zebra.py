@@ -5,6 +5,7 @@ import time
 from tibanna_cgap.core import API
 from tibanna_cgap.vars import DEV_SFN
 from tests.tibanna.zebra.conftest import post_new_fastqfile, get_test_json, dev_key
+from dcicutils import ff_utils
 
 
 JSON_DIR = 'test_json/zebra/'

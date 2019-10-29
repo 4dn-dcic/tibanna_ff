@@ -6,6 +6,7 @@ import uuid
 from tibanna_4dn.core import API
 from tibanna_4dn.vars import DEV_SFN
 from tests.tibanna.pony.conftest import post_new_fastqfile, get_test_json, dev_key
+from dcicutils import ff_utils
 
 
 JSON_DIR = 'test_json/pony/'
@@ -60,7 +61,7 @@ def test_fastqc():
 def test_bwa():
     key = dev_key()
     # prep new File
-    data = get_test_json('md5.json')
+    data = get_test_json('bwa-mem.json')
     fq1_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
     fq2_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R2.fastq.gz'))
     # prep input json
