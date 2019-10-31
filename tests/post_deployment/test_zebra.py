@@ -64,8 +64,8 @@ def test_bwa():
     fq1_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
     fq2_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R2.fastq.gz'))
     # prep input json
-    data['fastq1'][0]['uuid'] = fq1_uuid
-    data['fastq2'][0]['uuid'] = fq2_uuid
+    data['fastq_R1'][0]['uuid'] = fq1_uuid
+    data['fastq_R2'][0]['uuid'] = fq2_uuid
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
