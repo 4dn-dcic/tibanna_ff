@@ -200,7 +200,7 @@ def update_ffmeta_hicbam(ff_keys):
 
 
 @valid_env
-def post_new_fastqfile(key, upload_file=None):
+def post_new_fastqfile(key, upload_file=None, upload_content=None):
     ffobject = {"uuid": str(uuid.uuid4()),
                 "file_format": "fastq",
                 "description": "tibanna test",
@@ -212,6 +212,13 @@ def post_new_fastqfile(key, upload_file=None):
         accession = res['@graph'][0]['accession']
         upload_key = f_uuid + '/' + accession + '.fastq.gz'
         boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileFastq'), upload_key)
+    if upload_content:
+        f_uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = f_uuid + '/' + accession + '.fastq.gz'
+        boto3.client('s3').put_object(upload_content.encode('utf-8'),
+                                      BUCKET_NAME(DEV_ENV, 'FileFastq'),
+                                      upload_key)
     return res['@graph'][0]['uuid']
 
 
