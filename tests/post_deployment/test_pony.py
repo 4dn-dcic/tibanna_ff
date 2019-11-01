@@ -4,7 +4,7 @@ import json
 import time
 import uuid
 from tibanna_4dn.core import API
-from tibanna_4dn.vars import DEV_SFN
+from tibanna_4dn.vars import DEV_SFN, DEV_ENV
 from tests.tibanna.pony.conftest import post_new_fastqfile, get_test_json, dev_key
 from dcicutils import ff_utils
 
@@ -33,11 +33,18 @@ def test_md5():
     assert 'status' in postrunjson['Job']
     assert postrunjson['Job']['status'] == '0'
     # check metadata update
-    res = ff_utils.get_metadata(fq_uuid, key=key, check_queue=True)
+    res = ff_utils.get_metadata(fq_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
+    ff_utils.patch_metadata({'status': 'deleted'}, fq_uuid, key=key)
     assert res['md5sum'] == '1a100f38fadf653091a67b3705dfc1f6'
     assert res['content_md5sum'] == 'f3de8413d8bf6a1b1848e2208b920c82'
     assert res['file_size'] == 123
-    ff_utils.patch_metadata({'status': 'deleted'}, fq_uuid)
+    outjson = api.check_output(res['_tibanna']['exec_arn'])
+    assert 'ff_meta' in outjson
+    assert 'uuid' in outjson['ff_meta']
+    wfr_uuid = outjson['ff_meta']['uuid']
+    res = ff_utils.get_metadata(wfr_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
+    assert res['run_status'] == 'complete'
+    assert 'quality_metric' in res
 
 
 def test_fastqc():
@@ -54,7 +61,15 @@ def test_fastqc():
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
     assert 'status' in postrunjson['Job']
     assert postrunjson['Job']['status'] == '0'
-    res = ff_utils.get_metadata(fq_uuid, key=key, check_queue=True)
+    res = ff_utils.get_metadata(fq_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
+    ff_utils.patch_metadata({'status': 'deleted'}, fq_uuid, key=key)
+    assert 'quality_metric' in res
+    outjson = api.check_output(res['_tibanna']['exec_arn'])
+    assert 'ff_meta' in outjson
+    assert 'uuid' in outjson['ff_meta']
+    wfr_uuid = outjson['ff_meta']['uuid']
+    res = ff_utils.get_metadata(wfr_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
+    assert res['run_status'] == 'complete'
     assert 'quality_metric' in res
 
 
@@ -65,8 +80,8 @@ def test_bwa():
     fq1_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
     fq2_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R2.fastq.gz'))
     # prep input json
-    data['fastq1'][0]['uuid'] = fq1_uuid
-    data['fastq2'][0]['uuid'] = fq2_uuid
+    data['input_files'][1]['uuid'] = fq1_uuid  # fastq1
+    data['input_files'][2]['uuid'] = fq2_uuid  # fastq2
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
@@ -76,3 +91,18 @@ def test_bwa():
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
     assert 'status' in postrunjson['Job']
     assert postrunjson['Job']['status'] == '0'
+    outjson = api.check_output(res['_tibanna']['exec_arn'])
+    assert 'ff_meta' in outjson
+    assert 'uuid' in outjson['ff_meta']
+    wfr_uuid = outjson['ff_meta']['uuid']
+    pf_uuid = outjson['pf_meta'][0]['uuid']
+    res = ff_utils.get_metadata(wfr_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
+    assert res['run_status'] == 'complete'
+    assert 'quality_metric' in res
+    res = ff_utils.get_metadata(pf_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
+    assert res['status'] == 'uploaded'
+    ff_utils.patch_metadata({'status': 'deleted'}, fq1_uuid, key=key)
+    ff_utils.patch_metadata({'status': 'deleted'}, fq2_uuid, key=key)
+    ff_utils.patch_metadata({'status': 'deleted'}, wfr_uuid, key=key)
+    ff_utils.patch_metadata({'status': 'deleted'}, pf_uuid, key=key)
+
