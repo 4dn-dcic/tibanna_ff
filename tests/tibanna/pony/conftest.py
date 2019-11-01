@@ -216,9 +216,9 @@ def post_new_fastqfile(key, upload_file=None, upload_content=None):
         f_uuid = res['@graph'][0]['uuid']
         accession = res['@graph'][0]['accession']
         upload_key = f_uuid + '/' + accession + '.fastq.gz'
-        boto3.client('s3').put_object(upload_content.encode('utf-8'),
-                                      BUCKET_NAME(DEV_ENV, 'FileFastq'),
-                                      upload_key)
+        boto3.client('s3').put_object(Body=upload_content.encode('utf-8'),
+                                      Bucket=BUCKET_NAME(DEV_ENV, 'FileFastq'),
+                                      Key=upload_key)
     return res['@graph'][0]['uuid']
 
 
