@@ -43,8 +43,8 @@ def post_new_fastqfile(key, upload_file=None):
     ffobject = {"uuid": str(uuid.uuid4()),
                 "file_format": "fastq",
                 "description": "tibanna test",
-                "lab": DEFAULT_LAB,
-                "award": DEFAULT_AWARD}
+                "institution": DEFAULT_INSTITUTION,
+                "project": DEFAULT_PROJECT}
     res = ff_utils.post_metadata(ffobject, 'FileFastq', key=key)
     if upload_file:
         f_uuid = res['@graph'][0]['uuid']
@@ -90,7 +90,7 @@ def post_new_qc(qctype, key, **kwargs):
 
 def get_test_json(file_name):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    event_file_name = os.path.join(dir_path, '..', '..', '..', 'test_json', 'pony', file_name)
+    event_file_name = os.path.join(dir_path, '..', '..', '..', 'test_json', 'zebra', file_name)
     return read_event_file(event_file_name)
 
 
