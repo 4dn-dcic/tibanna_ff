@@ -203,6 +203,7 @@ def update_ffmeta_hicbam(ff_keys):
 def post_new_fastqfile(key, upload_file=None):
     ffobject = {"uuid": str(uuid.uuid4()),
                 "file_format": "fastq",
+                "description": "tibanna test",
                 "lab": DEFAULT_LAB,
                 "award": DEFAULT_AWARD}
     res = ff_utils.post_metadata(ffobject, 'FileFastq', key=key)
@@ -221,9 +222,11 @@ def post_new_processedfile(file_format, key, extra_file_formats=None,
         extra_files = [{'file_format': ef} for ef in extra_file_formats]
     else:
         extra_files = None
+    other_fields = kwargs
+    other_fields.update({"description": "tibanna test"})
     new_pf = ProcessedFileMetadata(file_format=file_format,
                                    extra_files=extra_files,
-                                   other_fields=kwargs).as_dict()
+                                   other_fields=other_fields).as_dict()
     res = ff_utils.post_metadata(new_pf, 'FileProcessed', key=key)
     if upload_file:
         f_uuid = res['@graph'][0]['uuid']
