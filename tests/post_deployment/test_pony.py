@@ -17,7 +17,7 @@ def test_md5():
     key = dev_key()
     # prep new File
     data = get_test_json('md5.json')
-    fq_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
+    fq_uuid = post_new_fastqfile(key=key, upload_content=str(uuid.uuid4()))  # upload random content to avoid md5 conflict
     # prep input json
     data['input_files'][0]['uuid'] = fq_uuid
     # run workflow
