@@ -27,6 +27,7 @@ def test_md5():
     time.sleep(360)
     # check step function status
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
+    outjson = api.check_output(res['_tibanna']['exec_arn'])
     # check postrun json
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
     assert 'status' in postrunjson['Job']
@@ -37,7 +38,6 @@ def test_md5():
     assert res['md5sum'] == '1a100f38fadf653091a67b3705dfc1f6'
     assert res['content_md5sum'] == 'f3de8413d8bf6a1b1848e2208b920c82'
     assert res['file_size'] == 123
-    outjson = api.check_output(res['_tibanna']['exec_arn'])
     assert 'ff_meta' in outjson
     assert 'uuid' in outjson['ff_meta']
     wfr_uuid = outjson['ff_meta']['uuid']
@@ -49,7 +49,7 @@ def test_md5():
 def test_fastqc():
     key = dev_key()
     data = get_test_json('fastqc.json')
-    fq_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
+    fq_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R2.fastq.gz'))
     data['input_files'][0]['uuid'] = fq_uuid
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
@@ -57,13 +57,13 @@ def test_fastqc():
     assert 'exec_arn' in res['_tibanna']
     time.sleep(360)
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
+    outjson = api.check_output(res['_tibanna']['exec_arn'])
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
     assert 'status' in postrunjson['Job']
     assert postrunjson['Job']['status'] == '0'
     res = ff_utils.get_metadata(fq_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
     ff_utils.patch_metadata({'status': 'deleted'}, fq_uuid, key=key)
     assert 'quality_metric' in res
-    outjson = api.check_output(res['_tibanna']['exec_arn'])
     assert 'ff_meta' in outjson
     assert 'uuid' in outjson['ff_meta']
     wfr_uuid = outjson['ff_meta']['uuid']
@@ -76,8 +76,8 @@ def test_bwa():
     key = dev_key()
     # prep new File
     data = get_test_json('bwa-check.json')
-    fq1_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R1.fastq.gz'))
-    fq2_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R2.fastq.gz'))
+    fq1_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/B.R1.fastq.gz'))
+    fq2_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/B.R2.fastq.gz'))
     # prep input json
     data['input_files'][0]['uuid'] = fq1_uuid  # fastq_R1
     data['input_files'][0]['uuid'] = fq2_uuid  # fastq_R2
@@ -87,10 +87,10 @@ def test_bwa():
     assert 'exec_arn' in res['_tibanna']
     time.sleep(360)
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
+    outjson = api.check_output(res['_tibanna']['exec_arn'])
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
     assert 'status' in postrunjson['Job']
     assert postrunjson['Job']['status'] == '0'
-    outjson = api.check_output(res['_tibanna']['exec_arn'])
     assert 'ff_meta' in outjson
     assert 'uuid' in outjson['ff_meta']
     wfr_uuid = outjson['ff_meta']['uuid']
