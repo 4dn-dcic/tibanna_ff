@@ -50,7 +50,7 @@ def test_fastqc():
     key = dev_key()
     data = get_test_json('fastqc.json')
     fq_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R2.fastq.gz'))
-    data['input_files'][0]['uuid'] = fq_uuid
+    data['input_fastq'][0]['uuid'] = fq_uuid
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
@@ -80,7 +80,7 @@ def test_bwa():
     fq2_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/B.R2.fastq.gz'))
     # prep input json
     data['input_files'][0]['uuid'] = fq1_uuid  # fastq_R1
-    data['input_files'][0]['uuid'] = fq2_uuid  # fastq_R2
+    data['input_files'][1]['uuid'] = fq2_uuid  # fastq_R2
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res

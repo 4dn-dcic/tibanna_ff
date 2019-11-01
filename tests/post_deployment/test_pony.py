@@ -51,7 +51,7 @@ def test_fastqc():
     key = dev_key()
     data = get_test_json('fastqc.json')
     fq_uuid = post_new_fastqfile(key=key, upload_file=os.path.join(FILE_DIR, 'fastq/A.R2.fastq.gz'))
-    data['input_files'][0]['uuid'] = fq_uuid
+    data['input_fastq'][0]['uuid'] = fq_uuid
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
