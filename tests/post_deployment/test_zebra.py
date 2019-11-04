@@ -2,6 +2,9 @@ import pytest
 import os
 import json
 import time
+import uuid
+import gzip
+import hashlib
 from tibanna_cgap.core import API
 from tibanna_cgap.vars import DEV_SFN, DEV_ENV
 from tests.tibanna.zebra.conftest import post_new_fastqfile, get_test_json, dev_key
@@ -16,7 +19,9 @@ def test_md5():
     key = dev_key()
     # prep new File
     data = get_test_json('md5.json')
-    fq_uuid = post_new_fastqfile(key=key, upload_content=str(uuid.uuid4()))  # upload random content to avoid md5 conflict
+    content = bytes(str(uuid.uuid4()), 'utf-8')
+    gzipped_content = gzip.compress(content)
+    fq_uuid = post_new_fastqfile(key=key, upload_content=gzipped_content)  # upload random content to avoid md5 conflict
     # prep input json
     data['input_files'][0]['uuid'] = fq_uuid
     # run workflow
@@ -35,9 +40,9 @@ def test_md5():
     # check metadata update
     res = ff_utils.get_metadata(fq_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
     ff_utils.patch_metadata({'status': 'deleted'}, fq_uuid, key=key)
-    assert res['md5sum'] == '1a100f38fadf653091a67b3705dfc1f6'
-    assert res['content_md5sum'] == 'f3de8413d8bf6a1b1848e2208b920c82'
-    assert res['file_size'] == 123
+    assert res['md5sum'] == hashlib.md5(gzipped_content).hexdigest()
+    assert res['content_md5sum'] == hashlib.md5(content).hexdigest()
+    assert res['file_size'] == len(gzipped_content)
     assert 'ff_meta' in outjson
     assert 'uuid' in outjson['ff_meta']
     wfr_uuid = outjson['ff_meta']['uuid']

@@ -40,6 +40,7 @@ def start_run_event_bwa_check():
 
 @valid_env
 def post_new_fastqfile(key, upload_file=None, upload_content=None):
+    """upload_content must be in bytes"""
     ffobject = {"uuid": str(uuid.uuid4()),
                 "file_format": "fastq",
                 "description": "tibanna test",
@@ -55,7 +56,7 @@ def post_new_fastqfile(key, upload_file=None, upload_content=None):
         f_uuid = res['@graph'][0]['uuid']
         accession = res['@graph'][0]['accession']
         upload_key = f_uuid + '/' + accession + '.fastq.gz'
-        boto3.client('s3').put_object(Body=upload_content.encode('utf-8'),
+        boto3.client('s3').put_object(Body=upload_content,
                                       Bucket=BUCKET_NAME(DEV_ENV, 'FileFastq'),
                                       Key=upload_key)
     return res['@graph'][0]['uuid']
