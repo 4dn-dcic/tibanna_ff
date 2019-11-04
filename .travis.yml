@@ -19,10 +19,11 @@ jobs:
     - if [ "$TRAVIS_BRANCH" != "doc" ]; then
       invoke test --no-flake --no-post; fi
     - if [ "$TRAVIS_BRANCH" == "production" ]; then
-      invoke test --deployment
+      invoke test --deployment; fi
     after_success:
     - echo "finished running tests on repo"
     - python-codacy-coverage -r coverage.xml
     - if [ "$TRAVIS_BRANCH" == "production" ]; then
-      tibanna_4dn deploy_pony
-      tibanna_cgap deploy_zebra
+      tibanna_4dn deploy_pony;
+      tibanna_cgap deploy_zebra;
+      fi
