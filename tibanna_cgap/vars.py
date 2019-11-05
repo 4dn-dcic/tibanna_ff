@@ -16,7 +16,7 @@ DEFAULT_PROJECT = '12a92962-8265-4fc0-b2f8-cf14f05db58b'
 
 HIGLASS_BUCKETS = []
 
-DEV_ENV = 'fourfront-cgap'
+DEV_ENV = 'fourfront-cgapwolf'
 IAM_BUCKETS = [BUCKET_NAME(DEV_ENV, 'FileProcessed'),
                BUCKET_NAME(DEV_ENV, 'FileFastq'),
                'tibanna-output']

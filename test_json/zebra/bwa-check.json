@@ -26,7 +26,7 @@
     },
     "_tibanna": {
       "run_type": "workflow_bwa-mem_no_unzip-check",
-      "env": "fourfront-cgap"
+      "env": "fourfront-cgapwolf"
     },
     "app_name": "workflow_bwa-mem_no_unzip-check"
 }

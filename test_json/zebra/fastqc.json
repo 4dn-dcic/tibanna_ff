@@ -13,6 +13,6 @@
     "parameters": {},
     "_tibanna":{
       "run_type": "fastqc",
-      "env": "fourfront-cgap"
+      "env": "fourfront-cgapwolf"
     }
 }
