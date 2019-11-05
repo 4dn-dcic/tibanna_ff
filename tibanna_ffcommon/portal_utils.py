@@ -52,7 +52,8 @@ from .exceptions import (
 
 
 class FFInputAbstract(SerializableObject):
-    def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='', _tibanna=None, **kwargs):
+    def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
+                       _tibanna=None, push_error_to_end=True, **kwargs):
         if not workflow_uuid:
             raise MalFormattedFFInputException("missing field in input json: workflow_uuid")
         if not config:
@@ -76,6 +77,7 @@ class FFInputAbstract(SerializableObject):
         self.output_files = kwargs.get('output_files', [])  # for user-supplied output files
         self.dependency = kwargs.get('dependency', None)
         self.wf_meta_ = None
+        self.push_error_to_end = push_error_to_end
 
         self._tibanna = _tibanna
         self.tibanna_settings = None
@@ -759,7 +761,7 @@ class FourfrontUpdaterAbstract(object):
         self.jobid = jobid
         self.config = Config(**config) if config else None
         self.ff_meta = self.WorkflowRunMetadata(**ff_meta) if ff_meta else None
-        self.postrunjson = self.get_postrunjson(postrunjson)
+        self._postrunjson = self.get_postrunjson(postrunjson)
         if pf_meta:
             self.pf_output_files = {pf['uuid']: self.ProcessedFileMetadata(**pf) for pf in pf_meta}
         else:
@@ -783,10 +785,18 @@ class FourfrontUpdaterAbstract(object):
         except:
             postrunjsonfilename = "%s.postrun.json" % self.jobid
             if not does_key_exist(self.config.log_bucket, postrunjsonfilename):
-                postrunjson_location = "https://s3.amazonaws.com/%s/%s" % (self.config.log_bucket, postrunjsonfilename)
-                raise Exception("Postrun json not found at %s" % postrunjson_location)
+                return None
             postrunjsoncontent = json.loads(read_s3(self.config.log_bucket, postrunjsonfilename))
             return AwsemPostRunJson(**postrunjsoncontent)
+
+    @property
+    def postrunjson(self):
+        if self._postrunjson:
+            return self._postrunjson
+        else:
+            postrunjsonfilename = "%s.postrun.json" % self.jobid
+            postrunjson_location = "https://s3.amazonaws.com/%s/%s" % (self.config.log_bucket, postrunjsonfilename)
+            raise Exception("Postrun json not found at %s" % postrunjson_location)
 
     def create_wfr_qc(self):
         qc_object = self.create_qc_template()
