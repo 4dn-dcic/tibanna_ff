@@ -4,13 +4,19 @@ from dcicutils import ff_utils
 import os
 import json
 import uuid
+import boto3
 from tests.tibanna.ffcommon.conftest import read_event_file
+from tibanna_ffcommon.portal_utils import (
+    TibannaSettings
+)
 from tibanna_4dn.pony_utils import (
     ProcessedFileMetadata
 )
 from tibanna_4dn.vars import (
     DEFAULT_LAB,
-    DEFAULT_AWARD
+    DEFAULT_AWARD,
+    BUCKET_NAME,
+    DEV_ENV
 )
 
 
@@ -194,15 +200,47 @@ def update_ffmeta_hicbam(ff_keys):
 
 
 @valid_env
-def post_new_processedfile(file_format, key, extra_file_formats=None, **kwargs):
+def post_new_fastqfile(key, upload_file=None, upload_content=None):
+    """upload_content must be in bytes"""
+    ffobject = {"uuid": str(uuid.uuid4()),
+                "file_format": "fastq",
+                "description": "tibanna test",
+                "lab": DEFAULT_LAB,
+                "award": DEFAULT_AWARD}
+    res = ff_utils.post_metadata(ffobject, 'FileFastq', key=key)
+    if upload_file:
+        f_uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = f_uuid + '/' + accession + '.fastq.gz'
+        boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileFastq'), upload_key)
+    if upload_content:
+        f_uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = f_uuid + '/' + accession + '.fastq.gz'
+        boto3.client('s3').put_object(Body=upload_content,
+                                      Bucket=BUCKET_NAME(DEV_ENV, 'FileFastq'),
+                                      Key=upload_key)
+    return res['@graph'][0]['uuid']
+
+
+@valid_env
+def post_new_processedfile(file_format, key, extra_file_formats=None,
+                           upload_file=None, extension=None, **kwargs):
     if extra_file_formats:
         extra_files = [{'file_format': ef} for ef in extra_file_formats]
     else:
         extra_files = None
+    other_fields = kwargs
+    other_fields.update({"description": "tibanna test"})
     new_pf = ProcessedFileMetadata(file_format=file_format,
                                    extra_files=extra_files,
-                                   other_fields=kwargs).as_dict()
+                                   other_fields=other_fields).as_dict()
     res = ff_utils.post_metadata(new_pf, 'FileProcessed', key=key)
+    if upload_file:
+        f_uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = f_uuid + '/' + accession + '.' + extension
+        boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileProcessed'), upload_key)
     return res['@graph'][0]['uuid']
 
 
@@ -222,10 +260,17 @@ def post_new_qc(qctype, key, **kwargs):
 def get_test_json(file_name):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     event_file_name = os.path.join(dir_path, '..', '..', '..', 'test_json', 'pony', file_name)
-    return read_event_file(event_file_name, ff_keys)
+    return read_event_file(event_file_name)
 
 
 def get_event_file_for(lambda_name, ff_keys=None, event_file='event.json'):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     event_file_name = os.path.join(dir_path, lambda_name, event_file)
     return read_event_file(event_file_name, ff_keys)
+
+
+def dev_key():
+    data = {'env': DEV_ENV,
+            'settings': {'1': '1'}}
+    tibanna = TibannaSettings(**data)
+    return tibanna.ff_keys

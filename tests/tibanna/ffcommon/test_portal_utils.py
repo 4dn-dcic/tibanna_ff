@@ -40,14 +40,6 @@ def test_ff_input_abstract():
     assert inp.config.log_bucket == 'b'
 
 
-def test_ff_input_abstract_missing_field_error():
-    data = {'workflow_uuid': 'a',
-            'config': {'log_bucket': 'b'}}
-    with pytest.raises(MalFormattedFFInputException) as excinfo:
-        FFInputAbstract(**data)
-    assert "missing field in input json: output_bucket" in str(excinfo)
-
-
 def test_ff_input_abstract_missing_field_error2():
     data = {'workflow_uuid': 'a',
             'output_bucket': 'c'}

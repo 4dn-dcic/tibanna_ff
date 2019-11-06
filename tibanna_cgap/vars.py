@@ -16,6 +16,8 @@ DEFAULT_PROJECT = '12a92962-8265-4fc0-b2f8-cf14f05db58b'
 
 HIGLASS_BUCKETS = []
 
-IAM_BUCKETS = ['elasticbeanstalk-fourfront-cgap-wfoutput',
-               'elasticbeanstalk-fourfront-cgap-files',
+DEV_ENV = 'fourfront-cgapwolf'
+IAM_BUCKETS = [BUCKET_NAME(DEV_ENV, 'FileProcessed'),
+               BUCKET_NAME(DEV_ENV, 'FileFastq'),
                'tibanna-output']
+DEV_SFN = 'tibanna_' + LAMBDA_TYPE + '_' + DEV_SUFFIX

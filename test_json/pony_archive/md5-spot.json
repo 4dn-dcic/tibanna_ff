@@ -2,7 +2,6 @@
     "config": {
       "ebs_type" : "io1",
       "ebs_iops" : 500,
-      "json_bucket": "4dn-aws-pipeline-run-json",
       "shutdown_min" : "now",
       "log_bucket" : "tibanna-output",
       "key_name": "4dn-encode",

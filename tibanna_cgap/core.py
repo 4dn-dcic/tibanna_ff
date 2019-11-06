@@ -1,7 +1,11 @@
 from tibanna_ffcommon.core import API as _API
 from .stepfunction import StepFunctionZebra
-from .vars import TIBANNA_DEFAULT_STEP_FUNCTION_NAME, LAMBDA_TYPE, IAM_BUCKETS
-
+from .vars import (
+    TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
+    LAMBDA_TYPE,
+    IAM_BUCKETS,
+    DEV_ENV
+)
 
 class API(_API):
 
@@ -22,7 +26,7 @@ class API(_API):
 
     StepFunction = StepFunctionZebra
     default_stepfunction_name = TIBANNA_DEFAULT_STEP_FUNCTION_NAME
-    default_env = 'fourfront-cgap'
+    default_env = DEV_ENV
     sfn_type = LAMBDA_TYPE
     lambda_type = LAMBDA_TYPE
 

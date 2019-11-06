@@ -3,22 +3,16 @@
     "workflow_uuid": "9e094699-561b-4396-8d6a-ffc45f98c5e1",
     "input_files" : [
        {
-           "object_key": "GAPFI3JFGVN4.fastq.gz",
            "workflow_argument_name": "fastq_R1",
-           "uuid": "8f84f677-ded6-4fd5-807c-a32a07089e90",
-           "bucket_name": "elasticbeanstalk-fourfront-cgap-files"
+           "uuid": "8f84f677-ded6-4fd5-807c-a32a07089e90"
        },
        {
-           "object_key": "GAPFI3JFGVN4.fastq.gz",
            "workflow_argument_name": "fastq_R2",
-           "uuid": "8f84f677-ded6-4fd5-807c-a32a07089e90",
-           "bucket_name": "elasticbeanstalk-fourfront-cgap-files"
+           "uuid": "8f84f677-ded6-4fd5-807c-a32a07089e90"
        },
        {
-           "object_key": "GAPFI4U1HXIY.bwt",
            "workflow_argument_name": "reference",
-           "uuid": "b24ed5ed-a037-48a0-a938-3fecfb90d0cf",
-           "bucket_name": "elasticbeanstalk-fourfront-cgap-files"
+           "uuid": "23d01305-e0cc-4cc7-af92-254a8c41034d"
        }
     ],
     "config": {
@@ -32,8 +26,7 @@
     },
     "_tibanna": {
       "run_type": "workflow_bwa-mem_no_unzip-check",
-      "env": "fourfront-cgap"
+      "env": "fourfront-cgapwolf"
     },
-    "app_name": "workflow_bwa-mem_no_unzip-check",
-    "output_bucket": "elasticbeanstalk-fourfront-cgap-wfoutput"
+    "app_name": "workflow_bwa-mem_no_unzip-check"
 }

@@ -116,11 +116,11 @@ def rerun_many(sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, stopdate='13Feb2018', sto
                      overwrite_input_extra=overwrite_input_extra, key_name=key_name, name=name)
 
 
-def stat(sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, status=None, long=False):
+def stat(sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, status=None, long=False, nlines=None):
     """print out executions with details
     status can be one of 'RUNNING'|'SUCCEEDED'|'FAILED'|'TIMED_OUT'|'ABORTED'
     """
-    API().stat(sfn=sfn, status=status, long=long)
+    API().stat(sfn=sfn, status=status, verbose=long, n=nlines)
 
 
 def plot_metrics(job_id, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, upload=False):

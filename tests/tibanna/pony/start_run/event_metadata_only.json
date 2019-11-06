@@ -13,7 +13,6 @@
   "config": {
     "cwl_version": "draft3",
 
-    "json_bucket": "4dn-aws-pipeline-run-json",
     "ebs_iops": 500,
     "shutdown_min": "30",
     "ebs_type": "io1",

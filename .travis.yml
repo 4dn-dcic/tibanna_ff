@@ -4,9 +4,7 @@ cache:
   pip: false
 env:
   global:
-  - AWS_ACCOUNT_NUMBER=643366669028
-  - TIBANNA_AWS_REGION=us-east-1
-  - AWS_S3_ROLE_NAME=S3_access
+  - AWS_DEFAULT_REGION=us-east-1
 jobs:
   include:
   - stage: unit tests
@@ -19,7 +17,13 @@ jobs:
     - pip install codacy-coverage
     script:
     - if [ "$TRAVIS_BRANCH" != "doc" ]; then
-      invoke test --no-flake --no-post; fi  # temporarily ignore test_webdev which uses tibanna_pony
+      invoke test --no-flake --no-post; fi
+    - if [ "$TRAVIS_BRANCH" == "production" ]; then
+      invoke test --deployment; fi
     after_success:
     - echo "finished running tests on repo"
     - python-codacy-coverage -r coverage.xml
+    - if [ "$TRAVIS_BRANCH" == "production" ]; then
+      tibanna_4dn deploy_pony;
+      tibanna_cgap deploy_zebra;
+      fi

@@ -40,6 +40,7 @@ from tibanna.awsem import (
 from tibanna.vars import (
     METRICS_URL
 )
+from .vars import BUCKET_NAME
 from .config import (
     higlass_config
 )
@@ -51,11 +52,10 @@ from .exceptions import (
 
 
 class FFInputAbstract(SerializableObject):
-    def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='', _tibanna=None, **kwargs):
+    def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
+                       _tibanna=None, push_error_to_end=True, **kwargs):
         if not workflow_uuid:
             raise MalFormattedFFInputException("missing field in input json: workflow_uuid")
-        if not output_bucket:
-            raise MalFormattedFFInputException("missing field in input json: output_bucket")
         if not config:
             raise MalFormattedFFInputException("missing field in input json: config")
         self.config = Config(**config)
@@ -63,7 +63,7 @@ class FFInputAbstract(SerializableObject):
 
         self.input_files = kwargs.get('input_files', [])
         for infile in self.input_files:
-            if not infile:
+            if not infile or 'uuid' not in infile or 'workflow_argument_name' not in infile:
                 raise MalFormattedFFInputException("malformed input, check input_files in your input json")
 
         self.workflow_uuid = workflow_uuid
@@ -77,11 +77,12 @@ class FFInputAbstract(SerializableObject):
         self.output_files = kwargs.get('output_files', [])  # for user-supplied output files
         self.dependency = kwargs.get('dependency', None)
         self.wf_meta_ = None
+        self.push_error_to_end = push_error_to_end
 
         self._tibanna = _tibanna
         self.tibanna_settings = None
         if _tibanna:
-            env = _tibanna.get('env', '-'.join(self.output_bucket.split('-')[1:-1]))
+            env = _tibanna.get('env')
             try:
                 self.tibanna_settings = TibannaSettings(env, settings=_tibanna)
             except Exception as e:
@@ -95,6 +96,26 @@ class FFInputAbstract(SerializableObject):
             self.config.public_postrun_json = True
         if not hasattr(config, 'email'):
             self.config.email = False
+
+        # fill in input_files info if object_key and bucket_name is not provided
+        for infile in self.input_files:
+            if 'object_key' not in infile or 'bucket_name' not in infile:
+                try:
+                    infile_meta = get_metadata(infile['uuid'],
+                                               key=self.tibanna_settings.ff_keys,
+                                               ff_env=self.tibanna_settings.env,
+                                               add_on='frame=object')
+                except Exception as e:
+                    raise FdnConnectionException(e)
+            if 'object_key' not in infile:
+                infile['object_key'] = infile_meta['upload_key'].replace(infile['uuid'] + '/', '')
+            if 'bucket_name' not in infile:
+                infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env,
+                                                    infile_meta['@type'][0])
+
+        # fill in output_bucket
+        if not self.output_bucket:
+            self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
 
     def as_dict(self):
         d_shallow = self.__dict__.copy()
@@ -740,7 +761,7 @@ class FourfrontUpdaterAbstract(object):
         self.jobid = jobid
         self.config = Config(**config) if config else None
         self.ff_meta = self.WorkflowRunMetadata(**ff_meta) if ff_meta else None
-        self.postrunjson = self.get_postrunjson(postrunjson)
+        self._postrunjson = self.get_postrunjson(postrunjson)
         if pf_meta:
             self.pf_output_files = {pf['uuid']: self.ProcessedFileMetadata(**pf) for pf in pf_meta}
         else:
@@ -764,10 +785,18 @@ class FourfrontUpdaterAbstract(object):
         except:
             postrunjsonfilename = "%s.postrun.json" % self.jobid
             if not does_key_exist(self.config.log_bucket, postrunjsonfilename):
-                postrunjson_location = "https://s3.amazonaws.com/%s/%s" % (self.config.log_bucket, postrunjsonfilename)
-                raise Exception("Postrun json not found at %s" % postrunjson_location)
+                return None
             postrunjsoncontent = json.loads(read_s3(self.config.log_bucket, postrunjsonfilename))
             return AwsemPostRunJson(**postrunjsoncontent)
+
+    @property
+    def postrunjson(self):
+        if self._postrunjson:
+            return self._postrunjson
+        else:
+            postrunjsonfilename = "%s.postrun.json" % self.jobid
+            postrunjson_location = "https://s3.amazonaws.com/%s/%s" % (self.config.log_bucket, postrunjsonfilename)
+            raise Exception("Postrun json not found at %s" % postrunjson_location)
 
     def create_wfr_qc(self):
         qc_object = self.create_qc_template()

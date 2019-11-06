@@ -6,17 +6,14 @@
       "password": ""
     },
     "_tibanna": {
-      "env": "fourfront-cgap",
+      "env": "fourfront-cgapwolf",
       "run_type": "md5"
     },
     "parameters": {}, 
     "workflow_uuid": "4dn-dcic-lab:wf-md5-0.2.6",
     "input_files": [
                     {"workflow_argument_name": "input_file", 
-                     "bucket_name": "elasticbeanstalk-fourfront-cgap-files",
-                     "uuid": "8f84f677-ded6-4fd5-807c-a32a07089e90",
-                     "object_key": "GAPFI3JFGVN4.fastq.gz"
+                     "uuid": "8f84f677-ded6-4fd5-807c-a32a07089e90"
                     }
-    ],
-    "output_bucket": "elasticbeanstalk-fourfront-cgap-wfoutput"
+    ]
 }

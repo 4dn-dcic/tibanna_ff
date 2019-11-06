@@ -12,10 +12,7 @@
   "input_files": [
     {
       "workflow_argument_name": "input_file",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
-      "uuid": "56b52219-32b9-40db-af38-80233c4717ec",
-      "object_key": "4DNFICGOY5GV.pairs.gz"
+      "uuid": "56b52219-32b9-40db-af38-80233c4717ec"
     }
-  ],
-  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput"
+  ]
 }
