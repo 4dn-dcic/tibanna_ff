@@ -5,22 +5,16 @@
   "workflow_uuid": "9e094699-561b-4396-8d6a-ffc45f98c5e1",
   "input_files": [
     {
-      "object_key": "GAPFIO67APU1.fastq.gz",
       "workflow_argument_name": "fastq_R1",
-      "uuid": "10e82a90-49e5-4c33-afab-9ec90d65faa0",
-      "bucket_name": "elasticbeanstalk-fourfront-cgap-files"
+      "uuid": "10e82a90-49e5-4c33-afab-9ec90d65faa0"
     },
     {
-      "object_key": "GAPFIO67APT1.fastq.gz",
       "workflow_argument_name": "fastq_R2",
-      "uuid": "10e82a90-49e5-4c33-afab-9ec90d65faa1",
-      "bucket_name": "elasticbeanstalk-fourfront-cgap-files"
+      "uuid": "10e82a90-49e5-4c33-afab-9ec90d65faa1"
     },
     {
-      "object_key": "4DNFIYU3FC57.bwt",
       "workflow_argument_name": "reference",
-      "uuid": "b24ed5ed-a037-48a0-a938-3fecfb90d0cf",
-      "bucket_name": "elasticbeanstalk-fourfront-cgap-files"
+      "uuid": "b24ed5ed-a037-48a0-a938-3fecfb90d0cf"
     }
   ],
   "config": {
@@ -29,18 +23,12 @@
     "EBS_optimized": true,
     "spot_instance": true,
     "log_bucket": "tibanna-output",
-    "run_name": "run_workflow_bwa-mem_no_unzip-check-a551e751-9a5e-4f67-88aa-452789c0bb99",
     "behavior_on_capacity_limit": "wait_and_retry"
   },
   "_tibanna": {
-    "run_id": "073c8bf5-cd38-4720-b873-9ef0eafc3953",
-    "env": "fourfront-cgap",
-    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra_dev:run_workflow_bwa-mem_no_unzip-check-a551e751-9a5e-4f67-88aa-452789c0bb99",
-    "run_type": "workflow_bwa-mem_no_unzip-check",
-    "run_name": "run_workflow_bwa-mem_no_unzip-check-a551e751-9a5e-4f67-88aa-452789c0bb99",
-    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra_dev:run_workflow_bwa-mem_no_unzip-check-a551e751-9a5e-4f67-88aa-452789c0bb99"
+    "env": "fourfront-cgapwolf",
+    "run_type": "workflow_bwa-mem_no_unzip-check"
   },
   "app_name": "workflow_bwa-mem_no_unzip-check",
-  "output_bucket": "elasticbeanstalk-fourfront-cgap-wfoutput",
   "jobid": "bY0qHccUiBnP"
 }
