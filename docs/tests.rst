@@ -59,48 +59,15 @@ To run individual test (to save time for testing while still working on the code
     pytest tests/tibanna/pony/test_fourfrontupdater.py
     
     
-Travis test
-+++++++++++
 
-Travis test is currently set up to run at every push and every PR. Travis test currently runs only local tests.
-
-
-Tests on deployed dev tibanna
-+++++++++++++++++++++++++++++
+Post-deployment test
+++++++++++++++++++++
 
 Testing on a dev tibanna requires spinning up EC2 instances and it costs $$. So this test should be done only when we're confident about our modifications and after all the local tests already passed.
 
-To run a deployment-based test, do the following.
+A post-deployment test first deploys dev tibanna pony and zebra and then tests are submitted to the newly deployed dev Tibanna step functions.
 
-Pony
-~~~~
-
-::
-
-   tibanna_4dn deploy_pony -s dev
-   tibanna_4dn run_workflow -s tibanna_pony_dev -i test_json/pony/md5.json
-   tibanna_4dn run_workflow -s tibanna_pony_dev -i test_json/pony/fastqc.json
-   tibanna_4dn run_workflow -s tibanna_pony_dev -i test_json/pony/bwa-mem.json
-   tibanna_4dn run_workflow -s tibanna_pony_dev -i test_json/pony/bed2beddb.json
-
-
-Zebra
-~~~~~
-
-::
-   
-   tibanna_cgap deploy_zebra -s dev
-   tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/md5.json
-   tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/fastqc.json
-   tibanna_cgap run_workflow -s tibanna_zebra_dev -i test_json/zebra/bwa-check.json
-
-
-Integrated test (coming soon)
-+++++++++++++++++++++++++++++
-
-The following run_workflow tests are added as part of more rigorous automatic tests. The runs are submitted to a newly deployed dev Tibanna, before deploying a production Tibanna. These tests involve actually spinning up small EC2 instances. Assuming they run in parallel and including the sleep test, the total duration of the test would be about 1 hr.
-
-The dev tibanna suffixes are currently specified in ``tasks.py`` as ``pre``. (``tibanna_pony_pre`` and ``tibanna_zebra_pre``).
+The dev tibanna suffixes are currently specified in ``tasks.py`` as ``pre``. (The post-deployment tests run on ``tibanna_pony_pre`` and ``tibanna_zebra_pre``).
 
 To run the full test including deployment and post-deployment tests,
 
@@ -109,22 +76,21 @@ To run the full test including deployment and post-deployment tests,
     invoke test --deployment
     
 
-
 Four different output types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pony
 ----
 
-- ``md5`` (``report``), ``fastqc`` (``QC``), ``bwa-mem`` (``processed``) (with a small reference index file), ``bedGraphToBigWig`` (``to-be-extra-input``)
+- ``md5`` (``report``), ``fastqc`` (``QC``), ``bwa-mem`` (``processed``) (with a small reference index file), ``bedGraphToBigWig`` (``to-be-extra-input``, not yet included)
 - ``QCList`` is not available for Fourfront.
 
 Zebra
 -----
 
-- ``md5`` (``report``), ``fastqc`` (``QC``), ``bwa-check`` (``processed``) (with a small reference index file), ``bedGraphToBigWig`` (``to-be-extra-input``)
+- ``md5`` (``report``), ``fastqc`` (``QC``), ``bwa-check`` (``processed``) (with a small reference index file)
   - We don't have to-be-extra-input type on CGAP yet.
-- ``QCList`` test by running ``bamqc`` on top of ``bwa-check`` and then rerunning ``bamqc`` (must replace the first one).
+- ``QCList`` test by running ``bamqc`` on top of ``bwa-check`` and then rerunning ``bamqc`` (must replace the first one). (not yet included)
 
 
 Input array types
@@ -133,14 +99,14 @@ Input array types
 Pony
 ----
 
-- ``merge_fastq`` with very small fastq files (1D array)
-- ``merge_and_cut`` test workflow item (3D array)
+- ``merge_fastq`` with very small fastq files (1D array) (not yet included)
+- ``merge_and_cut`` test workflow item (3D array) (not yet included)
 
 Zebra
 -----
 
-- ``merge_bam`` with very small bam files (1D array)
-- ``merge_and_cut`` test workflow item (3D array)
+- ``merge_bam`` with very small bam files (1D array) (not yet included)
+- ``merge_and_cut`` test workflow item (3D array) (not yet included)
 
 
 Reruns
@@ -149,10 +115,10 @@ Reruns
 Pony
 ----
 
-- md5 conflict test
+- md5 conflict test (not yet included)
   - rerun the same File item with a different md5 content (must fail)
   - rerun a different File item with the same md5 content (must fail)
-- overwrite_extra test
+- overwrite_extra test (not yet included)
   - rerun the same ``bedGraphToBigWig`` job with different file content with overwrite_extra = True (must overwrite)
   - rerun the same ``bedGraphToBigWig`` job with overwrite_extra = False (must fail)
 
@@ -160,8 +126,8 @@ Zebra
 -----
 
 - md5 conflict test
-  - rerun the same File item with a different md5 content (must fail)
-  - rerun a different File item with the same md5 content (must fail)
+  - rerun the same File item with a different md5 content (must fail) (not yet included)
+  - rerun a different File item with the same md5 content (must fail) (not yet included)
   
 WDL
 ~~~
@@ -169,24 +135,30 @@ WDL
 Pony
 ----
 
-- ``merge`` WDL test workflow item (also 2D array test)
+- ``merge`` WDL test workflow item (also 2D array test) (not yet included)
 
 Zebra
 -----
 
-- ``merge`` WDL test workflow item (also 2D array test)
+- ``merge`` WDL test workflow item (also 2D array test) (not yet included)
 
 
 Workflow Run QC
 ~~~~~~~~~~~~~~~
 
-- check html & tsv
+- check html & tsv (not yet included)
 
 EC2 test
 ~~~~~~~~
 
 - EC2 unintended termination test (force kill externally)
-- EC2 idle test (sleep for 1hr)
+- EC2 idle test (sleep for 1hr) (Not yet included)
+
+
+Travis test
++++++++++++
+
+Travis test is currently set up to run at every push and every PR. Travis test currently runs only local tests for most cases. It runs post-deployment tests when there is a ``git push`` to the ``production`` branch. This can take longer and $$ (actually launching EC2 instances) and we should do this only when we're fairly confident, usually after we merge things to the ``master`` branch, we can push it to ``production``. After the post-deployment test succeeds, Travis auto-deploys production pony and zebra.
 
 
 
