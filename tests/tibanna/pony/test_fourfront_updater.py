@@ -1,5 +1,6 @@
 import copy
 import boto3
+import uuid
 from dcicutils import ff_utils
 from tibanna_4dn.pony_utils import (
     FourfrontUpdater,
@@ -58,6 +59,25 @@ def test_post_patch(update_ffmeta_event_data_fastqc2):
     updater.patch_all()
     res = ff_utils.get_metadata(item_uuid, key=updater.tibanna_settings.ff_keys)
     assert res['status'] == 'deleted'
+
+
+@valid_env
+def test_rna_strandedness(update_ffmeta_event_data_rna_strandedness):
+    report_key = 'lalala/match_count'
+    s3 = boto3.client('s3')
+    s3.put_object(Body='1234\n5'.encode('utf-8'),
+                  Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+    updater = FourfrontUpdater(**update_ffmeta_event_data_rna_strandedness)
+    updater.update_rna_strandedness()
+    sense, antisense = updater.parse_rna_strandedness_report(updater.read('match_count'))
+    assert sense == 1234
+    assert antisense == 5
+    assert '4c3be0d1-cd00-4a14-85ed-43269591fe41' in updater.patch_items
+    assert 'beta_actin_sense_count' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
+    assert 'beta_actin_antisense_count' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
+    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['beta_actin_sense_count'] == 1234
+    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['beta_actin_antisense_count'] == 5
+    s3.delete_object(Bucket='tibanna-output', Key=report_key)
 
 
 @valid_env

@@ -1442,10 +1442,10 @@ class FourfrontUpdaterAbstract(object):
             self.ff_meta.run_status = 'error'
             return
         sense, antisense = self.parse_rna_strandedness_report(self.read(report_arg))
-        input_arg = self.input_argnames[0]  # assume one input arg
+        input_arg = 'fastq'
         input_meta = self.file_items(input_arg)[0]  # assume one input file
         patch_content = {'beta_actin_sense_count': sense,
-                              'beta_actin_antisense_count': antisense}
+                         'beta_actin_antisense_count': antisense}
         self.update_patch_items(input_meta['uuid'], patch_content)
 
     @classmethod
