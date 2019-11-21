@@ -127,7 +127,7 @@
                     "target": "lalala/md5_report"
                 }
             }, 
-            "output_bucket_directory": "tibanna-output", 
+            "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput", 
             "output_target": {
                 "report": "lalala/md5_report"
             }
