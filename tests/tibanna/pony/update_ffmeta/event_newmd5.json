@@ -49,7 +49,6 @@
     "cwl": "md5.5.cwl",
     "secondary_files": {},
     "cwl_directory": "https://raw.githubusercontent.com/4dn-dcic/pipelines-cwl/master/cwl_awsem/",
-    "output_S3_bucket": "tibanna-output",
     "app_version": "5",
     "cwl_children": "",
     "input_files": {
