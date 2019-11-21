@@ -1,0 +1,253 @@
+{
+  "jobid": "lawAqCroSKV1",
+  "args": {
+    "app_name": "rna-strandedness",
+    "app_version": "dev",
+    "cwl_directory_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-rna-strandedness/v2/cwl/",
+    "cwl_main_filename": "rna-strandedness.cwl",
+    "cwl_child_filenames": [],
+    "wdl_directory_url": "",
+    "wdl_main_filename": "",
+    "wdl_child_filenames": "",
+    "cwl_version": "v1",
+    "input_parameters": {},
+    "additional_benchmarking_parameters": {},
+    "output_target": {
+      "match_count": "lalala/match_count"
+    },
+    "secondary_output_target": {},
+    "input_files": {
+      "fastq": {
+        "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
+        "rename": "",
+        "unzip": "",
+        "object_key": "4c3be0d1-cd00-4a14-85ed-43269591fe41/4DNFIGM25CMN.fastq.gz"
+      },
+      "ACTB_reference": {
+        "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
+        "rename": "",
+        "unzip": "",
+        "object_key": "d1b38485-3e5e-4334-9f22-4caedc26188f/4DNFINZ6O6XE.txt"
+      }
+    },
+    "secondary_files": {},
+    "input_env": {},
+    "alt_cond_output_argnames": {},
+    "language": "cwl_v1",
+    "singularity": false,
+    "cwl_directory_local": "",
+    "dependency": {}
+  },
+  "input_files": [
+    {
+      "object_key": "4DNFIGM25CMN.fastq.gz",
+      "workflow_argument_name": "fastq",
+      "uuid": "4c3be0d1-cd00-4a14-85ed-43269591fe41",
+      "bucket_name": "elasticbeanstalk-fourfront-webdev-files"
+    },
+    {
+      "object_key": "4DNFINZ6O6XE.txt",
+      "workflow_argument_name": "ACTB_reference",
+      "uuid": "d1b38485-3e5e-4334-9f22-4caedc26188f",
+      "bucket_name": "elasticbeanstalk-fourfront-webdev-files"
+    }
+  ],
+  "workflow_uuid": "af97597e-877a-40b7-b211-98ec0cfb17b4",
+  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+  "parameters": [],
+  "additional_benchmarking_parameters": {},
+  "output_files": [],
+  "_tibanna": {
+    "run_id": "7c69bc49-98c0-402d-a841-feec1800331b",
+    "env": "fourfront-webdev",
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:rna-strandedness_7c69bc49-98c0-402d-a841-feec1800331b",
+    "run_type": "rna-strandedness",
+    "run_name": "rna-strandedness_7c69bc49-98c0-402d-a841-feec1800331b",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:rna-strandedness_7c69bc49-98c0-402d-a841-feec1800331b"
+  },
+  "ff_meta": {
+    "award": "1U01CA200059-01",
+    "lab": "4dn-dcic-lab",
+    "awsem_app_name": "rna-strandedness",
+    "awsem_job_id": "lawAqCroSKV1",
+    "run_status": "started",
+    "uuid": "d7025d48-ed26-401e-bcc8-fbfa9d0b48bd",
+    "workflow": "af97597e-877a-40b7-b211-98ec0cfb17b4",
+    "run_platform": "AWSEM",
+    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:rna-strandedness_7c69bc49-98c0-402d-a841-feec1800331b",
+    "title": "rna-strandedness dev run 2019-11-21 19:34:46.965466",
+    "input_files": [
+      {
+        "workflow_argument_name": "fastq",
+        "value": "4c3be0d1-cd00-4a14-85ed-43269591fe41",
+        "ordinal": 1,
+        "dimension": "0"
+      },
+      {
+        "workflow_argument_name": "ACTB_reference",
+        "value": "d1b38485-3e5e-4334-9f22-4caedc26188f",
+        "ordinal": 1,
+        "dimension": "0"
+      }
+    ],
+    "output_files": [
+      {
+        "workflow_argument_name": "match_count",
+        "type": "Output report file"
+      }
+    ],
+    "parameters": []
+  },
+  "pf_meta": [],
+  "config": {
+    "mem": 4,
+    "cpu": 2,
+    "EBS_optimized": true,
+    "ebs_size": 4,
+    "ebs_type": "gp2",
+    "json_bucket": "tibanna-output",
+    "ebs_iops": "",
+    "shutdown_min": 30,
+    "password": "dragonfly",
+    "log_bucket": "tibanna-output",
+    "key_name": "4dn-encode",
+    "run_name": "rna-strandedness_7c69bc49-98c0-402d-a841-feec1800331b",
+    "overwrite_input_extra": true,
+    "public_postrun_json": true,
+    "email": false,
+    "instance_type": "t3.xlarge",
+    "spot_duration": "",
+    "spot_instance": false,
+    "behavior_on_capacity_limit": "fail",
+    "cloudwatch_dashboard": false,
+    "root_ebs_size": 8,
+    "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+    "ami_id": "ami-0f06a8358d41c4b9c",
+    "language": "cwl_v1",
+    "job_tag": "rna-strandedness",
+    "instance_id": "i-0de66cccb2d311c6b",
+    "instance_ip": "54.227.101.6",
+    "start_time": "20191121-19:34:51-UTC"
+  },
+  "postrunjson": {
+    "Job": {
+      "App": {
+        "App_name": "rna-strandedness",
+        "App_version": "dev",
+        "language": "cwl_v1",
+        "cwl_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-rna-strandedness/v2/cwl/",
+        "main_cwl": "rna-strandedness.cwl",
+        "other_cwl_files": ""
+      },
+      "Input": {
+        "Input_files_data": {
+          "ACTB_reference": {
+            "path": "d1b38485-3e5e-4334-9f22-4caedc26188f/4DNFINZ6O6XE.txt",
+            "profile": "",
+            "rename": "",
+            "unzip": "",
+            "class": "File",
+            "dir": "elasticbeanstalk-fourfront-webdev-files"
+          },
+          "fastq": {
+            "path": "4c3be0d1-cd00-4a14-85ed-43269591fe41/4DNFIGM25CMN.fastq.gz",
+            "profile": "",
+            "rename": "",
+            "unzip": "",
+            "class": "File",
+            "dir": "elasticbeanstalk-fourfront-webdev-files"
+          }
+        },
+        "Secondary_files_data": {},
+        "Input_parameters": {},
+        "Env": {}
+      },
+      "Output": {
+        "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput",
+        "output_target": {
+          "match_count": "lalala/match_count"
+        },
+        "secondary_output_target": {},
+        "alt_cond_output_argnames": {},
+        "Output files": {
+          "match_count": {
+            "path": "/data1/out/match_count.txt",
+            "target": "lalala/match_count",
+            "basename": "match_count.txt",
+            "checksum": "sha1$865b45e933ed6e8ed292add7f5b321b923347652",
+            "location": "file:///data1/out/match_count.txt",
+            "md5sum": "f2160c8ffedf48068f2e1137e0a3a7e7",
+            "size": 4,
+            "class": "File"
+          }
+        }
+      },
+      "start_time": "20191121-19:34:48-UTC",
+      "JOBID": "lawAqCroSKV1",
+      "Log": {
+        "log_bucket_directory": "tibanna-output"
+      },
+      "end_time": "20191121-19:37:06-UTC",
+      "status": "0",
+      "filesystem": "/dev/nvme1n1",
+      "instance_id": "i-0de66cccb2d311c6b",
+      "total_input_size": "527M",
+      "total_output_size": "32K",
+      "total_tmp_size": "8.0K",
+      "Metrics": {
+        "max_mem_used_MB": 458.51953125,
+        "min_mem_available_MB": 15403.16015625,
+        "total_mem_MB": 15861.6796875,
+        "max_mem_utilization_percent": 2.890737552917187,
+        "max_cpu_utilization_percent": 28,
+        "max_disk_space_utilization_percent": 13.687478986215,
+        "max_disk_space_used_GB": 0.521793365478516
+      }
+    },
+    "config": {
+      "EBS_optimized": true,
+      "ami_id": "ami-0f06a8358d41c4b9c",
+      "behavior_on_capacity_limit": "fail",
+      "cloudwatch_dashboard": false,
+      "cpu": 2,
+      "ebs_iops": "",
+      "ebs_size": 4,
+      "ebs_type": "gp2",
+      "email": false,
+      "instance_type": "t3.xlarge",
+      "job_tag": "rna-strandedness",
+      "json_bucket": "tibanna-output",
+      "language": "cwl_v1",
+      "log_bucket": "tibanna-output",
+      "mem": 4,
+      "overwrite_input_extra": true,
+      "public_postrun_json": true,
+      "root_ebs_size": 8,
+      "run_name": "rna-strandedness_7c69bc49-98c0-402d-a841-feec1800331b",
+      "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+      "shutdown_min": 30,
+      "spot_duration": "",
+      "spot_instance": false
+    },
+    "commands": [
+      [
+        "[job rna-strandedness.cwl] /data1/tmpyb9brx$ docker ",
+        "    run ",
+        "    -i ",
+        "    --volume=/data1/tmpyb9brx:/var/spool/cwl:rw ",
+        "    --volume=/data1/tmp1iXnAM:/tmp:rw ",
+        "    --volume=/data1/input/d1b38485-3e5e-4334-9f22-4caedc26188f/4DNFINZ6O6XE.txt:/var/lib/cwl/stgc45715d8-7f83-469d-a49f-62a8c5987ae8/4DNFINZ6O6XE.txt:ro ",
+        "    --volume=/data1/input/4c3be0d1-cd00-4a14-85ed-43269591fe41/4DNFIGM25CMN.fastq.gz:/var/lib/cwl/stg4c3d926a-f0ed-4ef4-bb78-cea83661902b/4DNFIGM25CMN.fastq.gz:ro ",
+        "    --workdir=/var/spool/cwl ",
+        "    --rm ",
+        "    --env=TMPDIR=/tmp ",
+        "    --env=HOME=/var/spool/cwl ",
+        "    4dndcic/4dn-rna-strandedness:v1 ",
+        "    run-rna-strandedness.sh ",
+        "    /var/lib/cwl/stg4c3d926a-f0ed-4ef4-bb78-cea83661902b/4DNFIGM25CMN.fastq.gz ",
+        "    /var/lib/cwl/stgc45715d8-7f83-469d-a49f-62a8c5987ae8/4DNFINZ6O6XE.txt ",
+        "    ."
+      ]
+    ]
+  }
+}

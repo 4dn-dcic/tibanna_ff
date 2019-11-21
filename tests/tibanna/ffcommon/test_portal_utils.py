@@ -5,6 +5,7 @@ from tibanna_ffcommon.portal_utils import (
     FFInputAbstract,
     WorkflowRunMetadataAbstract,
     FourfrontStarterAbstract,
+    FourfrontUpdaterAbstract,
     ProcessedFileMetadataAbstract,
     QCArgumentInfo,
 )
@@ -137,3 +138,11 @@ def test_wrong_QCArgumentInfo(qcarginfo_fastqc):
         QCArgumentInfo(**qcarginfo)
     assert exec_info
     assert 'QCArgument it not Output QC file' in str(exec_info)
+
+
+def test_parse_rna_strandedness():
+    report_content = '468\n0\n'
+    res = FourfrontUpdaterAbstract.parse_rna_strandedness_report(report_content)
+    assert len(res) == 2
+    assert res[0] == 468
+    assert res[1] == 0

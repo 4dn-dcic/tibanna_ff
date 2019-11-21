@@ -1,5 +1,6 @@
 import copy
 import boto3
+import uuid
 from dcicutils import ff_utils
 from tibanna_4dn.pony_utils import (
     FourfrontUpdater,
@@ -61,18 +62,38 @@ def test_post_patch(update_ffmeta_event_data_fastqc2):
 
 
 @valid_env
+def test_rna_strandedness(update_ffmeta_event_data_rna_strandedness):
+    report_key = 'lalala/match_count'
+    s3 = boto3.client('s3')
+    s3.put_object(Body='1234\n5'.encode('utf-8'),
+                  Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+    updater = FourfrontUpdater(**update_ffmeta_event_data_rna_strandedness)
+    updater.update_rna_strandedness()
+    sense, antisense = updater.parse_rna_strandedness_report(updater.read('match_count'))
+    assert sense == 1234
+    assert antisense == 5
+    assert '4c3be0d1-cd00-4a14-85ed-43269591fe41' in updater.patch_items
+    assert 'beta_actin_sense_count' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
+    assert 'beta_actin_antisense_count' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
+    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['beta_actin_sense_count'] == 1234
+    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['beta_actin_antisense_count'] == 5
+    s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+
+
+@valid_env
 def test_md5(update_ffmeta_event_data_newmd5):
     report_key = 'lalala/md5_report'
     s3 = boto3.client('s3')
     s3.put_object(Body='1234\n5678'.encode('utf-8'),
-                  Bucket='tibanna-output', Key=report_key)
+                  Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
     updater = FourfrontUpdater(**update_ffmeta_event_data_newmd5)
+    assert updater.app_name == 'md5'
     with pytest.raises(Exception) as exec_info:
         updater.update_md5()
     assert 'md5sum not matching the original one' in str(exec_info)
     real_md5_content = 'bc75002f8a473bc6854d562789525a90\n6bb2dfa5b435ed03105cb59c32442d23'
     s3.put_object(Body=real_md5_content.encode('utf-8'),
-                  Bucket='tibanna-output', Key=report_key)
+                  Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
     updater.update_md5()
     md5, content_md5 = updater.parse_md5_report(updater.read('report'))
     assert md5 == 'bc75002f8a473bc6854d562789525a90'
@@ -81,6 +102,7 @@ def test_md5(update_ffmeta_event_data_newmd5):
     assert 'md5sum' not in updater.patch_items['f4864029-a8ad-4bb8-93e7-5108f462ccaa']  # already in
     assert 'file_size' in updater.patch_items['f4864029-a8ad-4bb8-93e7-5108f462ccaa']
     assert 'status' in updater.patch_items['f4864029-a8ad-4bb8-93e7-5108f462ccaa']
+    s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
 
 
 @valid_env
