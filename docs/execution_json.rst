@@ -18,6 +18,10 @@ Example job description
            "on hg38 genome reference."
         ],
         "app_name": "bwa-mem",
+        "_tibanna": {
+          "env": "fourfront-webdev",
+          "run_type": "bwa-mem"
+        },
         "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
         "workflow_uuid": "0fbe4db8-0b5f-448e-8b58-3f8c84baabf5",
         "parameters" :  {"nThreads": 4},
@@ -56,7 +60,8 @@ Example job description
         "behavior_on_capacity_limit": "wait_and_retry",
         "overwrite_input_extra": false,
         "cloudwatch_dashboard", false,
-        "email": true
+        "email": true,
+        "public_postrun_json" : true
       },
       "custom_pf_fields": {
         "out_bam": {
@@ -81,13 +86,14 @@ Example job description
 
 - The ``description`` field is an optional field for humans and they are ignored by Tibanna.
 - The ``app_name`` field contains the name of the workflow.
-- The ``output_bucket`` field specifies the bucket where all the output files go to.
+- The ``output_bucket`` field specifies the bucket where all the output files go to. It is not required if ``_tibanna`` specifies ``env``. The bucket name is auto-determined from the ``env`` value.
 - The ``workflow_uuid`` field contains the uuid of the 4DN workflow metadata.
 - The ``parameters`` field contains a set of workflow-specific parameters in a dictionary.
 - The ``additional_benchmarking_parameters`` field contains a set of additional parameters that are not required for workflow runs but is required for a benchmarking function (e.g. resource usage depends on number of reads which is not a parameter for workflow run)
 - The ``input_files`` field specifies the argument names (matching the names in CWL), the input file metadata uuid and its bucket and object key name.
 
-  - ``workflow_argument_name``, ``bucket``, ``uuid`` and ``object_key`` are required fields.
+  - ``workflow_argument_name`` and ``uuid`` are required fields.
+  - ``bucket_name`` and ``object_key`` are required only if the content is a list.
   - ``rename`` (optional) can be used to rename a file upon download from s3 to an instance where the workflow will be executed.
 
 - The ``config`` field is directly passed on to the second step, where instance_type, ebs_size, EBS_optimized are auto-filled, if not given.
@@ -98,6 +104,8 @@ Example job description
   - The ``overwrite_input_extra`` (optional) allows overwriting on an existing extra file, if the workflow hasan output of type ``Output to-be-extra-input file`` (i.e., creating an extra file of an input rather than creating a new processed file object). Default ``false``.
   - The ``cloudwatch_dashboard`` field (optional), if set ``true``, creates a cloudwatch dashboard for the job, which allows users to trace memory, disk and CPU utilization during and after the run.
   - The ``email`` field (optional), if set ``true``, sends a notification email to ``4dndcic@gmail.com`` when a workflow run finishes.
+  - The ``public_postrun_json`` field (optional) is recommended to be set ``true``. This way the postrun json files become publicly available when they're created.
+  - The ``key_name`` field is recommended to be set ``4dn-encoded`` which is the key used by the 4DN DCIC team.
 
 - The ``push_error_to_end`` field (optional), if set true, passes any error to the last step so that the metadata can be updated with proper error status. (default true)
 - The ``custom_pf_fields`` field (optional) contains a dictionary that can be directly passed to the processed file metadata. The key may be either ``ALL`` (applies to all processed files) or the argument name for a specific processed file (or both).
