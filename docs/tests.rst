@@ -69,7 +69,7 @@ A post-deployment test first deploys dev tibanna pony and zebra and then tests a
 
 The dev tibanna suffixes are currently specified in ``tasks.py`` as ``pre``. (The post-deployment tests run on ``tibanna_pony_pre`` and ``tibanna_zebra_pre``).
 
-To run the full test including deployment and post-deployment tests,
+To run the full post-deployment tests,
 
 ::
 
@@ -89,7 +89,9 @@ Zebra
 -----
 
 - ``md5`` (``report``), ``fastqc`` (``QC``), ``bwa-check`` (``processed``) (with a small reference index file)
+
   - We don't have to-be-extra-input type on CGAP yet.
+
 - ``QCList`` test by running ``bamqc`` on top of ``bwa-check`` and then rerunning ``bamqc`` (must replace the first one). (not yet included)
 
 
@@ -116,9 +118,12 @@ Pony
 ----
 
 - md5 conflict test (not yet included)
+
   - rerun the same File item with a different md5 content (must fail)
   - rerun a different File item with the same md5 content (must fail)
+
 - overwrite_extra test (not yet included)
+
   - rerun the same ``bedGraphToBigWig`` job with different file content with overwrite_extra = True (must overwrite)
   - rerun the same ``bedGraphToBigWig`` job with overwrite_extra = False (must fail)
 
@@ -126,6 +131,7 @@ Zebra
 -----
 
 - md5 conflict test
+
   - rerun the same File item with a different md5 content (must fail) (not yet included)
   - rerun a different File item with the same md5 content (must fail) (not yet included)
   
