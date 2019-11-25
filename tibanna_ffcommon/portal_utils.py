@@ -251,6 +251,7 @@ class FFInputAbstract(SerializableObject):
                                     'bucket_name': input_file['bucket_name'],
                                     'rename': input_file.get('rename', ''),
                                     'unzip': input_file.get('unzip', ''),
+                                    'mount': input_file.get('mount', False),
                                     'object_key': object_key}})
         if input_file.get('format_if_extra', ''):
             args['input_files'][input_file['workflow_argument_name']]['format_if_extra'] \
@@ -299,6 +300,7 @@ class FFInputAbstract(SerializableObject):
                 args['secondary_files'].update({input_file['workflow_argument_name']: {
                                                 'bucket_name': input_file['bucket_name'],
                                                 'rename': input_file.get('rename', ''),
+                                                'mount': input_file.get('mount', False),
                                                 'object_key': extra_file_keys}})
 
 
