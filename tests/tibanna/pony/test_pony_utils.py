@@ -86,3 +86,16 @@ def test_merge_source_experiment(start_run_md5_data):
     res = starter.merge_source_experiments()
     printlog(res)
     assert 'fake_source_experiment' in res
+
+
+@valid_env
+@pytest.mark.webtest
+def test_merge_source_experiment(start_run_md5_mount_data):
+    starter = FourfrontStarter(**start_run_md5_mount_data)
+    starter.create_ff()
+    starter.inp.add_args(starter.ff)
+    assert 'input_file' in starter.inp.args.input_files
+    assert 'mount' in starter.inp.args.input_files['input_file']
+    assert starter.inp.args.input_files['input_file']['mount']
+
+
