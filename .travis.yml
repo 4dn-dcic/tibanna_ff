@@ -26,4 +26,5 @@ jobs:
     - if [ "$TRAVIS_BRANCH" == "production" ]; then
       tibanna_4dn deploy_pony;
       tibanna_cgap deploy_zebra;
+      tibanna_4dn deploy_pony -g default luisa;
       fi
