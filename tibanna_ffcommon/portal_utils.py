@@ -14,14 +14,13 @@ from dcicutils.ff_utils import (
     convert_param
 )
 from tibanna.nnested_array import (
+    run_on_nested_arrays1,
     run_on_nested_arrays2,
-    combine_two
-)
-from dcicutils.s3_utils import s3Utils
-from tibanna.nnested_array import (
+    combine_two,
     flatten,
     create_dim
 )
+from dcicutils.s3_utils import s3Utils
 from tibanna.utils import (
     does_key_exist,
     read_s3,
@@ -97,21 +96,35 @@ class FFInputAbstract(SerializableObject):
         if not hasattr(config, 'email'):
             self.config.email = False
 
+        def get_object_key_from_uuid(uuid):
+            infile_meta = get_metadata(uuid,
+                                       key=self.tibanna_settings.ff_keys,
+                                       ff_env=self.tibanna_settings.env,
+                                       add_on='frame=object')
+            return infile_meta['upload_key'].replace(uuid + '/', '')
+
+        def get_file_type_from_uuid(uuid):
+            infile_meta = get_metadata(uuid,
+                                       key=self.tibanna_settings.ff_keys,
+                                       ff_env=self.tibanna_settings.env,
+                                       add_on='frame=object')
+            return(infile_meta['@type'][0])
+
         # fill in input_files info if object_key and bucket_name is not provided
         for infile in self.input_files:
-            if 'object_key' not in infile or 'bucket_name' not in infile:
+            if 'object_key' not in infile:
                 try:
-                    infile_meta = get_metadata(infile['uuid'],
-                                               key=self.tibanna_settings.ff_keys,
-                                               ff_env=self.tibanna_settings.env,
-                                               add_on='frame=object')
+                    infile['object_key'] = run_on_nnested_arrays1(infile['uuid'], get_object_key_from_uuid)
                 except Exception as e:
                     raise FdnConnectionException(e)
-            if 'object_key' not in infile:
-                infile['object_key'] = infile_meta['upload_key'].replace(infile['uuid'] + '/', '')
             if 'bucket_name' not in infile:
-                infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env,
-                                                    infile_meta['@type'][0])
+                try:
+                    infile_type = flatten(run_on_nnested_arrays1(infile['uuid'], get_file_type_from_uuid))
+                except Exception as e:
+                    raise FdnConnectionException(e)
+                # assume all file types are the same for a given argument
+                infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env, infile_type[0])
+            printlog("infile = " + str(infile))
 
         # fill in output_bucket
         if not self.output_bucket:
