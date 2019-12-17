@@ -120,10 +120,12 @@ class FFInputAbstract(SerializableObject):
             if 'bucket_name' not in infile:
                 try:
                     infile_type = flatten(run_on_nested_arrays1(infile['uuid'], get_file_type_from_uuid))
+                    if isinstance(infile_type, list):
+                        infile_type = infile_type[0]
                 except Exception as e:
                     raise FdnConnectionException(e)
                 # assume all file types are the same for a given argument
-                infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env, infile_type[0])
+                infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env, infile_type)
             printlog("infile = " + str(infile))
 
         # fill in output_bucket
