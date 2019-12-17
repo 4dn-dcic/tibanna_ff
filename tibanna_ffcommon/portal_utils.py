@@ -52,7 +52,7 @@ from .exceptions import (
 
 class FFInputAbstract(SerializableObject):
     def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
-                       _tibanna=None, push_error_to_end=True, **kwargs):
+                 _tibanna=None, push_error_to_end=True, **kwargs):
         if not workflow_uuid:
             raise MalFormattedFFInputException("missing field in input json: workflow_uuid")
         if not config:
@@ -114,12 +114,12 @@ class FFInputAbstract(SerializableObject):
         for infile in self.input_files:
             if 'object_key' not in infile:
                 try:
-                    infile['object_key'] = run_on_nnested_arrays1(infile['uuid'], get_object_key_from_uuid)
+                    infile['object_key'] = run_on_nested_arrays1(infile['uuid'], get_object_key_from_uuid)
                 except Exception as e:
                     raise FdnConnectionException(e)
             if 'bucket_name' not in infile:
                 try:
-                    infile_type = flatten(run_on_nnested_arrays1(infile['uuid'], get_file_type_from_uuid))
+                    infile_type = flatten(run_on_nested_arrays1(infile['uuid'], get_file_type_from_uuid))
                 except Exception as e:
                     raise FdnConnectionException(e)
                 # assume all file types are the same for a given argument
@@ -1022,7 +1022,7 @@ class FourfrontUpdaterAbstract(object):
 
     def patch_ffmeta(self):
         try:
-            res = self.ff_meta.patch(key=self.tibanna_settings.ff_keys)
+            self.ff_meta.patch(key=self.tibanna_settings.ff_keys)
         except Exception as e:
             raise FdnConnectionException("Failed to update ff_meta %s" % str(e))
 
