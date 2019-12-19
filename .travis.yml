@@ -12,8 +12,7 @@ jobs:
     install:
     - pip install six
     - python setup.py install
-    - pip install -U -r requirements.txt
-    - pip install -U -r requirements-test.txt
+    - pip install -r requirements-test.txt
     - pip install codacy-coverage
     script:
     - if [ "$TRAVIS_BRANCH" != "doc" ]; then
