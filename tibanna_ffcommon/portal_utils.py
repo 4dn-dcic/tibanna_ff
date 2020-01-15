@@ -1321,11 +1321,9 @@ class FourfrontUpdaterAbstract(object):
             # qc_arg is the argument (either input or output) to attach the qc file
             # qc_list is a list of QCArgumentInfo class objects
             qc_target_accessions = self.accessions(qc_arg)
-            if len(qc_target_accessions) > 1:  # do not allow array in this case
-                raise Exception("ambiguous target for QC")
             if not qc_target_accessions:
                 raise Exception("QC target %s does not exist" % qc_arg)
-            qc_target_accession = qc_target_accessions[0]
+            qc_target_accession = qc_target_accessions[0]  # The first target accession is use in the url for the report files
             qc_object = self.create_qc_template()
             qc_schema = self.qc_schema(qc_list[0].qc_type)  # assume same qc_schema per qc_arg
             for qc in qc_list:
@@ -1366,7 +1364,10 @@ class FourfrontUpdaterAbstract(object):
                     qc_object.update(self.custom_qc_fields)
                 self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
             self.update_post_items(qc_object['uuid'], qc_object, qc.qc_type)
-            self.patch_qc(qc_target_accession, qc_object['uuid'], qc.qc_type)
+            # allowing multiple input files to point to the same qc object.
+            for t_acc in qc_target_accessions:
+                self.patch_qc(t_acc, qc_object['uuid'], qc.qc_type)
+                
 
     def patch_qc(self, qc_target_accession, qc_uuid, qc_type=None):
         self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
