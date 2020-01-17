@@ -224,6 +224,25 @@ def test_pairsqc(update_ffmeta_event_data_pairsqc):
 
 
 @valid_env
+def test_madqc(update_ffmeta_event_data_madqc):
+    updater = FourfrontUpdater(**update_ffmeta_event_data_madqc)
+    updater.update_qc()
+    qc = updater.workflow_qc_arguments['mad_qc.quantfiles'][0]
+    assert qc.workflow_argument_name == 'mad_qc.mqc.madQCmetrics'
+    target_accessions = updater.accessions('mad_qc.quantfiles')
+    assert len(target_accessions) == 3
+    assert target_accession[0] == '4DNFIRV6DRTJ'
+    assert target_accession[1] == '4DNFILGR8Q3P'
+    assert target_accession[2] in updater.patch_items
+    assert updater.post_items
+    assert len(updater.post_items['quality_metric_madqc']) == 1
+    uuid = list(updater.post_items['quality_metric_madqc'].keys())[0]
+    assert len(updater.post_items['quality_metric_madqc'][uuid]) == 3
+    first_pair = updater.post_items['quality_metric_madqc'][uuid].keys()[0]
+    assert len(updater.post_items['quality_metric_madqc'][uuid][first_pair]) == 4
+
+
+@valid_env
 def test_repliseq(update_ffmeta_event_data_repliseq):
     updater = FourfrontUpdater(**update_ffmeta_event_data_repliseq)
     updater.update_all_pfs()
