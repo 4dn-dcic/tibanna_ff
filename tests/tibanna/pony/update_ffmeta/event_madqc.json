@@ -1,0 +1,233 @@
+{
+  "jobid": "psbqUSkKmAe7",
+  "args": {
+    "app_name": "mad_qc",
+    "app_version": "1.1_dcic_2",
+    "cwl_directory_url": "",
+    "cwl_main_filename": "",
+    "cwl_child_filenames": "",
+    "wdl_directory_url": "https://raw.githubusercontent.com/4dn-dcic/rna-seq-pipeline/v1.1_dcic_2/",
+    "wdl_main_filename": "mad_qc.wdl",
+    "wdl_child_filenames": [],
+    "language": "wdl",
+    "additional_benchmarking_parameters": {},
+    "output_S3_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+    "output_target": {},
+    "secondary_output_target": {},
+    "input_parameters": {},
+    "input_files": {
+      "mad_qc.quantfiles": {
+        "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
+        "rename": "",
+        "unzip": "",
+        "mount": false,
+        "object_key": [
+          "73493b57-6028-4189-ab87-a1c2f34bf804/4DNFIRV6DRTJ.tsv",
+          "86040ea1-7156-4ac4-a916-e369c76ccbc3/4DNFILGR8Q3P.tsv",
+          "1ec0cf6a-0225-49a1-8d39-78334f3507b8/4DNFIN8UZXFP.tsv"
+        ]
+      }
+    },
+    "secondary_files": {},
+    "input_env": {},
+    "alt_cond_output_argnames": {},
+    "wdl_directory_local": "",
+    "dependency": {}
+  },
+  "input_files": [
+    {
+      "object_key": [
+        "4DNFIRV6DRTJ.tsv",
+        "4DNFILGR8Q3P.tsv",
+        "4DNFIN8UZXFP.tsv"
+      ],
+      "uuid": [
+        "73493b57-6028-4189-ab87-a1c2f34bf804",
+        "86040ea1-7156-4ac4-a916-e369c76ccbc3",
+        "1ec0cf6a-0225-49a1-8d39-78334f3507b8"
+      ],
+      "workflow_argument_name": "mad_qc.quantfiles",
+      "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput"
+    }
+  ],
+  "workflow_uuid": "4dba38f0-af7a-4432-88e4-ca804dea64f8",
+  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+  "parameters": [
+  ],
+  "additional_benchmarking_parameters": {},
+  "output_files": [],
+  "push_error_to_end": true,
+  "_tibanna": {
+    "run_id": "fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+    "env": "fourfront-webdev",
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+    "run_type": "mad-qc",
+    "run_name": "mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec"
+  },
+  "ff_meta": {
+    "award": "1U01CA200059-01",
+    "lab": "4dn-dcic-lab",
+    "awsem_app_name": "mad_qc",
+    "awsem_job_id": "psbqUSkKmAe7",
+    "run_status": "started",
+    "uuid": "a56b5fe5-aec4-48ef-8e84-9b781bbcad10",
+    "workflow": "4dba38f0-af7a-4432-88e4-ca804dea64f8",
+    "run_platform": "AWSEM",
+    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+    "title": "mad_qc 1.1_dcic_2 run 2020-01-17 14:25:45.968969",
+    "input_files": [
+      {
+        "workflow_argument_name": "mad_qc.quantfiles",
+        "value": "73493b57-6028-4189-ab87-a1c2f34bf804",
+        "ordinal": 1,
+        "dimension": "0"
+      },
+      {
+        "workflow_argument_name": "mad_qc.quantfiles",
+        "value": "86040ea1-7156-4ac4-a916-e369c76ccbc3",
+        "ordinal": 2,
+        "dimension": "1"
+      },
+      {
+        "workflow_argument_name": "mad_qc.quantfiles",
+        "value": "1ec0cf6a-0225-49a1-8d39-78334f3507b8",
+        "ordinal": 3,
+        "dimension": "2"
+      }
+    ],
+    "output_files": [],
+    "parameters": [
+      {
+        "workflow_argument_name": "mad_qc_disk",
+        "value": "local-disk 100 SSD"
+      }
+    ]
+  },
+  "pf_meta": [],
+  "config": {
+    "mem": 4,
+    "ebs_size": 20,
+    "EBS_optimized": false,
+    "instance_type": "t3.medium",
+    "json_bucket": "tibanna-output",
+    "shutdown_min": 30,
+    "password": "",
+    "log_bucket": "tibanna-output",
+    "run_name": "mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+    "overwrite_input_extra": false,
+    "public_postrun_json": true,
+    "email": false,
+    "cpu": "",
+    "ebs_iops": "",
+    "key_name": "",
+    "spot_duration": "",
+    "ebs_type": "gp2",
+    "spot_instance": false,
+    "behavior_on_capacity_limit": "fail",
+    "cloudwatch_dashboard": false,
+    "root_ebs_size": 8,
+    "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+    "ami_id": "ami-0f06a8358d41c4b9c",
+    "language": "wdl",
+    "job_tag": "mad_qc",
+    "instance_id": "i-0c70878d74f20fec3",
+    "instance_ip": "3.83.219.118",
+    "start_time": "20200117-14:25:52-UTC"
+  },
+  "postrunjson": {
+    "Job": {
+      "App": {
+        "App_name": "mad_qc",
+        "App_version": "1.1_dcic_2",
+        "language": "wdl",
+        "wdl_url": "https://raw.githubusercontent.com/4dn-dcic/rna-seq-pipeline/v1.1_dcic_2/",
+        "main_wdl": "mad_qc.wdl",
+        "other_wdl_files": ""
+      },
+      "Input": {
+        "Input_files_data": {
+          "mad_qc.quantfiles": {
+            "path": [
+              "73493b57-6028-4189-ab87-a1c2f34bf804/4DNFIRV6DRTJ.tsv",
+              "86040ea1-7156-4ac4-a916-e369c76ccbc3/4DNFILGR8Q3P.tsv",
+              "1ec0cf6a-0225-49a1-8d39-78334f3507b8/4DNFIN8UZXFP.tsv"
+            ],
+            "profile": "",
+            "rename": "",
+            "unzip": "",
+            "class": "File",
+            "dir": "elasticbeanstalk-fourfront-webdev-wfoutput"
+          }
+        },
+        "Secondary_files_data": {},
+        "Input_parameters": {
+          "mad_qc_disk": "local-disk 100 SSD"
+        },
+        "Env": {}
+      },
+      "Output": {
+        "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput",
+        "output_target": {},
+        "secondary_output_target": {},
+        "alt_cond_output_argnames": {},
+        "Output files": {
+          "mad_qc.mqc.madQCmetrics": {
+            "path": "/data1/wdl/cromwell-executions/mad_qc/34c87773-87b2-4137-8268-51ce3b33f7ae/call-mqc/execution/glob-196368870fbaaecf98b381cba2f56e97/4DNFIRV6DRTJ-4DNFILGR8Q3P-4DNFIN8UZXFP_mad_qc_metrics.json",
+            "target": "/data1/wdl/cromwell-executions/mad_qc/34c87773-87b2-4137-8268-51ce3b33f7ae/call-mqc/execution/glob-196368870fbaaecf98b381cba2f56e97/4DNFIRV6DRTJ-4DNFILGR8Q3P-4DNFIN8UZXFP_mad_qc_metrics.json"
+          },
+          "mad_qc.mqc.report_zip": {
+            "path": "/data1/wdl/cromwell-executions/mad_qc/34c87773-87b2-4137-8268-51ce3b33f7ae/call-mqc/execution/glob-e0e0f8e43af3bddd40392b423916b2eb/mad_qc_report.zip",
+            "target": "/data1/wdl/cromwell-executions/mad_qc/34c87773-87b2-4137-8268-51ce3b33f7ae/call-mqc/execution/glob-e0e0f8e43af3bddd40392b423916b2eb/mad_qc_report.zip"
+          }
+        }
+      },
+      "start_time": "20200117-14:25:48-UTC",
+      "JOBID": "psbqUSkKmAe7",
+      "Log": {
+        "log_bucket_directory": "tibanna-output"
+      },
+      "end_time": "20200117-14:29:05-UTC",
+      "status": "0",
+      "filesystem": "/dev/nvme1n1",
+      "instance_id": "i-0c70878d74f20fec3",
+      "total_input_size": "71M",
+      "total_output_size": "40K",
+      "total_tmp_size": "4.0K",
+      "Metrics": {
+        "max_mem_used_MB": 1105.15234375,
+        "min_mem_available_MB": 2786.79296875,
+        "total_mem_MB": 3891.9453125,
+        "max_mem_utilization_percent": 28.39588573355628,
+        "max_cpu_utilization_percent": 68,
+        "max_disk_space_utilization_percent": 0.576773178721095,
+        "max_disk_space_used_GB": 0.112823486328125
+      }
+    },
+    "config": {
+      "EBS_optimized": false,
+      "ami_id": "ami-0f06a8358d41c4b9c",
+      "behavior_on_capacity_limit": "fail",
+      "cloudwatch_dashboard": false,
+      "cpu": "",
+      "ebs_iops": "",
+      "ebs_size": 20,
+      "ebs_type": "gp2",
+      "email": false,
+      "instance_type": "t3.medium",
+      "job_tag": "mad_qc",
+      "json_bucket": "tibanna-output",
+      "language": "wdl",
+      "log_bucket": "tibanna-output",
+      "mem": 4,
+      "overwrite_input_extra": false,
+      "public_postrun_json": true,
+      "root_ebs_size": 8,
+      "run_name": "mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+      "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+      "shutdown_min": 30,
+      "spot_duration": "",
+      "spot_instance": false
+    }
+  }
+}
