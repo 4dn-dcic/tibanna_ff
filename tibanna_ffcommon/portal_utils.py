@@ -1479,14 +1479,14 @@ class FourfrontUpdaterAbstract(object):
 
     @classmethod
     def parse_fastq_formatqc_report(self, read):
-        """parses md5 report file content and returns md5, content_md5"""
+        """parses fastq_formatqc report file content and returns the content"""
         fastq_formatqc_content = read.rstrip('\n').split('\n')
         if not fastq_formatqc_content:
             raise Exception("fastq_formatqc report has no content.")
         elif len(fastq_formatqc_content) != 1:
             raise Exception("fastq_formatqc report must have exactly one line.")
         else:
-            return fastq_formatqc_content[0]
+            return fastq_formatqc_content
 
     # md5 report
     def update_md5(self):
