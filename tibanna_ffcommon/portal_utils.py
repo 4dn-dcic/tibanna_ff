@@ -1486,7 +1486,7 @@ class FourfrontUpdaterAbstract(object):
         elif len(fastq_formatqc_content) != 1:
             raise Exception("fastq_formatqc report must have exactly one line.")
         else:
-            return fastq_formatqc_content
+            return fastq_formatqc_content[0]
 
     # md5 report
     def update_md5(self):
