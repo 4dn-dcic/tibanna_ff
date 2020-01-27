@@ -1,0 +1,228 @@
+{
+  "jobid": "WAB9iybdglSu",
+  "args": {
+    "app_name": "fastq-formatqc",
+    "app_version": "dev",
+    "cwl_directory_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-fastq-formatQC/v1/cwl/",
+    "cwl_main_filename": "fastq-formatqc.cwl",
+    "cwl_child_filenames": [],
+    "wdl_directory_url": "",
+    "wdl_main_filename": "",
+    "wdl_child_filenames": "",
+    "cwl_version": "v1",
+    "input_parameters": {},
+    "additional_benchmarking_parameters": {},
+    "output_S3_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+    "output_target": {
+      "first_line": "lalala/first_line"
+    },
+    "secondary_output_target": {},
+    "input_files": {
+      "fastq": {
+        "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
+        "rename": "",
+        "unzip": "",
+        "mount": false,
+        "object_key": "4c3be0d1-cd00-4a14-85ed-43269591fe41/4DNFIGM25CMN.fastq.gz"
+      }
+    },
+    "secondary_files": {},
+    "input_env": {},
+    "alt_cond_output_argnames": {},
+    "language": "cwl_v1",
+    "singularity": false,
+    "cwl_directory_local": "",
+    "dependency": {}
+  },
+  "input_files": [
+    {
+      "object_key": "4DNFIGM25CMN.fastq.gz",
+      "workflow_argument_name": "fastq",
+      "uuid": "4c3be0d1-cd00-4a14-85ed-43269591fe41",
+      "bucket_name": "elasticbeanstalk-fourfront-webdev-files"
+    }
+  ],
+  "workflow_uuid": "93a1a931-d55d-4623-adfb-0fa735daf6ae",
+  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+  "parameters": [],
+  "additional_benchmarking_parameters": {},
+  "output_files": [],
+  "push_error_to_end": true,
+  "_tibanna": {
+    "run_id": "041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "env": "fourfront-webdev",
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "run_type": "fastq-formatqc",
+    "run_name": "fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3"
+  },
+  "ff_meta": {
+    "award": "1U01CA200059-01",
+    "lab": "4dn-dcic-lab",
+    "awsem_app_name": "fastq-formatqc",
+    "awsem_job_id": "WAB9iybdglSu",
+    "run_status": "started",
+    "uuid": "c13d3a90-a59a-4276-a8fc-7a1f0aa7093f",
+    "workflow": "93a1a931-d55d-4623-adfb-0fa735daf6ae",
+    "run_platform": "AWSEM",
+    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "title": "fastq-formatqc dev run 2020-01-21 16:50:08.732117",
+    "input_files": [
+      {
+        "workflow_argument_name": "fastq",
+        "value": "4c3be0d1-cd00-4a14-85ed-43269591fe41",
+        "ordinal": 1,
+        "dimension": "0"
+      }
+    ],
+    "output_files": [
+      {
+        "workflow_argument_name": "first_line",
+        "type": "Output report file"
+      }
+    ],
+    "parameters": []
+  },
+  "pf_meta": [],
+  "config": {
+    "mem": 4,
+    "cpu": 2,
+    "EBS_optimized": true,
+    "ebs_size": 4,
+    "ebs_type": "gp2",
+    "json_bucket": "tibanna-output",
+    "ebs_iops": "",
+    "shutdown_min": 30,
+    "password": "dragonfly",
+    "log_bucket": "tibanna-output",
+    "key_name": "4dn-encode",
+    "run_name": "fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "overwrite_input_extra": true,
+    "public_postrun_json": true,
+    "email": false,
+    "instance_type": "t3.xlarge",
+    "spot_duration": "",
+    "spot_instance": false,
+    "behavior_on_capacity_limit": "fail",
+    "cloudwatch_dashboard": false,
+    "root_ebs_size": 8,
+    "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+    "ami_id": "ami-0f06a8358d41c4b9c",
+    "language": "cwl_v1",
+    "job_tag": "fastq-formatqc",
+    "instance_id": "i-08f6ce72c8543ff01",
+    "instance_ip": "35.172.212.98",
+    "start_time": "20200121-16:50:14-UTC"
+  },
+  "postrunjson": {
+    "Job": {
+      "App": {
+        "App_name": "fastq-formatqc",
+        "App_version": "dev",
+        "language": "cwl_v1",
+        "cwl_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-fastq-formatQC/v1/cwl/",
+        "main_cwl": "fastq-formatqc.cwl",
+        "other_cwl_files": ""
+      },
+      "Input": {
+        "Input_files_data": {
+          "fastq": {
+            "path": "4c3be0d1-cd00-4a14-85ed-43269591fe41/4DNFIGM25CMN.fastq.gz",
+            "profile": "",
+            "rename": "",
+            "unzip": "",
+            "class": "File",
+            "dir": "elasticbeanstalk-fourfront-webdev-files"
+          }
+        },
+        "Secondary_files_data": {},
+        "Input_parameters": {},
+        "Env": {}
+      },
+      "Output": {
+        "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput",
+        "output_target": {
+          "first_line": "c13d3a90-a59a-4276-a8fc-7a1f0aa7093f/first_line360054501206"
+        },
+        "secondary_output_target": {},
+        "alt_cond_output_argnames": {},
+        "Output files": {
+          "first_line": {
+            "path": "/data1/out/first_line.txt",
+            "target": "c13d3a90-a59a-4276-a8fc-7a1f0aa7093f/first_line360054501206",
+            "basename": "first_line.txt",
+            "checksum": "sha1$747090abf5e3bf7dccab7978178513f67b48cb35",
+            "location": "file:///data1/out/first_line.txt",
+            "md5sum": "2854936141db85e02ef930e790fbf35c",
+            "size": 56,
+            "class": "File"
+          }
+        }
+      },
+      "start_time": "20200121-16:50:10-UTC",
+      "JOBID": "WAB9iybdglSu",
+      "Log": {
+        "log_bucket_directory": "tibanna-output"
+      },
+      "end_time": "20200121-16:51:58-UTC",
+      "status": "0",
+      "filesystem": "/dev/nvme1n1",
+      "instance_id": "i-08f6ce72c8543ff01",
+      "total_input_size": "527M",
+      "total_output_size": "28K",
+      "total_tmp_size": "8.0K",
+      "Metrics": {
+        "max_mem_used_MB": 415.1484375,
+        "min_mem_available_MB": 15446.53125,
+        "total_mem_MB": 15861.6796875,
+        "max_mem_utilization_percent": 2.6173043818755404,
+        "max_cpu_utilization_percent": 33,
+        "max_disk_space_utilization_percent": 13.6872788549288,
+        "max_disk_space_used_GB": 0.521785736083984
+      }
+    },
+    "config": {
+      "EBS_optimized": true,
+      "ami_id": "ami-0f06a8358d41c4b9c",
+      "behavior_on_capacity_limit": "fail",
+      "cloudwatch_dashboard": false,
+      "cpu": 2,
+      "ebs_iops": "",
+      "ebs_size": 4,
+      "ebs_type": "gp2",
+      "email": false,
+      "instance_type": "t3.xlarge",
+      "job_tag": "fastq-formatqc",
+      "json_bucket": "tibanna-output",
+      "language": "cwl_v1",
+      "log_bucket": "tibanna-output",
+      "mem": 4,
+      "overwrite_input_extra": true,
+      "public_postrun_json": true,
+      "root_ebs_size": 8,
+      "run_name": "fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+      "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+      "shutdown_min": 30,
+      "spot_duration": "",
+      "spot_instance": false
+    },
+    "commands": [
+      [
+        "[job fastq-formatqc.cwl] /data1/tmpUMOUZy$ docker ",
+        "    run ",
+        "    -i ",
+        "    --volume=/data1/tmpUMOUZy:/var/spool/cwl:rw ",
+        "    --volume=/data1/tmpnHgBe0:/tmp:rw ",
+        "    --volume=/data1/input/4c3be0d1-cd00-4a14-85ed-43269591fe41/4DNFIGM25CMN.fastq.gz:/var/lib/cwl/stg388bd0c8-ae48-405b-aea4-6f3f0890e9b8/4DNFIGM25CMN.fastq.gz:ro ",
+        "    --workdir=/var/spool/cwl ",
+        "    --rm ",
+        "    --env=TMPDIR=/tmp ",
+        "    --env=HOME=/var/spool/cwl ",
+        "    4dndcic/4dn-fastq-formatqc:v1 ",
+        "    run-fastq-formatqc.sh ",
+        "    /var/lib/cwl/stg388bd0c8-ae48-405b-aea4-6f3f0890e9b8/4DNFIGM25CMN.fastq.gz ",
+        "    ."
+      ]
+    ]
+  }
+}

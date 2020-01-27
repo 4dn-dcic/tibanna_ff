@@ -1461,6 +1461,33 @@ class FourfrontUpdaterAbstract(object):
         else:
             return int(strandedness_array[0]), int(strandedness_array[1])
 
+    # fastq_formatqc
+    def update_fastq_formatqc(self):
+        if self.app_name != 'fastq-formatqc':
+            return
+        report_arg = self.output_argnames[0]  # assume one output arg
+        if self.ff_output_file(report_arg)['type'] != 'Output report file':
+            return
+        if self.status(report_arg) == 'FAILED':
+            self.ff_meta.run_status = 'error'
+            return
+        first_line = self.parse_fastq_formatqc_report(self.read(report_arg))
+        input_arg = 'fastq'
+        input_meta = self.file_items(input_arg)[0]  # assume one input file
+        patch_content = {'file_first_line': first_line}
+        self.update_patch_items(input_meta['uuid'], patch_content)
+
+    @classmethod
+    def parse_fastq_formatqc_report(self, read):
+        """parses fastq_formatqc report file content and returns the content"""
+        fastq_formatqc_content = read.rstrip('\n').split('\n')
+        if not fastq_formatqc_content:
+            raise Exception("fastq_formatqc report has no content.")
+        elif len(fastq_formatqc_content) != 1:
+            raise Exception("fastq_formatqc report must have exactly one line.")
+        else:
+            return fastq_formatqc_content[0]
+
     # md5 report
     def update_md5(self):
         if self.app_name != 'md5':
@@ -1542,6 +1569,7 @@ class FourfrontUpdaterAbstract(object):
         printlog("updating report...")
         self.update_md5()
         self.update_rna_strandedness()
+        self.update_fastq_formatqc()
         printlog("updating qc...")
         self.update_qc()
         self.update_input_extras()
