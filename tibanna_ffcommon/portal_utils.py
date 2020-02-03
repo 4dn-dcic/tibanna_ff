@@ -1488,6 +1488,37 @@ class FourfrontUpdaterAbstract(object):
         else:
             return fastq_formatqc_content[0]
 
+    # bam restriction enzyme check
+    def update_file_processed_format_re_check(self):
+        if self.app_name != 're_checker':
+            return
+        report_arg = self.output_argnames[0]  # assume one output arg
+        if self.ff_output_file(report_arg)['type'] != 'Output report file':
+            return
+        if self.status(report_arg) == 'FAILED':
+            self.ff_meta.run_status = 'error'
+            return
+        percent = self.parse_re_check(self.read(report_arg))
+        input_arg = 'bamfile'
+        input_meta = self.file_items(input_arg)[0] # assume one input file
+        patch_content = {'percent_clipped_sites_with_re_motif': percent}
+        self.update_patch_items(input_meta['uuid'], patch_content)
+
+    @classmethod
+    def parse_re_check(self, read):
+        """parses output of re checker to return percent clipped sites with re motif"""
+        re_check_content = read.rstrip('\n').split('\n')
+        if not re_check_content:
+            raise Exception("bam restriction enzyme check output has no content")
+        elif len(re_check_content) != 1:
+            raise Exception("bam restriction enzyme check output must have exactly one line")
+        content = re_check_content[0].split()
+        if content[0] != "clipped-mates":
+            print(content[0])
+            raise Exception("bam restriction enzyme check contains unexpected content")
+        else:
+            return float(content[4])
+
     # md5 report
     def update_md5(self):
         if self.app_name != 'md5':

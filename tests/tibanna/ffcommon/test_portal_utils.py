@@ -153,3 +153,9 @@ def test_parse_fastq_formatqc():
     res = [FourfrontUpdaterAbstract.parse_fastq_formatqc_report(report_content)]
     assert len(res) == 1
     assert res[0] == '@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA'
+
+def test_parse_re_check():
+    report_content = 'clipped-mates with RE motif: 76.54 %'
+    res = FourfrontUpdaterAbstract.parse_re_check(report_content)
+    assert type(res) is float 
+    assert res == 76.54
