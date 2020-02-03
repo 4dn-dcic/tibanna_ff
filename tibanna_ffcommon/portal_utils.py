@@ -1463,7 +1463,7 @@ class FourfrontUpdaterAbstract(object):
 
     # fastq_first_line
     def update_fastq_first_line(self):
-        if self.app_name != 'fastq_first_line':
+        if self.app_name != 'fastq-first-line':
             return
         report_arg = self.output_argnames[0]  # assume one output arg
         if self.ff_output_file(report_arg)['type'] != 'Output report file':
