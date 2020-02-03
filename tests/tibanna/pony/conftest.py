@@ -210,8 +210,8 @@ def update_ffmeta_event_data_rna_strandedness(ff_keys):
 
 
 @pytest.fixture(scope='session')
-def update_ffmeta_event_data_fastq_formatqc(ff_keys):
-    return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_fastq_formatqc.json')
+def update_ffmeta_event_data_fastq_first_line(ff_keys):
+    return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_fastq_first_line.json')
 
 
 @valid_env

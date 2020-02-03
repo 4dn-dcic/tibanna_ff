@@ -1,10 +1,10 @@
 {
   "jobid": "WAB9iybdglSu",
   "args": {
-    "app_name": "fastq-formatqc",
+    "app_name": "fastq-first-line",
     "app_version": "dev",
-    "cwl_directory_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-fastq-formatQC/v1/cwl/",
-    "cwl_main_filename": "fastq-formatqc.cwl",
+    "cwl_directory_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-fastq-first-line/v1/cwl/",
+    "cwl_main_filename": "fastq-first-line.cwl",
     "cwl_child_filenames": [],
     "wdl_directory_url": "",
     "wdl_main_filename": "",
@@ -51,22 +51,22 @@
   "_tibanna": {
     "run_id": "041ed7e8-b5f9-48aa-adff-2735043a89e3",
     "env": "fourfront-webdev",
-    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
-    "run_type": "fastq-formatqc",
-    "run_name": "fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
-    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3"
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-first-line_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "run_type": "fastq-first-line",
+    "run_name": "fastq-first-line_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-first-line_041ed7e8-b5f9-48aa-adff-2735043a89e3"
   },
   "ff_meta": {
     "award": "1U01CA200059-01",
     "lab": "4dn-dcic-lab",
-    "awsem_app_name": "fastq-formatqc",
+    "awsem_app_name": "fastq-first-line",
     "awsem_job_id": "WAB9iybdglSu",
     "run_status": "started",
     "uuid": "c13d3a90-a59a-4276-a8fc-7a1f0aa7093f",
     "workflow": "93a1a931-d55d-4623-adfb-0fa735daf6ae",
     "run_platform": "AWSEM",
-    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
-    "title": "fastq-formatqc dev run 2020-01-21 16:50:08.732117",
+    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_default_luisa:fastq-first-line_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "title": "fastq-first-line dev run 2020-01-21 16:50:08.732117",
     "input_files": [
       {
         "workflow_argument_name": "fastq",
@@ -96,7 +96,7 @@
     "password": "dragonfly",
     "log_bucket": "tibanna-output",
     "key_name": "4dn-encode",
-    "run_name": "fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+    "run_name": "fastq-first-line_041ed7e8-b5f9-48aa-adff-2735043a89e3",
     "overwrite_input_extra": true,
     "public_postrun_json": true,
     "email": false,
@@ -109,7 +109,7 @@
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
     "ami_id": "ami-0f06a8358d41c4b9c",
     "language": "cwl_v1",
-    "job_tag": "fastq-formatqc",
+    "job_tag": "fastq-first-line",
     "instance_id": "i-08f6ce72c8543ff01",
     "instance_ip": "35.172.212.98",
     "start_time": "20200121-16:50:14-UTC"
@@ -117,11 +117,11 @@
   "postrunjson": {
     "Job": {
       "App": {
-        "App_name": "fastq-formatqc",
+        "App_name": "fastq-first-line",
         "App_version": "dev",
         "language": "cwl_v1",
-        "cwl_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-fastq-formatQC/v1/cwl/",
-        "main_cwl": "fastq-formatqc.cwl",
+        "cwl_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-fastq-first-line/v1/cwl/",
+        "main_cwl": "fastq-first-line.cwl",
         "other_cwl_files": ""
       },
       "Input": {
@@ -192,7 +192,7 @@
       "ebs_type": "gp2",
       "email": false,
       "instance_type": "t3.xlarge",
-      "job_tag": "fastq-formatqc",
+      "job_tag": "fastq-first-line",
       "json_bucket": "tibanna-output",
       "language": "cwl_v1",
       "log_bucket": "tibanna-output",
@@ -200,7 +200,7 @@
       "overwrite_input_extra": true,
       "public_postrun_json": true,
       "root_ebs_size": 8,
-      "run_name": "fastq-formatqc_041ed7e8-b5f9-48aa-adff-2735043a89e3",
+      "run_name": "fastq-first-line_041ed7e8-b5f9-48aa-adff-2735043a89e3",
       "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
       "shutdown_min": 30,
       "spot_duration": "",
@@ -208,7 +208,7 @@
     },
     "commands": [
       [
-        "[job fastq-formatqc.cwl] /data1/tmpUMOUZy$ docker ",
+        "[job fastq-first-line.cwl] /data1/tmpUMOUZy$ docker ",
         "    run ",
         "    -i ",
         "    --volume=/data1/tmpUMOUZy:/var/spool/cwl:rw ",
@@ -218,8 +218,8 @@
         "    --rm ",
         "    --env=TMPDIR=/tmp ",
         "    --env=HOME=/var/spool/cwl ",
-        "    4dndcic/4dn-fastq-formatqc:v1 ",
-        "    run-fastq-formatqc.sh ",
+        "    4dndcic/4dn-fastq-first-line:v1 ",
+        "    run-fastq-first-line.sh ",
         "    /var/lib/cwl/stg388bd0c8-ae48-405b-aea4-6f3f0890e9b8/4DNFIGM25CMN.fastq.gz ",
         "    ."
       ]
