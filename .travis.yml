@@ -25,6 +25,18 @@ jobs:
     - python-codacy-coverage -r coverage.xml
     - if [ "$TRAVIS_BRANCH" == "production" ]; then
       tibanna_4dn deploy_pony;
+      tibanna_4dn deploy_core -n start_run;
+      tibanna_4dn deploy_core -n run_task;
+      tibanna_4dn deploy_core -n check_task;
+      tibanna_4dn deploy_core -n update_ffmeta;
       tibanna_cgap deploy_zebra;
+      tibanna_cgap deploy_core -n start_run;
+      tibanna_cgap deploy_core -n run_task;
+      tibanna_cgap deploy_core -n check_task;
+      tibanna_cgap deploy_core -n update_ffmeta;
       tibanna_4dn deploy_pony -g default luisa -S;
+      tibanna_4dn deploy_core -g default luisa -n start_run;
+      tibanna_4dn deploy_core -g default luisa -n run_task;
+      tibanna_4dn deploy_core -g default luisa -n check_task;
+      tibanna_4dn deploy_core -g default luisa -n update_ffmeta;
       fi
