@@ -15,6 +15,12 @@ class StepFunctionFFAbstract(StepFunctionUnicorn):
             "IntervalSeconds": 30,
             "MaxAttempts": 5,
             "BackoffRate": 1.0
+        },
+        {
+            "ErrorEquals": [ "Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+            "IntervalSeconds": 60,
+            "MaxAttempts": 6,
+            "BackoffRate": 2
         }
     ]
     sfn_update_ff_meta_retry_conditions = [
@@ -23,6 +29,12 @@ class StepFunctionFFAbstract(StepFunctionUnicorn):
             "IntervalSeconds": 30,
             "MaxAttempts": 5,
             "BackoffRate": 1.0
+        },
+        {
+            "ErrorEquals": [ "Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+            "IntervalSeconds": 60,
+            "MaxAttempts": 6,
+            "BackoffRate": 2
         }
     ]
 

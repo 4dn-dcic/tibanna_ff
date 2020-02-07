@@ -81,14 +81,14 @@ def test_rna_strandedness(update_ffmeta_event_data_rna_strandedness):
 
 
 @valid_env
-def test_fastq_formatqc(update_ffmeta_event_data_fastq_formatqc):
+def test_fastq_first_line(update_ffmeta_event_data_fastq_first_line):
     report_key = 'lalala/first_line'
     s3 = boto3.client('s3')
     s3.put_object(Body='@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA'.encode('utf-8'),
                   Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
-    updater = FourfrontUpdater(**update_ffmeta_event_data_fastq_formatqc)
-    updater.update_fastq_formatqc()
-    first_line = updater.parse_fastq_formatqc_report(updater.read('first_line'))
+    updater = FourfrontUpdater(**update_ffmeta_event_data_fastq_first_line)
+    updater.update_fastq_first_line()
+    first_line = updater.parse_fastq_first_line_report(updater.read('first_line'))
     assert first_line == "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
     assert '4c3be0d1-cd00-4a14-85ed-43269591fe41' in updater.patch_items
     assert 'file_first_line' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
