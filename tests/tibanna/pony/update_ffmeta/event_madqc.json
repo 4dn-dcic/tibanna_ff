@@ -1,7 +1,7 @@
 {
-  "jobid": "psbqUSkKmAe7",
+  "jobid": "3tUBPVHcDLIi",
   "args": {
-    "app_name": "mad_qc",
+    "app_name": "mad_qc_workflow",
     "app_version": "1.1_dcic_2",
     "cwl_directory_url": "",
     "cwl_main_filename": "",
@@ -10,11 +10,16 @@
     "wdl_main_filename": "mad_qc.wdl",
     "wdl_child_filenames": [],
     "language": "wdl",
+    "input_parameters": {
+      "mad_qc_disk": "local-disk 100 SSD"
+    },
     "additional_benchmarking_parameters": {},
     "output_S3_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
-    "output_target": {},
+    "output_target": {
+      "mad_qc.report_zip": "d96a4893-f662-481c-b7f0-945687acc474/mad_qc.report_zip186838179317",
+      "mad_qc.metrics": "d96a4893-f662-481c-b7f0-945687acc474/mad_qc.metrics964646698729"
+    },
     "secondary_output_target": {},
-    "input_parameters": {},
     "input_files": {
       "mad_qc.quantfiles": {
         "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
@@ -53,29 +58,33 @@
   "workflow_uuid": "4dba38f0-af7a-4432-88e4-ca804dea64f8",
   "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
   "parameters": [
+    {
+      "workflow_argument_name": "mad_qc_disk",
+      "value": "local-disk 100 SSD"
+    }
   ],
   "additional_benchmarking_parameters": {},
   "output_files": [],
   "push_error_to_end": true,
   "_tibanna": {
-    "run_id": "fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+    "run_id": "49b78c78-71a0-4cae-882b-4f71d5baa8db",
     "env": "fourfront-webdev",
-    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_49b78c78-71a0-4cae-882b-4f71d5baa8db",
     "run_type": "mad-qc",
-    "run_name": "mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
-    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec"
+    "run_name": "mad-qc_49b78c78-71a0-4cae-882b-4f71d5baa8db",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_49b78c78-71a0-4cae-882b-4f71d5baa8db"
   },
   "ff_meta": {
     "award": "1U01CA200059-01",
     "lab": "4dn-dcic-lab",
-    "awsem_app_name": "mad_qc",
-    "awsem_job_id": "psbqUSkKmAe7",
+    "awsem_app_name": "mad_qc_workflow",
+    "awsem_job_id": "3tUBPVHcDLIi",
     "run_status": "started",
-    "uuid": "a56b5fe5-aec4-48ef-8e84-9b781bbcad10",
+    "uuid": "d96a4893-f662-481c-b7f0-945687acc474",
     "workflow": "4dba38f0-af7a-4432-88e4-ca804dea64f8",
     "run_platform": "AWSEM",
-    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
-    "title": "mad_qc 1.1_dcic_2 run 2020-01-17 14:25:45.968969",
+    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:mad-qc_49b78c78-71a0-4cae-882b-4f71d5baa8db",
+    "title": "mad_qc_workflow 1.1_dcic_2 run 2020-01-24 19:34:32.704919",
     "input_files": [
       {
         "workflow_argument_name": "mad_qc.quantfiles",
@@ -96,7 +105,16 @@
         "dimension": "2"
       }
     ],
-    "output_files": [],
+    "output_files": [
+      {
+        "workflow_argument_name": "mad_qc.report_zip",
+        "type": "Output QC file"
+      },
+      {
+        "workflow_argument_name": "mad_qc.metrics",
+        "type": "Output QC file"
+      }
+    ],
     "parameters": [
       {
         "workflow_argument_name": "mad_qc_disk",
@@ -107,14 +125,14 @@
   "pf_meta": [],
   "config": {
     "mem": 4,
-    "ebs_size": 20,
+    "ebs_size": 10,
     "EBS_optimized": false,
     "instance_type": "t3.medium",
     "json_bucket": "tibanna-output",
     "shutdown_min": 30,
     "password": "",
     "log_bucket": "tibanna-output",
-    "run_name": "mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+    "run_name": "mad-qc_49b78c78-71a0-4cae-882b-4f71d5baa8db",
     "overwrite_input_extra": false,
     "public_postrun_json": true,
     "email": false,
@@ -130,15 +148,15 @@
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
     "ami_id": "ami-0f06a8358d41c4b9c",
     "language": "wdl",
-    "job_tag": "mad_qc",
-    "instance_id": "i-0c70878d74f20fec3",
-    "instance_ip": "3.83.219.118",
-    "start_time": "20200117-14:25:52-UTC"
+    "job_tag": "mad_qc_workflow",
+    "instance_id": "i-06b7591b41f1930de",
+    "instance_ip": "3.88.60.189",
+    "start_time": "20200124-19:34:39-UTC"
   },
   "postrunjson": {
     "Job": {
       "App": {
-        "App_name": "mad_qc",
+        "App_name": "mad_qc_workflow",
         "App_version": "1.1_dcic_2",
         "language": "wdl",
         "wdl_url": "https://raw.githubusercontent.com/4dn-dcic/rna-seq-pipeline/v1.1_dcic_2/",
@@ -168,40 +186,43 @@
       },
       "Output": {
         "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput",
-        "output_target": {},
+        "output_target": {
+          "mad_qc.metrics": "d96a4893-f662-481c-b7f0-945687acc474/mad_qc.metrics964646698729",
+          "mad_qc.report_zip": "d96a4893-f662-481c-b7f0-945687acc474/mad_qc.report_zip186838179317"
+        },
         "secondary_output_target": {},
         "alt_cond_output_argnames": {},
         "Output files": {
-          "mad_qc.mqc.madQCmetrics": {
-            "path": "/data1/wdl/cromwell-executions/mad_qc/34c87773-87b2-4137-8268-51ce3b33f7ae/call-mqc/execution/glob-196368870fbaaecf98b381cba2f56e97/4DNFIRV6DRTJ-4DNFILGR8Q3P-4DNFIN8UZXFP_mad_qc_metrics.json",
-            "target": "/data1/wdl/cromwell-executions/mad_qc/34c87773-87b2-4137-8268-51ce3b33f7ae/call-mqc/execution/glob-196368870fbaaecf98b381cba2f56e97/4DNFIRV6DRTJ-4DNFILGR8Q3P-4DNFIN8UZXFP_mad_qc_metrics.json"
+          "mad_qc.metrics": {
+            "path": "/data1/wdl/cromwell-executions/mad_qc/f87cd121-b595-4957-a024-b8535023b5c8/call-mqc/execution/glob-196368870fbaaecf98b381cba2f56e97/4DNFIRV6DRTJ-4DNFILGR8Q3P-4DNFIN8UZXFP_mad_qc_metrics.json",
+            "target": "d96a4893-f662-481c-b7f0-945687acc474/mad_qc.metrics964646698729"
           },
-          "mad_qc.mqc.report_zip": {
-            "path": "/data1/wdl/cromwell-executions/mad_qc/34c87773-87b2-4137-8268-51ce3b33f7ae/call-mqc/execution/glob-e0e0f8e43af3bddd40392b423916b2eb/mad_qc_report.zip",
-            "target": "/data1/wdl/cromwell-executions/mad_qc/34c87773-87b2-4137-8268-51ce3b33f7ae/call-mqc/execution/glob-e0e0f8e43af3bddd40392b423916b2eb/mad_qc_report.zip"
+          "mad_qc.report_zip": {
+            "path": "/data1/wdl/cromwell-executions/mad_qc/f87cd121-b595-4957-a024-b8535023b5c8/call-mqc/execution/glob-e0e0f8e43af3bddd40392b423916b2eb/mad_qc_report.zip",
+            "target": "d96a4893-f662-481c-b7f0-945687acc474/mad_qc.report_zip186838179317"
           }
         }
       },
-      "start_time": "20200117-14:25:48-UTC",
-      "JOBID": "psbqUSkKmAe7",
+      "start_time": "20200124-19:34:36-UTC",
+      "JOBID": "3tUBPVHcDLIi",
       "Log": {
         "log_bucket_directory": "tibanna-output"
       },
-      "end_time": "20200117-14:29:05-UTC",
+      "end_time": "20200124-19:38:33-UTC",
       "status": "0",
       "filesystem": "/dev/nvme1n1",
-      "instance_id": "i-0c70878d74f20fec3",
+      "instance_id": "i-06b7591b41f1930de",
       "total_input_size": "71M",
       "total_output_size": "40K",
       "total_tmp_size": "4.0K",
       "Metrics": {
-        "max_mem_used_MB": 1105.15234375,
-        "min_mem_available_MB": 2786.79296875,
+        "max_mem_used_MB": 1143.67578125,
+        "min_mem_available_MB": 2748.26953125,
         "total_mem_MB": 3891.9453125,
-        "max_mem_utilization_percent": 28.39588573355628,
-        "max_cpu_utilization_percent": 68,
-        "max_disk_space_utilization_percent": 0.576773178721095,
-        "max_disk_space_used_GB": 0.112823486328125
+        "max_mem_utilization_percent": 29.38571047174754,
+        "max_cpu_utilization_percent": 69,
+        "max_disk_space_utilization_percent": 0.945345577330862,
+        "max_disk_space_used_GB": 0.0918693542480469
       }
     },
     "config": {
@@ -211,11 +232,11 @@
       "cloudwatch_dashboard": false,
       "cpu": "",
       "ebs_iops": "",
-      "ebs_size": 20,
+      "ebs_size": 10,
       "ebs_type": "gp2",
       "email": false,
       "instance_type": "t3.medium",
-      "job_tag": "mad_qc",
+      "job_tag": "mad_qc_workflow",
       "json_bucket": "tibanna-output",
       "language": "wdl",
       "log_bucket": "tibanna-output",
@@ -223,7 +244,7 @@
       "overwrite_input_extra": false,
       "public_postrun_json": true,
       "root_ebs_size": 8,
-      "run_name": "mad-qc_fb2ea724-bf67-48dc-be2b-eae3321ab7ec",
+      "run_name": "mad-qc_49b78c78-71a0-4cae-882b-4f71d5baa8db",
       "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
       "shutdown_min": 30,
       "spot_duration": "",

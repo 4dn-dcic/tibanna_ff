@@ -38,6 +38,11 @@ def start_run_event_bwa_check():
     return get_event_file_for('start_run', event_file='event_bwa-check.json')
 
 
+@pytest.fixture(scope='session')
+def update_ffmeta_event_data_bamcheck(ff_keys):
+    return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_bamcheck.json')
+
+
 @valid_env
 def post_new_fastqfile(key, upload_file=None, upload_content=None):
     """upload_content must be in bytes"""
