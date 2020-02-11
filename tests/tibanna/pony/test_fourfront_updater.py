@@ -224,7 +224,7 @@ def test_madqc(update_ffmeta_event_data_madqc):
     updater = FourfrontUpdater(**update_ffmeta_event_data_madqc)
     updater.update_qc()
     qc = updater.workflow_qc_arguments['mad_qc.quantfiles'][0]
-    assert qc.workflow_argument_name == 'mad_qc.mqc.madQCmetrics'
+    assert qc.workflow_argument_name in ['mad_qc.mqc.madQCmetrics', 'mad_qc.report_zip']
     target_accessions = updater.accessions('mad_qc.quantfiles')
     assert len(target_accessions) == 3
     assert target_accession[0] == '4DNFIRV6DRTJ'
