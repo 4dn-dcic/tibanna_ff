@@ -29,6 +29,11 @@ valid_env = pytest.mark.skipif(not os.environ.get("S3_ENCRYPT_KEY", False),
 
 
 @pytest.fixture(scope='session')
+def used_env():
+    return 'fourfront-webdev'
+
+
+@pytest.fixture(scope='session')
 def s3_utils(used_env):
     return s3Utils(env=used_env)
 
