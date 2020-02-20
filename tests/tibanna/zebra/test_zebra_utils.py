@@ -5,7 +5,8 @@ from tibanna_ffcommon.portal_utils import (
 from tibanna_cgap.zebra_utils import (
     WorkflowRunMetadata,
     ProcessedFileMetadata,
-    FourfrontStarter
+    FourfrontStarter,
+    FourfrontUpdater
 )
 import pytest
 from tests.tibanna.zebra.conftest import valid_env
