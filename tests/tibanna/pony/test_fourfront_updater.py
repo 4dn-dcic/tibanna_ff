@@ -227,15 +227,15 @@ def test_madqc(update_ffmeta_event_data_madqc):
     assert qc.workflow_argument_name in ['mad_qc.mqc.madQCmetrics', 'mad_qc.report_zip']
     target_accessions = updater.accessions('mad_qc.quantfiles')
     assert len(target_accessions) == 3
-    assert target_accession[0] == '4DNFIRV6DRTJ'
-    assert target_accession[1] == '4DNFILGR8Q3P'
-    assert target_accession[2] in updater.patch_items
+    assert target_accessions[0] == '4DNFIRV6DRTJ'
+    assert target_accessions[1] == '4DNFILGR8Q3P'
+    assert target_accessions[2] in updater.patch_items
     assert updater.post_items
-    assert len(updater.post_items['quality_metric_madqc']) == 1
-    uuid = list(updater.post_items['quality_metric_madqc'].keys())[0]
-    assert len(updater.post_items['quality_metric_madqc'][uuid]) == 3
-    first_pair = updater.post_items['quality_metric_madqc'][uuid].keys()[0]
-    assert len(updater.post_items['quality_metric_madqc'][uuid][first_pair]) == 4
+    assert len(updater.post_items['quality_metric_rnaseq_madqc']) == 1
+    uuid = list(updater.post_items['quality_metric_rnaseq_madqc'].keys())[0]
+    assert len(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC']) == 3
+    first_pair = list(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC'].keys())[0]
+    assert len(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC'][first_pair]) == 4
 
 
 @valid_env
