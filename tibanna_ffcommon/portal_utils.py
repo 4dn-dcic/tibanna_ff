@@ -1321,11 +1321,9 @@ class FourfrontUpdaterAbstract(object):
             # qc_arg is the argument (either input or output) to attach the qc file
             # qc_list is a list of QCArgumentInfo class objects
             qc_target_accessions = self.accessions(qc_arg)
-            if len(qc_target_accessions) > 1:  # do not allow array in this case
-                raise Exception("ambiguous target for QC")
             if not qc_target_accessions:
                 raise Exception("QC target %s does not exist" % qc_arg)
-            qc_target_accession = qc_target_accessions[0]
+            qc_target_accession = qc_target_accessions[0]  # The first target accession is use in the url for the report files
             qc_object = self.create_qc_template()
             qc_schema = self.qc_schema(qc_list[0].qc_type)  # assume same qc_schema per qc_arg
             for qc in qc_list:
@@ -1366,10 +1364,56 @@ class FourfrontUpdaterAbstract(object):
                     qc_object.update(self.custom_qc_fields)
                 self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
             self.update_post_items(qc_object['uuid'], qc_object, qc.qc_type)
-            self.patch_qc(qc_target_accession, qc_object['uuid'], qc.qc_type)
+            # allowing multiple input files to point to the same qc object.
+            for t_acc in qc_target_accessions:
+                self.patch_qc(t_acc, qc_object['uuid'], qc.qc_type)
+                
 
-    def patch_qc(self, qc_target_accession, qc_uuid, qc_type=None):
-        self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
+    def patch_qc(self, qc_target_accession, qc_uuid, qc_type):
+        try:
+            res = get_metadata(qc_target_accession,
+                               key=self.tibanna_settings.ff_keys,
+                               ff_env=self.tibanna_settings.env,
+                               add_on='frame=object',
+                               check_queue=True)
+        except Exception as e:
+            raise FdnConnectionException(e)
+        if 'quality_metric' not in res:  # first qc metric for this file
+            self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
+        else:
+            existing_qctype = res['quality_metric'].split('/')[1].replace('-', '_'). \
+                              replace('quality_metrics', 'quality_metric')
+            existing_qc_uuid = res['quality_metric'].split('/')[2]
+            printlog("existing qc=" + res['quality_metric'] + ' ' + existing_qctype)
+            printlog("new qc=" + qc_uuid + ' ' + qc_type)
+            if existing_qctype == qc_type:  # if existing qc metric is of the same type, overwrite.
+                self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
+            elif existing_qctype == 'quality_metric_qclist':
+                # we assume that the same qc type occurs only once per qc list
+                # and so a new workflow run can update the one with the same qc type
+                existing_qc_meta = get_metadata(existing_qc_uuid,
+                                                key=self.tibanna_settings.ff_keys,
+                                                ff_env=self.tibanna_settings.env,
+                                                add_on='frame=object',
+                                                check_queue=True)
+                if qc_type not in [qc['qc_type'] for qc in existing_qc_meta['qc_list']]:
+                    existing_qc_meta['qc_list'].append({'qc_type': qc_type, 'value': qc_uuid})
+                    self.update_patch_items(existing_qc_meta['uuid'], {'qc_list': existing_qc_meta['qc_list']})
+                else:
+                    for i, qc in enumerate(existing_qc_meta['qc_list']):
+                        if qc['qc_type'] == qc_type:
+                            existing_qc_meta['qc_list'][i]['value'] = qc_uuid
+                            break
+                    self.update_patch_items(existing_qc_meta['uuid'], {'qc_list': existing_qc_meta['qc_list']})
+            else:
+                # new qc type is being added - create a qc list and move the existing qc to the qc list and
+                # add the new one to the qc list
+                new_qclist_object = self.create_qc_template()
+                new_qclist_object['qc_list'] = [{'qc_type': existing_qctype, 'value': existing_qc_uuid},
+                                                {'qc_type': qc_type, 'value': qc_uuid}]
+                self.update_post_items(new_qclist_object['uuid'], new_qclist_object, 'quality_metric_qclist')
+                self.update_patch_items(qc_target_accession, {'quality_metric': new_qclist_object['uuid']})
+
 
     def qc_schema(self, qc_schema_name):
         try:

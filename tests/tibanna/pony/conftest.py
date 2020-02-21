@@ -175,11 +175,6 @@ def update_ffmeta_event_data_fastqc2(ff_keys):
 
 
 @pytest.fixture(scope='session')
-def update_ffmeta_event_data_bamcheck(ff_keys):
-    return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_bamcheck.json')
-
-
-@pytest.fixture(scope='session')
 def update_ffmeta_event_data_chipseq(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_chipseq.json')
 
@@ -207,6 +202,11 @@ def update_ffmeta_hicbam(ff_keys):
 @pytest.fixture(scope='session')
 def update_ffmeta_event_data_rna_strandedness(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_rna_strandedness.json')
+
+
+@pytest.fixture(scope='session')
+def update_ffmeta_event_data_madqc(ff_keys):
+    return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_madqc.json')
 
 
 @pytest.fixture(scope='session')
