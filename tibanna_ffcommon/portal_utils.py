@@ -38,7 +38,9 @@ from tibanna.awsem import (
     AwsemPostRunJson
 )
 from tibanna.vars import (
-    METRICS_URL
+    METRICS_URL,
+    DYNAMODB_TABLE,
+    DYNAMODB_KEYNAME,
 )
 from .vars import BUCKET_NAME
 from .config import (
@@ -575,6 +577,7 @@ class FourfrontStarterAbstract(object):
         self.inp.add_args(self.ff)
         self.inp.update(ff_meta=self.ff.as_dict(),
                         pf_meta=[pf.as_dict() for _, pf in self.pfs.items()])
+        self.add_meta_to_dynamodb()
 
     @property
     def tbn(self):
@@ -720,6 +723,34 @@ class FourfrontStarterAbstract(object):
                 ff_infile_list.append(infileobj.as_dict())
         printlog("ff_infile_list is %s" % ff_infile_list)
         return ff_infile_list
+
+    def add_meta_to_dynamodb(self):
+        dd = boto3.client('dynamodb')
+        try:
+            ddres = dd.update_item(
+                TableName=DYNAMODB_TABLE,
+                Key={
+                    DYNAMODB_KEYNAME: {
+                        'S': self.inp.jobid
+                    }
+                },
+                AttributeUpdates={
+                    'WorkflowRun uuid': {
+                        'Value': {
+                            'S': self.ff.uuid
+                        },
+                        'Action': 'PUT'
+                    },
+                    'env': {
+                        'Value': {
+                            'S': self.tbn.env
+                        },
+                        'Action': 'PUT'
+                    }
+                }
+            )
+        except:
+            pass
 
 
 class QCArgumentInfo(SerializableObject):
