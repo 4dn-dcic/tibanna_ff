@@ -45,18 +45,10 @@ class API(_API):
         }
         return envlist_ff.get(name, '')
 
-    def get_info_from_dd(self, job_id):
-        ddinfo = super().get_info_from_dd(job_id)
+    def get_info_from_dd(self, ddres):
+        ddinfo = super().get_info_from_dd(ddres)
         if not ddinfo:
-            print("no ddinfo")
             return None
-        try:
-            dd = boto3.client('dynamodb')
-            ddres = dd.query(TableName=DYNAMODB_TABLE,
-                             KeyConditions={DYNAMODB_KEYNAME: {'AttributeValueList': [{'S': job_id}],
-                                                               'ComparisonOperator': 'EQ'}})
-        except:
-            return ddinfo
         if 'Items' in ddres:
             dditem = ddres['Items'][0]
             if 'WorkflowRun uuid' in dditem:

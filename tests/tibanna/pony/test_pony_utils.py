@@ -15,6 +15,8 @@ import mock
 from tibanna.vars import DYNAMODB_TABLE, DYNAMODB_KEYNAME
 from tibanna_ffcommon.core import API
 import uuid
+import time
+import boto3
 
 
 @valid_env
@@ -105,16 +107,18 @@ def test_merge_source_experiment(start_run_md5_mount_data):
 @valid_env
 @pytest.mark.webtest
 def test_add_meta_to_dynamodb(start_run_md5_data):
+    jobid = 'randomtestjobid-' + str(uuid.uuid4())
+    API().add_to_dydb(jobid, 'someexecname', 'somesfn', 'somelogbucket')
     starter = FourfrontStarter(**start_run_md5_data)
-    starter.inp.jobid = 'randomtestjobid-' + str(uuid.uuid4())
+    starter.inp.jobid = jobid
     starter.create_ff()
     starter.add_meta_to_dynamodb()
-    jobid = starter.inp.jobid
     printlog("jobid=%s" % jobid)
-    dd_info = API().get_info_from_dd(jobid)
+    time.sleep(10)
+    dd_info = API().info(jobid)
     assert dd_info
-    assert 'WorkflowRun uuid' in dd_info
-    assert dd_info['WorkflowRun uuid'] == starter.ff.uuid
+    assert 'wfr_uuid' in dd_info
+    assert dd_info['wfr_uuid'] == starter.ff.uuid
     assert 'env' in dd_info
     assert dd_info['env'] == starter.tbn.env
     # cleanup
