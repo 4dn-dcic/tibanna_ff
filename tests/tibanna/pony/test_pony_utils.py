@@ -104,12 +104,13 @@ def test_merge_source_experiment(start_run_md5_mount_data):
 
 @valid_env
 @pytest.mark.webtest
-def test_add_meta_to_dynamodb(start_run_md5_mount_data):
+def test_add_meta_to_dynamodb(start_run_md5_data):
     starter = FourfrontStarter(**start_run_md5_data)
-    starter.inp.jobid = 'randomtestjobid' + uuid.uuid4()
+    starter.inp.jobid = 'randomtestjobid-' + str(uuid.uuid4())
     starter.create_ff()
-    starter.add_meta_do_dynamodb()
+    starter.add_meta_to_dynamodb()
     jobid = starter.inp.jobid
+    printlog("jobid=%s" % jobid)
     dd_info = API().get_info_from_dd(jobid)
     assert dd_info
     assert 'WorkflowRun uuid' in dd_info

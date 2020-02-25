@@ -3,7 +3,8 @@ from .stepfunction import StepFunctionFFAbstract
 from .vars import (
     S3_ENCRYPT_KEY,
     TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
-    DYNAMODB_TABLE
+    DYNAMODB_TABLE,
+    DYNAMODB_KEYNAME
 )
 import boto3
 
@@ -47,12 +48,13 @@ class API(_API):
     def get_info_from_dd(self, job_id):
         ddinfo = super().get_info_from_dd(job_id)
         if not ddinfo:
+            print("no ddinfo")
             return None
         try:
             dd = boto3.client('dynamodb')
             ddres = dd.query(TableName=DYNAMODB_TABLE,
-                             KeyConditions={'Job Id': {'AttributeValueList': [{'S': job_id}],
-                                                       'ComparisonOperator': 'EQ'}})
+                             KeyConditions={DYNAMODB_KEYNAME: {'AttributeValueList': [{'S': job_id}],
+                                                               'ComparisonOperator': 'EQ'}})
         except:
             return ddinfo
         if 'Items' in ddres:
