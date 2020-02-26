@@ -749,7 +749,8 @@ class FourfrontStarterAbstract(object):
                     }
                 }
             )
-        except:
+        except Exception as e:
+            printlog(str(e))
             pass
 
 
