@@ -206,26 +206,6 @@ def test_fastqc(update_ffmeta_event_data_fastqc2):
 
 
 @valid_env
-def test_bamcheck(update_ffmeta_event_data_bamcheck):
-    updater = FourfrontUpdater(**update_ffmeta_event_data_bamcheck)
-    assert updater.workflow
-    assert 'arguments' in updater.workflow
-    assert updater.workflow_qc_arguments
-    assert 'raw_bam' in updater.workflow_qc_arguments
-    assert updater.workflow_qc_arguments['raw_bam'][0].qc_type == 'quality_metric_bamcheck'
-    updater.update_qc()
-    qc = updater.workflow_qc_arguments['raw_bam'][0]
-    target_accession = updater.accessions('raw_bam')[0]
-    assert qc.workflow_argument_name == 'raw_bam-check'
-    assert qc.qc_table
-    assert target_accession == '4DNFIWT3X5RU'
-    assert updater.post_items
-    assert len(updater.post_items['quality_metric_bamcheck']) == 1
-    uuid = list(updater.post_items['quality_metric_bamcheck'].keys())[0]
-    assert 'quickcheck' in updater.post_items['quality_metric_bamcheck'][uuid]
-
-
-@valid_env
 def test_pairsqc(update_ffmeta_event_data_pairsqc):
     updater = FourfrontUpdater(**update_ffmeta_event_data_pairsqc)
     updater.update_qc()
@@ -237,6 +217,25 @@ def test_pairsqc(update_ffmeta_event_data_pairsqc):
     assert len(updater.post_items['quality_metric_pairsqc']) == 1
     uuid = list(updater.post_items['quality_metric_pairsqc'].keys())[0]
     assert 'Cis/Trans ratio' in updater.post_items['quality_metric_pairsqc'][uuid]
+
+
+@valid_env
+def test_madqc(update_ffmeta_event_data_madqc):
+    updater = FourfrontUpdater(**update_ffmeta_event_data_madqc)
+    updater.update_qc()
+    qc = updater.workflow_qc_arguments['mad_qc.quantfiles'][0]
+    assert qc.workflow_argument_name in ['mad_qc.mqc.madQCmetrics', 'mad_qc.report_zip']
+    target_accessions = updater.accessions('mad_qc.quantfiles')
+    assert len(target_accessions) == 3
+    assert target_accessions[0] == '4DNFIRV6DRTJ'
+    assert target_accessions[1] == '4DNFILGR8Q3P'
+    assert target_accessions[2] in updater.patch_items
+    assert updater.post_items
+    assert len(updater.post_items['quality_metric_rnaseq_madqc']) == 1
+    uuid = list(updater.post_items['quality_metric_rnaseq_madqc'].keys())[0]
+    assert len(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC']) == 3
+    first_pair = list(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC'].keys())[0]
+    assert len(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC'][first_pair]) == 4
 
 
 @valid_env

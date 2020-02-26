@@ -29,6 +29,21 @@ valid_env = pytest.mark.skipif(not os.environ.get("S3_ENCRYPT_KEY", False),
 
 
 @pytest.fixture(scope='session')
+def used_env():
+    return 'fourfront-webdev'
+
+
+@pytest.fixture(scope='session')
+def s3_utils(used_env):
+    return s3Utils(env=used_env)
+
+
+@pytest.fixture(scope='session')
+def ff_keys(s3_utils):
+    return s3_utils.get_access_keys('access_key_tibanna')
+
+
+@pytest.fixture(scope='session')
 def start_run_event_md5():
     return get_event_file_for('start_run', event_file='event_md5.json')
 
@@ -36,6 +51,11 @@ def start_run_event_md5():
 @pytest.fixture(scope='session')
 def start_run_event_bwa_check():
     return get_event_file_for('start_run', event_file='event_bwa-check.json')
+
+
+@pytest.fixture(scope='session')
+def update_ffmeta_event_data_bamcheck(ff_keys):
+    return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_bamcheck.json')
 
 
 @valid_env
