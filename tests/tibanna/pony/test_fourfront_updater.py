@@ -1,6 +1,4 @@
-import copy
 import boto3
-import uuid
 from dcicutils import ff_utils
 from tibanna_4dn.pony_utils import (
     FourfrontUpdater,
@@ -92,7 +90,8 @@ def test_fastq_first_line(update_ffmeta_event_data_fastq_first_line):
     assert first_line == "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
     assert '4c3be0d1-cd00-4a14-85ed-43269591fe41' in updater.patch_items
     assert 'file_first_line' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
-    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['file_first_line'] == "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
+    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['file_first_line'] == \
+        "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
     s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
 
 
