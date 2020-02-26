@@ -1680,6 +1680,7 @@ class FourfrontUpdaterAbstract(object):
         self.update_md5()
         self.update_rna_strandedness()
         self.update_fastq_first_line()
+        self.update_file_processed_format_re_check()
         printlog("updating qc...")
         self.update_qc()
         self.update_input_extras()

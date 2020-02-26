@@ -97,6 +97,23 @@ def test_fastq_first_line(update_ffmeta_event_data_fastq_first_line):
 
 
 @valid_env
+def test_update_file_processed_format_re_check(update_ffmeta_event_data_re_check):
+    report_key = 'lalala/re_report'
+    s3 = boto3.client('s3')
+    s3.put_object(Body='clipped-mates with RE motif: 76.54 %'.encode('utf-8'),
+                  Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+    updater = FourfrontUpdater(**update_ffmeta_event_data_re_check)
+    input_uuid = updater.ff.input_files[0]['value']
+    updater.update_file_processed_format_re_check()
+    precent_re = updater.parse_re_check(updater.read('re_report'))
+    assert precent_re == 76.54
+    assert input_uuid in updater.patch_items
+    assert 'percent_clipped_sites_with_re_motif' in updater.patch_items[input_uuid]
+    assert updater.patch_items[input_uuid]['percent_clipped_sites_with_re_motif'] == 76.54
+    s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+
+
+@valid_env
 def test_md5(update_ffmeta_event_data_newmd5):
     report_key = 'lalala/md5_report'
     s3 = boto3.client('s3')
