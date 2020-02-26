@@ -34,9 +34,19 @@ jobs:
       tibanna_cgap deploy_core -n run_task;
       tibanna_cgap deploy_core -n check_task;
       tibanna_cgap deploy_core -n update_ffmeta;
-      tibanna_4dn deploy_pony -g default luisa -S;
-      tibanna_4dn deploy_core -g default luisa -n start_run;
-      tibanna_4dn deploy_core -g default luisa -n run_task;
-      tibanna_4dn deploy_core -g default luisa -n check_task;
-      tibanna_4dn deploy_core -g default luisa -n update_ffmeta;
+      tibanna_cgap deploy_zebra -s tmp_md5;
+      tibanna_cgap deploy_core -n start_run -s tmp_md5;
+      tibanna_cgap deploy_core -n run_task -s tmp_md5;
+      tibanna_cgap deploy_core -n check_task -s tmp_md5;
+      tibanna_cgap deploy_core -n update_ffmeta -s tmp_md5;
+      tibanna_4dn deploy_pony -g default_luisa -S;
+      tibanna_4dn deploy_core -g default_luisa -n start_run;
+      tibanna_4dn deploy_core -g default_luisa -n run_task;
+      tibanna_4dn deploy_core -g default_luisa -n check_task;
+      tibanna_4dn deploy_core -g default_luisa -n update_ffmeta;
+      tibanna_4dn deploy_pony -s tmp_md5;
+      tibanna_4dn deploy_core -n start_run -s tmp_md5;
+      tibanna_4dn deploy_core -n run_task -s tmp_md5;
+      tibanna_4dn deploy_core -n check_task -s tmp_md5;
+      tibanna_4dn deploy_core -n update_ffmeta -s tmp_md5;
       fi
