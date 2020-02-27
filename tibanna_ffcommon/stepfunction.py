@@ -3,6 +3,8 @@ from tibanna.stepfunction import StepFunctionUnicorn
 
 
 class StepFunctionFFAbstract(StepFunctionUnicorn):
+    lambda_error_retry_condition = StepFunctionUnicorn.lambda_error_retry_condition
+
     sfn_start_run_retry_conditions = [
         {
             "ErrorEquals": ["TibannaStartException"],
