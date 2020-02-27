@@ -1,6 +1,4 @@
-import copy
 import boto3
-import uuid
 from dcicutils import ff_utils
 from tibanna_4dn.pony_utils import (
     FourfrontUpdater,
@@ -92,7 +90,25 @@ def test_fastq_first_line(update_ffmeta_event_data_fastq_first_line):
     assert first_line == "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
     assert '4c3be0d1-cd00-4a14-85ed-43269591fe41' in updater.patch_items
     assert 'file_first_line' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
-    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['file_first_line'] == "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
+    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['file_first_line'] == \
+        "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
+    s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+
+
+@valid_env
+def test_update_file_processed_format_re_check(update_ffmeta_event_data_re_check):
+    report_key = 'lalala/re_report'
+    s3 = boto3.client('s3')
+    s3.put_object(Body='clipped-mates with RE motif: 76.54 %'.encode('utf-8'),
+                  Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+    updater = FourfrontUpdater(**update_ffmeta_event_data_re_check)
+    input_uuid = updater.ff_meta.input_files[0]['value']
+    updater.update_file_processed_format_re_check()
+    precent_re = updater.parse_re_check(updater.read('motif_percent'))
+    assert precent_re == 76.54
+    assert input_uuid in updater.patch_items
+    assert 'percent_clipped_sites_with_re_motif' in updater.patch_items[input_uuid]
+    assert updater.patch_items[input_uuid]['percent_clipped_sites_with_re_motif'] == 76.54
     s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
 
 

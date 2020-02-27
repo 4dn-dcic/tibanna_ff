@@ -2,7 +2,6 @@ import pytest
 from dcicutils.s3_utils import s3Utils
 from dcicutils import ff_utils
 import os
-import json
 import uuid
 import boto3
 from tests.tibanna.ffcommon.conftest import read_event_file
@@ -116,7 +115,8 @@ def start_run_hicprocessingbam_customfield_wALL_data(ff_keys):
 
 @pytest.fixture(scope='session')
 def start_run_hicprocessingbam_customfield_wArgname_data(ff_keys):
-    return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_hicprocessingbam_customfield_wArgname.json')
+    return get_event_file_for('start_run', ff_keys=ff_keys,
+                              event_file='event_hicprocessingbam_customfield_wArgname.json')
 
 
 @pytest.fixture(scope='session')
@@ -212,6 +212,11 @@ def update_ffmeta_event_data_madqc(ff_keys):
 @pytest.fixture(scope='session')
 def update_ffmeta_event_data_fastq_first_line(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_fastq_first_line.json')
+
+
+@pytest.fixture(scope='session')
+def update_ffmeta_event_data_re_check(ff_keys):
+    return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_re_check.json')
 
 
 @valid_env
