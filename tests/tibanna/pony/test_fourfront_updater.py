@@ -102,9 +102,9 @@ def test_update_file_processed_format_re_check(update_ffmeta_event_data_re_check
     s3.put_object(Body='clipped-mates with RE motif: 76.54 %'.encode('utf-8'),
                   Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
     updater = FourfrontUpdater(**update_ffmeta_event_data_re_check)
-    input_uuid = updater.ff.input_files[0]['value']
+    input_uuid = updater.ff_meta.input_files[0]['value']
     updater.update_file_processed_format_re_check()
-    precent_re = updater.parse_re_check(updater.read('re_report'))
+    precent_re = updater.parse_re_check(updater.read('motif_percent'))
     assert precent_re == 76.54
     assert input_uuid in updater.patch_items
     assert 'percent_clipped_sites_with_re_motif' in updater.patch_items[input_uuid]
