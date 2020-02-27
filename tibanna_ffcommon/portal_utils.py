@@ -1569,7 +1569,7 @@ class FourfrontUpdaterAbstract(object):
 
     # bam restriction enzyme check
     def update_file_processed_format_re_check(self):
-        if self.app_name != 're_checker':
+        if self.app_name != 're_checker_workflow':
             return
         report_arg = self.output_argnames[0]  # assume one output arg
         if self.ff_output_file(report_arg)['type'] != 'Output report file':
