@@ -294,6 +294,17 @@ class FFInputAbstract(SerializableObject):
                                                 args['input_files'][argname]['object_key'],
                                                 self.get_extra_file_key_given_input_uuid_and_key,
                                                 fe_map=fe_map)
+        if 'rename' in input_file and input_file['rename']:
+            extra_file_renames = run_on_nested_arrays2(input_file['uuid'],
+                                                       args['input_files'][argname]['rename'],
+                                                       self.get_extra_file_key_given_input_uuid_and_key,
+                                                       fe_map=fe_map)
+        else:
+            extra_file_renames = ''
+        if extra_file_renames and len(extra_file_renames) > 0:
+            extra_file_renames = list(filter(lambda x: x, extra_file_renames))
+            if len(extra_file_renames) == 1:
+                extra_file_renames = extra_file_renames[0]
         if extra_file_keys and len(extra_file_keys) > 0:
             extra_file_keys = list(filter(lambda x: x, extra_file_keys))
             if len(extra_file_keys) == 1:
@@ -301,7 +312,7 @@ class FFInputAbstract(SerializableObject):
             if extra_file_keys:
                 args['secondary_files'].update({input_file['workflow_argument_name']: {
                                                 'bucket_name': input_file['bucket_name'],
-                                                'rename': input_file.get('rename', ''),
+                                                'rename': extra_file_renames,
                                                 'mount': input_file.get('mount', False),
                                                 'object_key': extra_file_keys}})
 
