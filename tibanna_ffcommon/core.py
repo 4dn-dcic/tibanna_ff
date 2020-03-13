@@ -1,6 +1,12 @@
 from tibanna.core import API as _API
 from .stepfunction import StepFunctionFFAbstract
-from .vars import S3_ENCRYPT_KEY, TIBANNA_DEFAULT_STEP_FUNCTION_NAME
+from .vars import (
+    S3_ENCRYPT_KEY,
+    TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
+    DYNAMODB_TABLE,
+    DYNAMODB_KEYNAME
+)
+import boto3
 
 
 class API(_API):
@@ -38,3 +44,22 @@ class API(_API):
             'validate_md5_s3_trigger': {}
         }
         return envlist_ff.get(name, '')
+
+    def get_info_from_dd(self, ddres):
+        ddinfo = super().get_info_from_dd(ddres)
+        if not ddinfo:
+            return None
+        if 'Items' in ddres:
+            dditem = ddres['Items'][0]
+            if 'WorkflowRun uuid' in dditem:
+                wfr_uuid = dditem['WorkflowRun uuid']['S']
+            else:
+                wfr_uuid = ''
+            if 'env' in dditem:
+                env = dditem['env']['S']
+            else:
+                env = ''
+            ddinfo.update({'wfr_uuid': wfr_uuid, 'env': env})
+            return ddinfo
+        else:
+            return ddinfo

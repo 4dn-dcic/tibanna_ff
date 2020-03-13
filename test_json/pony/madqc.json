@@ -1,0 +1,36 @@
+{
+  "_tibanna": {
+    "env": "fourfront-webdev",
+    "run_type": "mad-qc"
+  },
+  "app_name": "mad_qc",
+  "app_version": "v1.1_dcic_2",
+  "workflow_uuid": "4dba38f0-af7a-4432-88e4-ca804dea64f8",
+  "input_files": [
+    {
+      "object_key": [
+        "4DNFIRV6DRTJ.tsv",
+        "4DNFILGR8Q3P.tsv",
+        "4DNFIN8UZXFP.tsv"
+      ],
+      "uuid": [
+        "73493b57-6028-4189-ab87-a1c2f34bf804",
+        "86040ea1-7156-4ac4-a916-e369c76ccbc3",
+        "1ec0cf6a-0225-49a1-8d39-78334f3507b8"
+      ],
+      "workflow_argument_name": "mad_qc.quantfiles",
+      "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput"
+    }
+  ],
+  "output_target": {
+    "mad_qc.report_zip": "mad_qc.report_zip",
+    "mad_qc.metrics": "mad_qc.metrics"
+  },
+  "config": {
+    "instance_type": "t3.medium",
+    "ebs_size": 10,
+    "EBS_optimized": true,
+    "key_name": "4dn-encode",
+    "log_bucket": "tibanna-output"
+  }
+}

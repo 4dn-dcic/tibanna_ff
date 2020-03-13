@@ -1,6 +1,4 @@
-import copy
 import boto3
-import uuid
 from dcicutils import ff_utils
 from tibanna_4dn.pony_utils import (
     FourfrontUpdater,
@@ -77,6 +75,40 @@ def test_rna_strandedness(update_ffmeta_event_data_rna_strandedness):
     assert 'beta_actin_antisense_count' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
     assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['beta_actin_sense_count'] == 1234
     assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['beta_actin_antisense_count'] == 5
+    s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+
+
+@valid_env
+def test_fastq_first_line(update_ffmeta_event_data_fastq_first_line):
+    report_key = 'lalala/first_line'
+    s3 = boto3.client('s3')
+    s3.put_object(Body='@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA'.encode('utf-8'),
+                  Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+    updater = FourfrontUpdater(**update_ffmeta_event_data_fastq_first_line)
+    updater.update_fastq_first_line()
+    first_line = updater.parse_fastq_first_line_report(updater.read('first_line'))
+    assert first_line == "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
+    assert '4c3be0d1-cd00-4a14-85ed-43269591fe41' in updater.patch_items
+    assert 'file_first_line' in updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']
+    assert updater.patch_items['4c3be0d1-cd00-4a14-85ed-43269591fe41']['file_first_line'] == \
+        "@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA"
+    s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+
+
+@valid_env
+def test_update_file_processed_format_re_check(update_ffmeta_event_data_re_check):
+    report_key = 'lalala/re_report'
+    s3 = boto3.client('s3')
+    s3.put_object(Body='clipped-mates with RE motif: 76.54 %'.encode('utf-8'),
+                  Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
+    updater = FourfrontUpdater(**update_ffmeta_event_data_re_check)
+    input_uuid = updater.ff_meta.input_files[0]['value']
+    updater.update_file_processed_format_re_check()
+    precent_re = updater.parse_re_check(updater.read('motif_percent'))
+    assert precent_re == 76.54
+    assert input_uuid in updater.patch_items
+    assert 'percent_clipped_sites_with_re_motif' in updater.patch_items[input_uuid]
+    assert updater.patch_items[input_uuid]['percent_clipped_sites_with_re_motif'] == 76.54
     s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
 
 
@@ -190,26 +222,6 @@ def test_fastqc(update_ffmeta_event_data_fastqc2):
 
 
 @valid_env
-def test_bamcheck(update_ffmeta_event_data_bamcheck):
-    updater = FourfrontUpdater(**update_ffmeta_event_data_bamcheck)
-    assert updater.workflow
-    assert 'arguments' in updater.workflow
-    assert updater.workflow_qc_arguments
-    assert 'raw_bam' in updater.workflow_qc_arguments
-    assert updater.workflow_qc_arguments['raw_bam'][0].qc_type == 'quality_metric_bamcheck'
-    updater.update_qc()
-    qc = updater.workflow_qc_arguments['raw_bam'][0]
-    target_accession = updater.accessions('raw_bam')[0]
-    assert qc.workflow_argument_name == 'raw_bam-check'
-    assert qc.qc_table
-    assert target_accession == '4DNFIWT3X5RU'
-    assert updater.post_items
-    assert len(updater.post_items['quality_metric_bamcheck']) == 1
-    uuid = list(updater.post_items['quality_metric_bamcheck'].keys())[0]
-    assert 'quickcheck' in updater.post_items['quality_metric_bamcheck'][uuid]
-
-
-@valid_env
 def test_pairsqc(update_ffmeta_event_data_pairsqc):
     updater = FourfrontUpdater(**update_ffmeta_event_data_pairsqc)
     updater.update_qc()
@@ -221,6 +233,25 @@ def test_pairsqc(update_ffmeta_event_data_pairsqc):
     assert len(updater.post_items['quality_metric_pairsqc']) == 1
     uuid = list(updater.post_items['quality_metric_pairsqc'].keys())[0]
     assert 'Cis/Trans ratio' in updater.post_items['quality_metric_pairsqc'][uuid]
+
+
+@valid_env
+def test_madqc(update_ffmeta_event_data_madqc):
+    updater = FourfrontUpdater(**update_ffmeta_event_data_madqc)
+    updater.update_qc()
+    qc = updater.workflow_qc_arguments['mad_qc.quantfiles'][0]
+    assert qc.workflow_argument_name in ['mad_qc.mqc.madQCmetrics', 'mad_qc.report_zip']
+    target_accessions = updater.accessions('mad_qc.quantfiles')
+    assert len(target_accessions) == 3
+    assert target_accessions[0] == '4DNFIRV6DRTJ'
+    assert target_accessions[1] == '4DNFILGR8Q3P'
+    assert target_accessions[2] in updater.patch_items
+    assert updater.post_items
+    assert len(updater.post_items['quality_metric_rnaseq_madqc']) == 1
+    uuid = list(updater.post_items['quality_metric_rnaseq_madqc'].keys())[0]
+    assert len(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC']) == 3
+    first_pair = list(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC'].keys())[0]
+    assert len(updater.post_items['quality_metric_rnaseq_madqc'][uuid]['MAD QC'][first_pair]) == 4
 
 
 @valid_env

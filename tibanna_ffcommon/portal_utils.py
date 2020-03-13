@@ -37,7 +37,9 @@ from tibanna.awsem import (
     AwsemPostRunJson
 )
 from tibanna.vars import (
-    METRICS_URL
+    METRICS_URL,
+    DYNAMODB_TABLE,
+    DYNAMODB_KEYNAME,
 )
 from .vars import BUCKET_NAME
 from .config import (
@@ -307,6 +309,17 @@ class FFInputAbstract(SerializableObject):
                                                 args['input_files'][argname]['object_key'],
                                                 self.get_extra_file_key_given_input_uuid_and_key,
                                                 fe_map=fe_map)
+        if 'rename' in input_file and input_file['rename']:
+            extra_file_renames = run_on_nested_arrays2(input_file['uuid'],
+                                                       args['input_files'][argname]['rename'],
+                                                       self.get_extra_file_key_given_input_uuid_and_key,
+                                                       fe_map=fe_map)
+        else:
+            extra_file_renames = ''
+        if extra_file_renames and len(extra_file_renames) > 0:
+            extra_file_renames = list(filter(lambda x: x, extra_file_renames))
+            if len(extra_file_renames) == 1:
+                extra_file_renames = extra_file_renames[0]
         if extra_file_keys and len(extra_file_keys) > 0:
             extra_file_keys = list(filter(lambda x: x, extra_file_keys))
             if len(extra_file_keys) == 1:
@@ -314,7 +327,7 @@ class FFInputAbstract(SerializableObject):
             if extra_file_keys:
                 args['secondary_files'].update({input_file['workflow_argument_name']: {
                                                 'bucket_name': input_file['bucket_name'],
-                                                'rename': input_file.get('rename', ''),
+                                                'rename': extra_file_renames,
                                                 'mount': input_file.get('mount', False),
                                                 'object_key': extra_file_keys}})
 
@@ -590,6 +603,7 @@ class FourfrontStarterAbstract(object):
         self.inp.add_args(self.ff)
         self.inp.update(ff_meta=self.ff.as_dict(),
                         pf_meta=[pf.as_dict() for _, pf in self.pfs.items()])
+        self.add_meta_to_dynamodb()
 
     @property
     def tbn(self):
@@ -735,6 +749,35 @@ class FourfrontStarterAbstract(object):
                 ff_infile_list.append(infileobj.as_dict())
         printlog("ff_infile_list is %s" % ff_infile_list)
         return ff_infile_list
+
+    def add_meta_to_dynamodb(self):
+        dd = boto3.client('dynamodb')
+        try:
+            ddres = dd.update_item(
+                TableName=DYNAMODB_TABLE,
+                Key={
+                    DYNAMODB_KEYNAME: {
+                        'S': self.inp.jobid
+                    }
+                },
+                AttributeUpdates={
+                    'WorkflowRun uuid': {
+                        'Value': {
+                            'S': self.ff.uuid
+                        },
+                        'Action': 'PUT'
+                    },
+                    'env': {
+                        'Value': {
+                            'S': self.tbn.env
+                        },
+                        'Action': 'PUT'
+                    }
+                }
+            )
+        except Exception as e:
+            printlog(str(e))
+            pass
 
 
 class QCArgumentInfo(SerializableObject):
@@ -1336,25 +1379,14 @@ class FourfrontUpdaterAbstract(object):
             # qc_arg is the argument (either input or output) to attach the qc file
             # qc_list is a list of QCArgumentInfo class objects
             qc_target_accessions = self.accessions(qc_arg)
-            if len(qc_target_accessions) > 1:  # do not allow array in this case
-                raise Exception("ambiguous target for QC")
             if not qc_target_accessions:
                 raise Exception("QC target %s does not exist" % qc_arg)
-            qc_target_accession = qc_target_accessions[0]
+            qc_target_accession = qc_target_accessions[0]  # The first target accession is use in the url for the report files
             qc_object = self.create_qc_template()
             qc_schema = self.qc_schema(qc_list[0].qc_type)  # assume same qc_schema per qc_arg
             for qc in qc_list:
                 qc_bucket = self.bucket(qc.workflow_argument_name)
                 qc_key = self.file_key(qc.workflow_argument_name)
-                # if there is an html, add qc_url for the html
-                if qc.qc_zipped_html or qc.qc_html:
-                    if not qc.qc_zipped_html:
-                        target_html = qc_target_accession + '/qc_report.html'
-                    else:
-                        target_html = qc_target_accession + '/' + qc.qc_zipped_html
-                    qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
-                else:
-                    qc_url = None
                 if qc.qc_zipped:
                     unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession)
                     if qc.qc_zipped_tables:
@@ -1365,7 +1397,19 @@ class FourfrontUpdaterAbstract(object):
                             data_to_parse = [unzipped_qc_data[df]['data'] for df in qcz_datafiles]
                             qc_meta_from_zip = self.parse_qc_table(data_to_parse, qc_schema)
                             qc_object.update(qc_meta_from_zip)
+                    # if there is an html, add qc_url for the html
+                    if qc.qc_zipped_html:
+                        target_html = qc_target_accession + '/' + qc.qc_zipped_html
+                        qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
+                    else:
+                        qc_url = None
                 else:
+                    # if there is an html, add qc_url for the html
+                    if qc.qc_html:
+                        target_html = qc_target_accession + '/qc_report.html'
+                        qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
+                    else:
+                        qc_url = None
                     data = self.read(qc.workflow_argument_name)
                     if qc.qc_html:
                         self.s3(qc.workflow_argument_name).s3_put(data.encode(),
@@ -1381,10 +1425,56 @@ class FourfrontUpdaterAbstract(object):
                     qc_object.update(self.custom_qc_fields)
                 self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
             self.update_post_items(qc_object['uuid'], qc_object, qc.qc_type)
-            self.patch_qc(qc_target_accession, qc_object['uuid'], qc.qc_type)
+            # allowing multiple input files to point to the same qc object.
+            for t_acc in qc_target_accessions:
+                self.patch_qc(t_acc, qc_object['uuid'], qc.qc_type)
+                
 
-    def patch_qc(self, qc_target_accession, qc_uuid, qc_type=None):
-        self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
+    def patch_qc(self, qc_target_accession, qc_uuid, qc_type):
+        try:
+            res = get_metadata(qc_target_accession,
+                               key=self.tibanna_settings.ff_keys,
+                               ff_env=self.tibanna_settings.env,
+                               add_on='frame=object',
+                               check_queue=True)
+        except Exception as e:
+            raise FdnConnectionException(e)
+        if 'quality_metric' not in res:  # first qc metric for this file
+            self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
+        else:
+            existing_qctype = res['quality_metric'].split('/')[1].replace('-', '_'). \
+                              replace('quality_metrics', 'quality_metric')
+            existing_qc_uuid = res['quality_metric'].split('/')[2]
+            printlog("existing qc=" + res['quality_metric'] + ' ' + existing_qctype)
+            printlog("new qc=" + qc_uuid + ' ' + qc_type)
+            if existing_qctype == qc_type:  # if existing qc metric is of the same type, overwrite.
+                self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
+            elif existing_qctype == 'quality_metric_qclist':
+                # we assume that the same qc type occurs only once per qc list
+                # and so a new workflow run can update the one with the same qc type
+                existing_qc_meta = get_metadata(existing_qc_uuid,
+                                                key=self.tibanna_settings.ff_keys,
+                                                ff_env=self.tibanna_settings.env,
+                                                add_on='frame=object',
+                                                check_queue=True)
+                if qc_type not in [qc['qc_type'] for qc in existing_qc_meta['qc_list']]:
+                    existing_qc_meta['qc_list'].append({'qc_type': qc_type, 'value': qc_uuid})
+                    self.update_patch_items(existing_qc_meta['uuid'], {'qc_list': existing_qc_meta['qc_list']})
+                else:
+                    for i, qc in enumerate(existing_qc_meta['qc_list']):
+                        if qc['qc_type'] == qc_type:
+                            existing_qc_meta['qc_list'][i]['value'] = qc_uuid
+                            break
+                    self.update_patch_items(existing_qc_meta['uuid'], {'qc_list': existing_qc_meta['qc_list']})
+            else:
+                # new qc type is being added - create a qc list and move the existing qc to the qc list and
+                # add the new one to the qc list
+                new_qclist_object = self.create_qc_template()
+                new_qclist_object['qc_list'] = [{'qc_type': existing_qctype, 'value': existing_qc_uuid},
+                                                {'qc_type': qc_type, 'value': qc_uuid}]
+                self.update_post_items(new_qclist_object['uuid'], new_qclist_object, 'quality_metric_qclist')
+                self.update_patch_items(qc_target_accession, {'quality_metric': new_qclist_object['uuid']})
+
 
     def qc_schema(self, qc_schema_name):
         try:
@@ -1476,6 +1566,64 @@ class FourfrontUpdaterAbstract(object):
         else:
             return int(strandedness_array[0]), int(strandedness_array[1])
 
+    # fastq_first_line
+    def update_fastq_first_line(self):
+        if self.app_name != 'fastq-first-line':
+            return
+        report_arg = self.output_argnames[0]  # assume one output arg
+        if self.ff_output_file(report_arg)['type'] != 'Output report file':
+            return
+        if self.status(report_arg) == 'FAILED':
+            self.ff_meta.run_status = 'error'
+            return
+        first_line = self.parse_fastq_first_line_report(self.read(report_arg))
+        input_arg = 'fastq'
+        input_meta = self.file_items(input_arg)[0]  # assume one input file
+        patch_content = {'file_first_line': first_line}
+        self.update_patch_items(input_meta['uuid'], patch_content)
+
+    @classmethod
+    def parse_fastq_first_line_report(self, read):
+        """parses fastq_first_line report file content and returns the content"""
+        fastq_first_line_content = read.rstrip('\n').split('\n')
+        if not fastq_first_line_content:
+            raise Exception("fastq_first_line report has no content.")
+        elif len(fastq_first_line_content) != 1:
+            raise Exception("fastq_first_line report must have exactly one line.")
+        else:
+            return fastq_first_line_content[0]
+
+    # bam restriction enzyme check
+    def update_file_processed_format_re_check(self):
+        if self.app_name != 're_checker_workflow':
+            return
+        report_arg = self.output_argnames[0]  # assume one output arg
+        if self.ff_output_file(report_arg)['type'] != 'Output report file':
+            return
+        if self.status(report_arg) == 'FAILED':
+            self.ff_meta.run_status = 'error'
+            return
+        percent = self.parse_re_check(self.read(report_arg))
+        input_arg = 'bamfile'
+        input_meta = self.file_items(input_arg)[0] # assume one input file
+        patch_content = {'percent_clipped_sites_with_re_motif': percent}
+        self.update_patch_items(input_meta['uuid'], patch_content)
+
+    @classmethod
+    def parse_re_check(self, read):
+        """parses output of re checker to return percent clipped sites with re motif"""
+        re_check_content = read.rstrip('\n').split('\n')
+        if not re_check_content:
+            raise Exception("bam restriction enzyme check output has no content")
+        elif len(re_check_content) != 1:
+            raise Exception("bam restriction enzyme check output must have exactly one line")
+        content = re_check_content[0].split()
+        if content[0] != "clipped-mates":
+            print(content[0])
+            raise Exception("bam restriction enzyme check contains unexpected content")
+        else:
+            return float(content[4])
+
     # md5 report
     def update_md5(self):
         if self.app_name != 'md5':
@@ -1557,6 +1705,8 @@ class FourfrontUpdaterAbstract(object):
         printlog("updating report...")
         self.update_md5()
         self.update_rna_strandedness()
+        self.update_fastq_first_line()
+        self.update_file_processed_format_re_check()
         printlog("updating qc...")
         self.update_qc()
         self.update_input_extras()

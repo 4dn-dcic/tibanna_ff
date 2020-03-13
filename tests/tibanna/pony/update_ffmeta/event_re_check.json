@@ -1,0 +1,254 @@
+{
+  "jobid": "SNeIDrlgWwqw",
+  "args": {
+    "app_name": "re_checker_workflow",
+    "app_version": "v1.1",
+    "cwl_directory_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-RE-checker/v1.1/cwl/",
+    "cwl_main_filename": "RE-checker.cwl",
+    "cwl_child_filenames": [],
+    "wdl_directory_url": "",
+    "wdl_main_filename": "",
+    "wdl_child_filenames": "",
+    "cwl_version": "draft3",
+    "input_parameters": {
+      "motif": {
+        "common_enz": "MboI"
+      }
+    },
+    "additional_benchmarking_parameters": {},
+    "output_S3_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+    "output_target": {
+      "motif_percent": "lalala/re_report"
+    },
+    "secondary_output_target": {},
+    "input_files": {
+      "bamfile": {
+        "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
+        "rename": "",
+        "unzip": "",
+        "mount": false,
+        "object_key": "33e215c1-5109-4068-9a32-de8c632c69c9/4DNFITRMW1GN.bam"
+      }
+    },
+    "secondary_files": {},
+    "input_env": {},
+    "alt_cond_output_argnames": {},
+    "language": "cwl_draft3",
+    "singularity": false,
+    "cwl_directory_local": "",
+    "dependency": {}
+  },
+  "input_files": [
+    {
+      "object_key": "4DNFITRMW1GN.bam",
+      "uuid": "33e215c1-5109-4068-9a32-de8c632c69c9",
+      "workflow_argument_name": "bamfile",
+      "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput"
+    }
+  ],
+  "workflow_uuid": "e9eefa69-39b1-4e61-8889-5cb1cea401c0",
+  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+  "parameters": [
+    {
+      "workflow_argument_name": "motif",
+      "value": "{'common_enz': 'MboI'}"
+    }
+  ],
+  "additional_benchmarking_parameters": {},
+  "output_files": [],
+  "push_error_to_end": true,
+  "_tibanna": {
+    "run_id": "1ff6f5b7-40d9-4bb3-8bdb-094cce4ed858",
+    "env": "fourfront-webdev",
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:check-re_-141e4a58-3f0f-45c6-be00-4efc7c60b75d",
+    "run_type": "check-re",
+    "run_name": "check-re_-141e4a58-3f0f-45c6-be00-4efc7c60b75d",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:check-re_-141e4a58-3f0f-45c6-be00-4efc7c60b75d"
+  },
+  "ff_meta": {
+    "award": "1U01CA200059-01",
+    "lab": "4dn-dcic-lab",
+    "awsem_app_name": "re_checker_workflow",
+    "awsem_job_id": "SNeIDrlgWwqw",
+    "run_status": "started",
+    "uuid": "6cc07838-a970-42f5-bb15-db5354b23eea",
+    "workflow": "e9eefa69-39b1-4e61-8889-5cb1cea401c0",
+    "run_platform": "AWSEM",
+    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony:check-re_-141e4a58-3f0f-45c6-be00-4efc7c60b75d",
+    "title": "re_checker_workflow v1.1 run 2020-02-27 18:08:52.255994",
+    "input_files": [
+      {
+        "workflow_argument_name": "bamfile",
+        "value": "33e215c1-5109-4068-9a32-de8c632c69c9",
+        "ordinal": 1,
+        "dimension": "0"
+      }
+    ],
+    "output_files": [
+      {
+        "workflow_argument_name": "motif_percent",
+        "type": "Output report file"
+      }
+    ],
+    "parameters": [
+      {
+        "workflow_argument_name": "motif",
+        "value": "{'common_enz': 'MboI'}"
+      }
+    ]
+  },
+  "pf_meta": [],
+  "config": {
+    "mem": 4,
+    "ebs_size": 10,
+    "instance_type": "t3.medium",
+    "password": "",
+    "log_bucket": "tibanna-output",
+    "key_name": "4dn-encode",
+    "run_name": "check-re_-141e4a58-3f0f-45c6-be00-4efc7c60b75d",
+    "overwrite_input_extra": false,
+    "public_postrun_json": true,
+    "email": false,
+    "EBS_optimized": false,
+    "cpu": "",
+    "ebs_iops": "",
+    "spot_duration": "",
+    "availability_zone": "",
+    "ebs_type": "gp2",
+    "shutdown_min": "now",
+    "spot_instance": false,
+    "behavior_on_capacity_limit": "fail",
+    "cloudwatch_dashboard": false,
+    "root_ebs_size": 8,
+    "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+    "json_bucket": "tibanna-output",
+    "ami_id": "ami-0f06a8358d41c4b9c",
+    "language": "cwl_draft3",
+    "job_tag": "re_checker_workflow",
+    "instance_id": "i-02b8497a0193a552f",
+    "instance_ip": "34.230.72.139",
+    "start_time": "20200227-18:08:59-UTC"
+  },
+  "postrunjson": {
+    "Job": {
+      "App": {
+        "App_name": "re_checker_workflow",
+        "App_version": "v1.1",
+        "language": "cwl_draft3",
+        "cwl_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-RE-checker/v1.1/cwl/",
+        "main_cwl": "RE-checker.cwl",
+        "other_cwl_files": ""
+      },
+      "Input": {
+        "Input_files_data": {
+          "bamfile": {
+            "path": "33e215c1-5109-4068-9a32-de8c632c69c9/4DNFITRMW1GN.bam",
+            "profile": "",
+            "rename": "",
+            "unzip": "",
+            "class": "File",
+            "dir": "elasticbeanstalk-fourfront-webdev-wfoutput"
+          }
+        },
+        "Secondary_files_data": {},
+        "Input_parameters": {
+          "motif": {
+            "common_enz": "MboI"
+          }
+        },
+        "Env": {}
+      },
+      "Output": {
+        "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput",
+        "output_target": {
+          "motif_percent": "lalala/re_report"
+        },
+        "secondary_output_target": {},
+        "alt_cond_output_argnames": {},
+        "Output files": {
+          "motif_percent": {
+            "path": "/data1/out/check-out.txt",
+            "target": "lalala/re_report",
+            "basename": "check-out.txt",
+            "checksum": "sha1$ef0fe06e4d08da3c80e4737d44ceaef64bd4f84b",
+            "location": "file:///data1/out/check-out.txt",
+            "md5sum": "5871f4f97260c68b7b8b5e718a9d2d58",
+            "size": 37,
+            "class": "File"
+          }
+        }
+      },
+      "start_time": "20200227-18:08:55-UTC",
+      "JOBID": "SNeIDrlgWwqw",
+      "Log": {
+        "log_bucket_directory": "tibanna-output"
+      },
+      "end_time": "20200227-18:12:30-UTC",
+      "status": "0",
+      "filesystem": "/dev/nvme1n1",
+      "instance_id": "i-02b8497a0193a552f",
+      "total_input_size": "894M",
+      "total_output_size": "132K",
+      "total_tmp_size": "4.0K",
+      "Metrics": {
+        "max_mem_used_MB": 372.0390625,
+        "min_mem_available_MB": 3519.90625,
+        "total_mem_MB": 3891.9453125,
+        "max_mem_utilization_percent": 9.55920581168238,
+        "max_cpu_utilization_percent": 69,
+        "max_disk_space_utilization_percent": 9.50903893726247,
+        "max_disk_space_used_GB": 0.924095153808594,
+        "max_ebs_read_bytes": 56312661.333333336
+      }
+    },
+    "config": {
+      "EBS_optimized": false,
+      "ami_id": "ami-0f06a8358d41c4b9c",
+      "availability_zone": "",
+      "behavior_on_capacity_limit": "fail",
+      "cloudwatch_dashboard": false,
+      "cpu": "",
+      "ebs_iops": "",
+      "ebs_size": 10,
+      "ebs_type": "gp2",
+      "email": false,
+      "instance_type": "t3.medium",
+      "job_tag": "re_checker_workflow",
+      "json_bucket": "tibanna-output",
+      "language": "cwl_draft3",
+      "log_bucket": "tibanna-output",
+      "mem": 4,
+      "overwrite_input_extra": false,
+      "public_postrun_json": true,
+      "root_ebs_size": 8,
+      "run_name": "check-re_-141e4a58-3f0f-45c6-be00-4efc7c60b75d",
+      "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+      "shutdown_min": "now",
+      "spot_duration": "",
+      "spot_instance": false
+    },
+    "commands": [
+      [
+        "[job RE-checker.cwl] /data1/tmpyWBdvJ$ docker ",
+        "    run ",
+        "    -i ",
+        "    --volume=/data1/tmpyWBdvJ:/var/spool/cwl:rw ",
+        "    --volume=/data1/tmp2XgFHY:/tmp:rw ",
+        "    --volume=/data1/input/33e215c1-5109-4068-9a32-de8c632c69c9/4DNFITRMW1GN.bam:/var/lib/cwl/stg76474e61-15d4-41e0-b180-58212ea92faf/4DNFITRMW1GN.bam:ro ",
+        "    --workdir=/var/spool/cwl ",
+        "    --log-driver=none ",
+        "    --rm ",
+        "    --env=TMPDIR=/tmp ",
+        "    --env=HOME=/var/spool/cwl ",
+        "    4dndcic/4dn-re-checker:v1.1 ",
+        "    run-checker.sh ",
+        "    -bam ",
+        "    /var/lib/cwl/stg76474e61-15d4-41e0-b180-58212ea92faf/4DNFITRMW1GN.bam ",
+        "    -e ",
+        "    MboI ",
+        "    -w ",
+        "    T > /data1/tmpyWBdvJ/check-out.txt"
+      ]
+    ]
+  }
+}
