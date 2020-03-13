@@ -29,11 +29,40 @@ def test_format_extension_map():
     assert 'bwt' in fe_map.fe_dict.keys()
 
 
+def test_array_uuid():
+    """test for object_key and bucket name auto-filled for an array uuid"""
+    # This test requires the following files to have metadata (not necessarily the physical file)
+    # eda72adf-3999-4ef4-adf7-58a64a9044d8, eda9be6d-0ecd-4bad-bd07-6e1a7efc98be
+    # with accessions GAPFIQNHLO6D and GAPFIZ25WPXE
+    # on cgapwolf
+    # the format and status of these file items should be rck_gz and uploaded as well.
+    input_file_list = [
+       {
+          "workflow_argument_name": "input_rcks",
+          "uuid": ["eda72adf-3999-4ef4-adf7-58a64a9044d8", "eda9be6d-0ecd-4bad-bd07-6e1a7efc98be"]
+       }
+    ]
+    _tibanna = {'env': 'fourfront-cgapwolf',
+                'settings': {'1': '1'}}
+    inp = ZebraInput(workflow_uuid='a',
+                     config={'log_bucket': 'b'},
+                     output_bucket='c',
+                     input_files=input_file_list,
+                     _tibanna=_tibanna)
+    assert 'bucket_name' in inp.input_files[0]
+    assert 'object_key' in inp.input_files[0]
+    assert inp.input_files[0]['bucket_name'] == 'elasticbeanstalk-fourfront-cgapwolf-wfoutput'
+    assert len(inp.input_files[0]['object_key']) == 2
+    assert inp.input_files[0]['object_key'][0] == "GAPFIQNHLO6D.rck.gz"
+    assert inp.input_files[0]['object_key'][1] == "GAPFIZ25WPXE.rck.gz"
+
+
 @valid_env
 def test_extra_file_rename():
     """Test for rename tag working for extra files"""
     # This test requires the following files to have metadata (not necessarily the physical file)
     # eda72adf-3999-4ef4-adf7-58a64a9044d8, eda9be6d-0ecd-4bad-bd07-6e1a7efc98be
+    # with accessions GAPFIQNHLO6D and GAPFIZ25WPXE
     # on cgapwolf
     # with extra files with format rck_gz_tbi and status uploaded
     # the format and status of these file items should be rck_gz and uploaded as well.
