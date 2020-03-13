@@ -10,10 +10,9 @@ jobs:
   - stage: unit tests
     python: '3.6'
     install:
-    - pip install six
-    - pip install -U -r requirements-test.txt
-    - pip install -U -r requirements.txt
+    - pip install tibanna
     - python setup.py install
+    - pip install -r requirements-test.txt
     - pip install codacy-coverage
     script:
     - if [ "$TRAVIS_BRANCH" != "doc" ]; then
