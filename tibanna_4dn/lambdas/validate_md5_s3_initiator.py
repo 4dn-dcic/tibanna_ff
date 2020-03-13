@@ -203,14 +203,15 @@ def _make_input(env, bucket, workflow, object_key, uuid, run_name, dependency=No
                  "bucket_name": bucket,
                  "uuid": uuid,
                  "object_key": object_key,
+                 "mount": True
                  }
              ],
             "output_bucket": output_bucket,
             "config": {
                 "ebs_type": "gp2",
                 "ebs_iops": "",
+                "ebs_size": 10,
                 "shutdown_min": 0,
-                "password": "thisisnotmypassword",
                 "log_bucket": "tibanna-output",
                 "key_name": "4dn-encode"
               }
