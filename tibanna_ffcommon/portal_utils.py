@@ -211,6 +211,8 @@ class FFInputAbstract(SerializableObject):
         for input_file in self.input_files:
             self.process_input_file_info(input_file, args)
 
+        args['custom_errors'] = self.wf_meta.get('custom_errors', [])
+
         # create Args class object
         self.args = Args(**args)
 
