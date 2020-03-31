@@ -561,6 +561,9 @@ class TibannaSettings(SerializableObject):
             settings = {}
         self.settings = settings
 
+        printlog(str(self.as_dict()))
+        printlog("sysbucket=" + self.s3.sys_bucket )
+
     def get_reporter(self):
         '''
         a reporter is a generic name for somethign that reports on the results of each step
