@@ -10,6 +10,6 @@ def BUCKET_NAME(env, filetype):
         bucket_type = 'files'
     else:
         bucket_type = 'wfoutput'
-    if env in ['data', 'staging']:
+    if env in ['data', 'staging', 'fourfront-green', 'fourfront-blue']:
         env = 'fourfront-webprod'
     return 'elasticbeanstalk-%s-%s' % (env, bucket_type)
