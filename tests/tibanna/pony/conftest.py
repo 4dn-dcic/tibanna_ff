@@ -267,7 +267,7 @@ def post_new_processedfile(file_format, key, extra_file_formats=None,
         accession = res['@graph'][0]['accession']
         upload_key = f_uuid + '/' + accession + '.' + extension
         boto3.client('s3').put_object(Body=upload_content,
-                                      Bucket=BUCKET_NAME(DEV_ENV, 'FileFastq'),
+                                      Bucket=BUCKET_NAME(DEV_ENV, 'FileProcessed'),
                                       Key=upload_key)
     return res['@graph'][0]['uuid']
 
