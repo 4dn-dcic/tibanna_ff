@@ -803,11 +803,13 @@ class QCArgumentInfo(SerializableObject):
 
 
 class InputExtraArgumentInfo(SerializableObject):
-    def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, **kwargs):
+    def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to,
+                       extra_file_use_for=None, **kwargs):
         if argument_type != 'Output to-be-extra-input file':
             raise Exception("InputExtraArgumentInfo is not Output to-be-extra-input file: %s" % argument_type)
         self.workflow_argument_name = workflow_argument_name
         self.argument_to_be_attached_to = argument_to_be_attached_to
+        self.extra_file_use_for = extra_file_use_for
 
 
 class FourfrontUpdaterAbstract(object):
@@ -1361,6 +1363,8 @@ class FourfrontUpdaterAbstract(object):
                     matching_extra['md5sum'] = self.md5sum(ie.workflow_argument_name)
                     matching_extra['filesize'] = self.filesize(ie.workflow_argument_name)
                     matching_extra['status'] = 'uploaded'
+                    if ie.extra_file_use_for:
+                        matching_extra['use_for'] = ie.extra_file_use_for
                 else:
                     matching_extra['status'] = "upload failed"
                 # higlass registration

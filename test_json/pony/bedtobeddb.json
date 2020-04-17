@@ -6,7 +6,6 @@
     "run_type": "bedtobeddb"
   },
   "overwrite_input_extra": true,
-  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
   "parameters": {
     "assembly": "hg38"
   },
@@ -19,8 +18,6 @@
   "workflow_uuid": "9d575e99-5ffe-4ea4-b74f-ad40f621cd39",
   "input_files": [
     {
-      "object_key": "4DNFIZMTKWDI.bed.gz",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
       "uuid": "e22ed503-e208-4fbd-a097-06022bb7a634",
       "workflow_argument_name": "bedfile"
     }
