@@ -121,7 +121,8 @@ def test_bed2beddb():
     # prep new File
     data = get_test_json('bedtobeddb.json')
     bed_content = b'chr1\t1000000\t2000000\tregion1'
-    bed_uuid = post_new_processedfile(file_format='bed', key=key, upload_content=bed_content, extension='bed')
+    gzipped_content = gzip.compress(bed_content)
+    bed_uuid = post_new_processedfile(file_format='bed', key=key, upload_content=gzipped_content, extension='bed.gz')
     data['input_files'][0]['uuid'] = bed_uuid
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
