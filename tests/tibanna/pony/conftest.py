@@ -245,7 +245,8 @@ def post_new_fastqfile(key, upload_file=None, upload_content=None):
 
 @valid_env
 def post_new_processedfile(file_format, key, extra_file_formats=None,
-                           upload_file=None, extension=None, **kwargs):
+                           upload_file=None, upload_content=None, extension=None, **kwargs):
+    """upload_content must be in bytes"""
     if extra_file_formats:
         extra_files = [{'file_format': ef} for ef in extra_file_formats]
     else:
@@ -261,6 +262,13 @@ def post_new_processedfile(file_format, key, extra_file_formats=None,
         accession = res['@graph'][0]['accession']
         upload_key = f_uuid + '/' + accession + '.' + extension
         boto3.client('s3').upload_file(upload_file, BUCKET_NAME(DEV_ENV, 'FileProcessed'), upload_key)
+    if upload_content:
+        f_uuid = res['@graph'][0]['uuid']
+        accession = res['@graph'][0]['accession']
+        upload_key = f_uuid + '/' + accession + '.' + extension
+        boto3.client('s3').put_object(Body=upload_content,
+                                      Bucket=BUCKET_NAME(DEV_ENV, 'FileFastq'),
+                                      Key=upload_key)
     return res['@graph'][0]['uuid']
 
 

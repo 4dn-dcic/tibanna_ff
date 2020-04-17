@@ -1363,8 +1363,8 @@ class FourfrontUpdaterAbstract(object):
                     matching_extra['md5sum'] = self.md5sum(ie.workflow_argument_name)
                     matching_extra['filesize'] = self.filesize(ie.workflow_argument_name)
                     matching_extra['status'] = 'uploaded'
-                    if ip.extra_file_use_for:
-                        matching_extra['use_for'] = ip.extra_file_use_for
+                    if ie.extra_file_use_for:
+                        matching_extra['use_for'] = ie.extra_file_use_for
                 else:
                     matching_extra['status'] = "upload failed"
                 # higlass registration
