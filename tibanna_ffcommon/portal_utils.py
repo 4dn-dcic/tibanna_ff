@@ -657,10 +657,18 @@ class FourfrontStarterAbstract(object):
             return self.inp.output_files
         return [outf for outf in self.inp.output_files if outf.get('workflow_argument_name') == argname]
 
-    def pf_extra_files(self, secondary_file_formats=None):
+    def pf_extra_files(self, secondary_file_formats=None, processed_extra_file_use_for=None):
         if not secondary_file_formats:
             return None
-        return [{"file_format": parse_formatstr(v)} for v in secondary_file_formats]
+        extra_files = []
+        for v in secondary_file_formats:
+            file_format = parse_formatstr(v)
+            extra = {"file_format": file_format}
+            if processed_extra_file_use_for:
+                if file_format == parse_formatstr(processed_extra_file_use_for['file_format']):
+                    extra['use_for'] = processed_extra_file_use_for['use_for']
+            extra_files.append(extra)
+        return extra_files
 
     def parse_custom_fields(self, custom_fields, argname):
         pf_other_fields = dict()
@@ -683,7 +691,8 @@ class FourfrontStarterAbstract(object):
         if 'argument_format' not in arg:
             raise Exception("file format for processed file must be provided")
         if 'secondary_file_formats' in arg:
-            extra_files = self.pf_extra_files(arg.get('secondary_file_formats', []))
+            extra_files = self.pf_extra_files(arg.get('secondary_file_formats', []),
+                                              arg.get('processed_extra_file_use_for', {}))
         else:
             extra_files = None
         printlog("appending %s to pfs" % arg.get('workflow_argument_name'))
