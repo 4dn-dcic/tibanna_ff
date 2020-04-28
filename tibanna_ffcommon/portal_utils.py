@@ -691,8 +691,8 @@ class FourfrontStarterAbstract(object):
         if 'argument_format' not in arg:
             raise Exception("file format for processed file must be provided")
         if 'secondary_file_formats' in arg:
-            extra_files = self.pf_extra_files(arg.get('secondary_file_formats', [],
-                                              arg.get('processed_extra_file_use_for', {})))
+            extra_files = self.pf_extra_files(arg.get('secondary_file_formats', []),
+                                              arg.get('processed_extra_file_use_for', {}))
         else:
             extra_files = None
         printlog("appending %s to pfs" % arg.get('workflow_argument_name'))
