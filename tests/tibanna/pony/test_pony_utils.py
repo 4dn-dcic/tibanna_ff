@@ -106,6 +106,16 @@ def test_merge_source_experiment(start_run_md5_mount_data):
 
 @valid_env
 @pytest.mark.webtest
+def test_processed_extra_file_use_for(start_run_repliseq_data):
+    starter = FourfrontStarter(**start_run_repliseq_data)
+    exf = starter.pf_extra_files(['bg_px2', 'bw'], {'file_format': 'bw', 'use_for': 'visualization'})
+    assert len(exf) == 2
+    assert exf[1]['file_format'] == 'bw' and 'use_for' in exf[1]
+    assert exf[1]['use_for'] == 'visualization'
+
+
+@valid_env
+@pytest.mark.webtest
 def test_add_meta_to_dynamodb(start_run_md5_data):
     jobid = 'randomtestjobid-' + str(uuid.uuid4())
     API().add_to_dydb(jobid, 'someexecname', 'somesfn', 'somelogbucket')

@@ -79,6 +79,11 @@ def start_run_md5_mount_data(ff_keys):
 
 
 @pytest.fixture(scope='session')
+def start_run_repliseq_data(ff_keys):
+    return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_repliseq.json')
+
+
+@pytest.fixture(scope='session')
 def start_run_pseudo_workflow_event_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_metadata_only.json')
 
