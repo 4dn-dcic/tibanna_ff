@@ -665,7 +665,7 @@ class FourfrontStarterAbstract(object):
             file_format = parse_formatstr(v)
             extra = {"file_format": file_format}
             if processed_extra_file_use_for:
-                if file_format == processed_extra_file_use_for['file_format']:
+                if file_format == parse_formatstr(processed_extra_file_use_for['file_format']):
                     extra['use_for'] = processed_extra_file_use_for['use_for']
             extra_files.append(extra)
         return extra_files
