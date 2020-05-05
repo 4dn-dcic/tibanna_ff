@@ -30,6 +30,11 @@ class API(_API):
     sfn_type = LAMBDA_TYPE
     lambda_type = LAMBDA_TYPE
 
+    @property
+    def IAM(self):
+        from .iam_utils import IAM
+        return IAM
+
     def __init__(self):
         pass
 

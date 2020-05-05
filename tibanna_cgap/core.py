@@ -35,6 +35,11 @@ class API(_API):
         from .cw_utils import TibannaResource
         return TibannaResource
 
+    @property
+    def IAM(self):
+        from .iam_utils import IAM
+        return IAM
+
     def __init__(self):
         pass
 

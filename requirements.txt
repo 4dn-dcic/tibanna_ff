@@ -1,2 +1,2 @@
-tibanna==0.17.2b1
+tibanna>=0.17.2
 dcicutils==0.13.0
