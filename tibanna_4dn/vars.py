@@ -22,6 +22,3 @@ IAM_BUCKETS = [BUCKET_NAME(DEV_ENV, 'FileProcessed'),
                'tibanna-output']
 
 DEV_SFN = 'tibanna_' + LAMBDA_TYPE + '_' + DEV_SUFFIX
-
-RUN_TASK_LAMBDA_NAME = 'run_task_' + LAMBDA_TYPE
-CHECK_TASK_LAMBDA_NAME = 'check_task_' + LAMBDA_TYPE
