@@ -29,6 +29,11 @@ class API(_API):
     def do_not_delete(self):
         return ['validate_md5_s3_trigger']
 
+    @property
+    def IAM(self):
+        from .iam_utils import IAM
+        return IAM
+
     def __init__(self):
         pass
 

@@ -1,4 +1,4 @@
-from tibanna.iam_utils import IAM
+from tibanna.iam_utils import IAM as _IAM
 from .vars import (
     AWS_ACCOUNT_NUMBER,
     AWS_REGION,
