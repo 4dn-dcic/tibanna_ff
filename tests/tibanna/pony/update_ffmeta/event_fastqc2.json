@@ -22,7 +22,7 @@
     "shutdown_min": "now",
     "password": ""
   },
-  "workflow_uuid": "2324ad76-ff37-4157-8bcc-3ce72b7dace9",
+  "workflow_uuid": "49e96b51-ed6c-4418-a693-d0e9f79adfa5",
   "input_files": [
     {
       "workflow_argument_name": "input_fastq",
@@ -53,7 +53,7 @@
     "awsem_job_id": "r8M0ILY5BC2U",
     "run_status": "started",
     "uuid": "49bc899d-5834-4aae-a15e-b848ff58b099",
-    "workflow": "2324ad76-ff37-4157-8bcc-3ce72b7dace9",
+    "workflow": "49e96b51-ed6c-4418-a693-d0e9f79adfa5",
     "run_platform": "AWSEM",
     "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_pony_dev:fastqc_4efb1f35-f830-418d-b667-b778ab9b5209",
     "title": "fastqc-0-11-4-1 0.2.0 hahaha run 2019-05-29 01:05:53.959957",

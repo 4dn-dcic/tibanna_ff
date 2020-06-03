@@ -3,7 +3,7 @@
     "run_platform": "AWSEM",
     "uuid": "18564368-1299-4ce0-82d1-c8917450d834",
     "parameters": [],
-    "workflow": "2324ad76-ff37-4157-8bcc-3ce72b7dace9",
+    "workflow": "49e96b51-ed6c-4418-a693-d0e9f79adfa5",
     "title": "fastqc-0-11-4-1 hahaha run 2018-01-16 23:08:21.335210",
     "award": "1U01CA200059-01",
     "awsem_job_id": "",
@@ -85,7 +85,7 @@
 
     "log_bucket": "tibanna-output"
   },
-  "workflow_uuid": "2324ad76-ff37-4157-8bcc-3ce72b7dace9",
+  "workflow_uuid": "49e96b51-ed6c-4418-a693-d0e9f79adfa5",
   "input_files": [
     {
       "workflow_argument_name": "input_fastq",
