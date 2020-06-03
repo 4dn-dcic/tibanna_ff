@@ -95,7 +95,7 @@ def handler(event, context):
             if skip in sequencer:
                 return serialize_startdate(response)
         md5_arn = response['_tibanna']['exec_arn']
-        input_json_fastqc = make_input(event, 'fastqc-0-11-4-1', dependency=[md5_arn], run_name_prefix='fastqc')
+        input_json_fastqc = make_input(event, 'fastqc', dependency=[md5_arn], run_name_prefix='fastqc')
         response_fastqc = API().run_workflow(sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, input_json=input_json_fastqc,
                                              open_browser=False)
         serialize_startdate(response_fastqc)
@@ -183,8 +183,8 @@ _workflows = {'md5':
               {'uuid': 'c77a117b-9a58-477e-aaa5-291a109a99f6',
                'arg_name': 'input_file'
                },
-              'fastqc-0-11-4-1':
-              {'uuid': '2324ad76-ff37-4157-8bcc-3ce72b7dace9',
+              'fastqc':
+              {'uuid': '49e96b51-ed6c-4418-a693-d0e9f79adfa5',
                'arg_name': 'input_fastq'
                },
               }
