@@ -1,0 +1,404 @@
+{
+  "jobid": "mJxAdQuqPv99",
+  "args": {
+    "app_name": "workflow_granite-comHet-check",
+    "app_version": "v14",
+    "cwl_directory_url": "https://raw.githubusercontent.com/dbmi-bgm/cgap-pipeline/v14/cwl",
+    "cwl_main_filename": "workflow_granite-comHet_plus_vcf-integrity-check.cwl",
+    "cwl_child_filenames": [
+      "granite-comHet.cwl",
+      "sort-bgzip-vcf.cwl",
+      "vcf-integrity-check.cwl"
+    ],
+    "wdl_directory_url": "",
+    "wdl_main_filename": "",
+    "wdl_child_filenames": "",
+    "cwl_version": "v1",
+    "input_parameters": {
+      "trio": [
+        "NA12879_sample",
+        "NA12877_sample",
+        "NA12878_sample"
+      ]
+    },
+    "additional_benchmarking_parameters": {},
+    "output_S3_bucket": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+    "output_target": {
+      "comHet_vcf": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/GAPFI6IZ585N.vcf.gz",
+      "comHet_vcf-json": "f78d33cf-7065-426f-a0c3-51f3a80b1be6/comHet_vcf-json789073273369",
+      "comHet_vcf-check": "f78d33cf-7065-426f-a0c3-51f3a80b1be6/comHet_vcf-check21576501341"
+    },
+    "secondary_output_target": {
+      "comHet_vcf": [
+        "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/GAPFI6IZ585N.vcf.gz.tbi"
+      ]
+    },
+    "input_files": {
+      "input_vcf": {
+        "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+        "rename": "",
+        "unzip": "gz",
+        "mount": false,
+        "object_key": "313cf6c5-728b-4746-8062-7f92ac96bd72/GAPFIFWRNSOL.vcf.gz"
+      }
+    },
+    "secondary_files": {
+      "input_vcf": {
+        "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+        "rename": "",
+        "mount": false,
+        "object_key": "313cf6c5-728b-4746-8062-7f92ac96bd72/GAPFIFWRNSOL.vcf.gz.tbi"
+      }
+    },
+    "custom_errors": [],
+    "input_env": {},
+    "alt_cond_output_argnames": {},
+    "language": "cwl_v1",
+    "singularity": false,
+    "cwl_directory_local": "",
+    "dependency": {}
+  },
+  "input_files": [
+    {
+      "workflow_argument_name": "input_vcf",
+      "uuid": "313cf6c5-728b-4746-8062-7f92ac96bd72",
+      "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+      "unzip": "gz",
+      "object_key": "GAPFIFWRNSOL.vcf.gz"
+    }
+  ],
+  "workflow_uuid": "4973be36-5e56-41be-98ef-dd771481f629",
+  "output_bucket": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+  "parameters": [
+    {
+      "workflow_argument_name": "trio",
+      "value": "['NA12879_sample', 'NA12877_sample', 'NA12878_sample']"
+    }
+  ],
+  "additional_benchmarking_parameters": {},
+  "output_files": [],
+  "push_error_to_end": true,
+  "_tibanna": {
+    "run_id": "93a74214-33bd-4f88-874c-e8718e9e6834",
+    "env": "fourfront-cgapwolf",
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra:run_workflow_granite-comHet-check",
+    "run_type": "workflow_granite-comHet-check",
+    "run_name": "run_workflow_granite-comHet-check",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra:run_workflow_granite-comHet-check"
+  },
+  "ff_meta": {
+    "institution": "828cd4fe-ebb0-4b36-a94a-d2e3a36cc989",
+    "project": "12a92962-8265-4fc0-b2f8-cf14f05db58b",
+    "awsem_app_name": "workflow_granite-comHet-check",
+    "awsem_job_id": "mJxAdQuqPv99",
+    "run_status": "started",
+    "uuid": "f78d33cf-7065-426f-a0c3-51f3a80b1be6",
+    "workflow": "4973be36-5e56-41be-98ef-dd771481f629",
+    "run_platform": "AWSEM",
+    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra:run_workflow_granite-comHet-check",
+    "title": "workflow_granite-comHet-check v14 run 2020-06-13 17:03:34.817120",
+    "input_files": [
+      {
+        "workflow_argument_name": "input_vcf",
+        "value": "313cf6c5-728b-4746-8062-7f92ac96bd72",
+        "ordinal": 1,
+        "dimension": "0"
+      }
+    ],
+    "output_files": [
+      {
+        "workflow_argument_name": "comHet_vcf",
+        "type": "Output processed file",
+        "format": "/file-formats/vcf_gz/",
+        "extra_files": [
+          {
+            "href": "/e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/@@download/GAPFI6IZ585N.vcf.gz.tbi",
+            "uuid": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0",
+            "status": "uploading",
+            "filename": "GAPFI6IZ585N",
+            "accession": "GAPFI6IZ585N",
+            "upload_key": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/GAPFI6IZ585N.vcf.gz.tbi",
+            "file_format": "/file-formats/vcf_gz_tbi/"
+          }
+        ],
+        "secondary_file_formats": [
+          "/file-formats/vcf_gz_tbi/"
+        ],
+        "value": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0",
+        "upload_key": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/GAPFI6IZ585N.vcf.gz"
+      },
+      {
+        "workflow_argument_name": "comHet_vcf-json",
+        "type": "Output QC file"
+      },
+      {
+        "workflow_argument_name": "comHet_vcf-check",
+        "type": "Output QC file"
+      }
+    ],
+    "parameters": [
+      {
+        "workflow_argument_name": "trio",
+        "value": "['NA12879_sample', 'NA12877_sample', 'NA12878_sample']"
+      }
+    ]
+  },
+  "pf_meta": [
+    {
+      "institution": "828cd4fe-ebb0-4b36-a94a-d2e3a36cc989",
+      "project": "12a92962-8265-4fc0-b2f8-cf14f05db58b",
+      "source_samples": [],
+      "uuid": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0",
+      "accession": "GAPFI6IZ585N",
+      "status": "to be uploaded by workflow",
+      "file_format": "vcf_gz",
+      "extra_files": [
+        {
+          "file_format": "vcf_gz_tbi"
+        }
+      ]
+    }
+  ],
+  "config": {
+    "instance_type": "c5.xlarge",
+    "ebs_size": 10,
+    "EBS_optimized": true,
+    "spot_instance": true,
+    "log_bucket": "tibanna-output",
+    "run_name": "run_workflow_granite-comHet-check",
+    "behavior_on_capacity_limit": "wait_and_retry",
+    "password": "lalala",
+    "overwrite_input_extra": false,
+    "public_postrun_json": true,
+    "email": false,
+    "cpu": "",
+    "ebs_iops": "",
+    "key_name": "",
+    "spot_duration": "",
+    "availability_zone": "",
+    "security_group": "",
+    "subnet": "",
+    "mem": 0,
+    "ebs_type": "gp2",
+    "shutdown_min": "now",
+    "cloudwatch_dashboard": false,
+    "root_ebs_size": 8,
+    "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+    "json_bucket": "tibanna-output",
+    "ami_id": "ami-0f06a8358d41c4b9c",
+    "language": "cwl_v1",
+    "job_tag": "workflow_granite-comHet-check",
+    "instance_id": "i-0b73e20a12ed499ba",
+    "instance_ip": "18.205.192.68",
+    "start_time": "20200613-17:03:40-UTC"
+  },
+  "postrunjson": {
+    "Job": {
+      "App": {
+        "App_name": "workflow_granite-comHet-check",
+        "App_version": "v14",
+        "language": "cwl_v1",
+        "cwl_url": "https://raw.githubusercontent.com/dbmi-bgm/cgap-pipeline/v14/cwl",
+        "main_cwl": "workflow_granite-comHet_plus_vcf-integrity-check.cwl",
+        "other_cwl_files": "granite-comHet.cwl,sort-bgzip-vcf.cwl,vcf-integrity-check.cwl"
+      },
+      "Input": {
+        "Input_files_data": {
+          "input_vcf": {
+            "path": "313cf6c5-728b-4746-8062-7f92ac96bd72/GAPFIFWRNSOL.vcf.gz",
+            "profile": "",
+            "rename": "",
+            "unzip": "gz",
+            "class": "File",
+            "dir": "elasticbeanstalk-fourfront-cgapwolf-wfoutput"
+          }
+        },
+        "Secondary_files_data": {
+          "input_vcf": {
+            "path": "313cf6c5-728b-4746-8062-7f92ac96bd72/GAPFIFWRNSOL.vcf.gz.tbi",
+            "profile": "",
+            "rename": "",
+            "unzip": "",
+            "class": "File",
+            "dir": "elasticbeanstalk-fourfront-cgapwolf-wfoutput"
+          }
+        },
+        "Input_parameters": {
+          "trio": [
+            "NA12879_sample",
+            "NA12877_sample",
+            "NA12878_sample"
+          ]
+        },
+        "Env": {}
+      },
+      "Output": {
+        "output_bucket_directory": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+        "output_target": {
+          "comHet_vcf": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/GAPFI6IZ585N.vcf.gz",
+          "comHet_vcf-check": "f78d33cf-7065-426f-a0c3-51f3a80b1be6/comHet_vcf-check21576501341",
+          "comHet_vcf-json": "f78d33cf-7065-426f-a0c3-51f3a80b1be6/comHet_vcf-json789073273369"
+        },
+        "secondary_output_target": {
+          "comHet_vcf": [
+            "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/GAPFI6IZ585N.vcf.gz.tbi"
+          ]
+        },
+        "alt_cond_output_argnames": {},
+        "Output files": {
+          "comHet_vcf": {
+            "path": "/data1/out/sorted.vcf.gz",
+            "target": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/GAPFI6IZ585N.vcf.gz",
+            "basename": "sorted.vcf.gz",
+            "checksum": "sha1$3253a3ac30563e392ae56a1ec0a3517307ddb861",
+            "location": "file:///data1/out/sorted.vcf.gz",
+            "md5sum": "c60ff2c16d36a444b47059570ffbd314",
+            "size": 976268,
+            "secondaryFiles": [
+              {
+                "path": "/data1/out/sorted.vcf.gz.tbi",
+                "target": "e5dfd0f7-8c31-407d-80ae-91f6c6ce4eb0/GAPFI6IZ585N.vcf.gz.tbi",
+                "basename": "sorted.vcf.gz.tbi",
+                "checksum": "sha1$b5a6445fd8253aad3cb2bae2e047ad2c3abb5d4d",
+                "location": "file:///data1/out/sorted.vcf.gz.tbi",
+                "md5sum": "4d410015e04db2ed2aae2fda57353332",
+                "size": 52704,
+                "class": "File"
+              }
+            ],
+            "class": "File"
+          },
+          "comHet_vcf-check": {
+            "path": "/data1/out/integrity_check",
+            "target": "f78d33cf-7065-426f-a0c3-51f3a80b1be6/comHet_vcf-check21576501341",
+            "basename": "integrity_check",
+            "checksum": "sha1$8296f8ccff8a4fad99be5d3d71175134d84e2621",
+            "location": "file:///data1/out/integrity_check",
+            "md5sum": "475bff046ae43cc36f4edb68f5a35350",
+            "size": 14,
+            "class": "File"
+          },
+          "comHet_vcf-json": {
+            "path": "/data1/out/output.vcf.json",
+            "target": "f78d33cf-7065-426f-a0c3-51f3a80b1be6/comHet_vcf-json789073273369",
+            "basename": "output.vcf.json",
+            "checksum": "sha1$0507d0452d9efca2b2acf3239f2ad2e83a827149",
+            "location": "file:///data1/out/output.vcf.json",
+            "md5sum": "d45006b4ddd4f681d51aad8f132028ee",
+            "size": 69880,
+            "class": "File"
+          }
+        }
+      },
+      "start_time": "20200613-17:03:36-UTC",
+      "JOBID": "mJxAdQuqPv99",
+      "Log": {
+        "log_bucket_directory": "tibanna-output"
+      },
+      "end_time": "20200613-17:05:43-UTC",
+      "status": "0",
+      "filesystem": "/dev/nvme1n1",
+      "instance_id": "i-0b73e20a12ed499ba",
+      "total_input_size": "5.0M",
+      "total_output_size": "1.2M",
+      "total_tmp_size": "5.0M",
+      "Metrics": {
+        "max_mem_used_MB": 540.953125,
+        "min_mem_available_MB": 7146.7265625,
+        "total_mem_MB": 7687.6796875,
+        "max_mem_utilization_percent": 7.036624143947854,
+        "max_cpu_utilization_percent": 40,
+        "max_disk_space_utilization_percent": 0.276463434835413,
+        "max_disk_space_used_GB": 0.0268669128417969,
+        "max_ebs_read_bytes": 27015168
+      }
+    },
+    "config": {
+      "EBS_optimized": true,
+      "ami_id": "ami-0f06a8358d41c4b9c",
+      "availability_zone": "",
+      "behavior_on_capacity_limit": "wait_and_retry",
+      "cloudwatch_dashboard": false,
+      "cpu": "",
+      "ebs_iops": "",
+      "ebs_size": 10,
+      "ebs_type": "gp2",
+      "email": false,
+      "instance_type": "c5.xlarge",
+      "job_tag": "workflow_granite-comHet-check",
+      "json_bucket": "tibanna-output",
+      "language": "cwl_v1",
+      "log_bucket": "tibanna-output",
+      "mem": 0,
+      "overwrite_input_extra": false,
+      "public_postrun_json": true,
+      "root_ebs_size": 8,
+      "run_name": "run_workflow_granite-comHet-check",
+      "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
+      "security_group": "",
+      "shutdown_min": "now",
+      "spot_duration": "",
+      "spot_instance": true,
+      "subnet": ""
+    },
+    "commands": [
+      [
+        "[job granite-comHet] /data1/tmpZ4BAkG$ docker ",
+        "    run ",
+        "    -i ",
+        "    --volume=/data1/tmpZ4BAkG:/var/spool/cwl:rw ",
+        "    --volume=/data1/tmpbAKX0i:/tmp:rw ",
+        "    --volume=/data1/input/313cf6c5-728b-4746-8062-7f92ac96bd72/GAPFIFWRNSOL.vcf:/var/lib/cwl/stg56105356-c839-4f9a-a04c-f9a2d5e3e20f/GAPFIFWRNSOL.vcf:ro ",
+        "    --workdir=/var/spool/cwl ",
+        "    --rm ",
+        "    --env=TMPDIR=/tmp ",
+        "    --env=HOME=/var/spool/cwl ",
+        "    cgap/cgap:v14 ",
+        "    granite ",
+        "    comHet ",
+        "    --impact ",
+        "    -i ",
+        "    /var/lib/cwl/stg56105356-c839-4f9a-a04c-f9a2d5e3e20f/GAPFIFWRNSOL.vcf ",
+        "    -o ",
+        "    output.vcf ",
+        "    --sep ",
+        "    ~ ",
+        "    --trio ",
+        "    NA12879_sample ",
+        "    NA12877_sample ",
+        "    NA12878_sample"
+      ],
+      [
+        "[job sort-bgzip-vcf] /data1/tmpvQEwm1$ docker ",
+        "    run ",
+        "    -i ",
+        "    --volume=/data1/tmpvQEwm1:/var/spool/cwl:rw ",
+        "    --volume=/data1/tmp5yAm4H:/tmp:rw ",
+        "    --volume=/data1/tmpZ4BAkG/output.vcf:/var/lib/cwl/stg3d2f688d-17ea-4bf6-acaa-7beca97991c1/output.vcf:ro ",
+        "    --workdir=/var/spool/cwl ",
+        "    --rm ",
+        "    --env=TMPDIR=/tmp ",
+        "    --env=HOME=/var/spool/cwl ",
+        "    cgap/cgap:v14 ",
+        "    sort-bgzip-vcf.sh ",
+        "    /var/lib/cwl/stg3d2f688d-17ea-4bf6-acaa-7beca97991c1/output.vcf"
+      ],
+      [
+        "[job integrity-check] /data1/tmpoGtRZm$ docker ",
+        "    run ",
+        "    -i ",
+        "    --volume=/data1/tmpoGtRZm:/var/spool/cwl:rw ",
+        "    --volume=/data1/tmpVfVuqW:/tmp:rw ",
+        "    --volume=/data1/tmpvQEwm1/sorted.vcf.gz:/var/lib/cwl/stg9f83b578-bbda-4696-a6d3-15f9bf877294/sorted.vcf.gz:ro ",
+        "    --volume=/data1/tmpvQEwm1/sorted.vcf.gz.tbi:/var/lib/cwl/stg9f83b578-bbda-4696-a6d3-15f9bf877294/sorted.vcf.gz.tbi:ro ",
+        "    --workdir=/var/spool/cwl ",
+        "    --rm ",
+        "    --env=TMPDIR=/tmp ",
+        "    --env=HOME=/var/spool/cwl ",
+        "    cgap/cgap:v14 ",
+        "    vcf-integrity-check.sh ",
+        "    /var/lib/cwl/stg9f83b578-bbda-4696-a6d3-15f9bf877294/sorted.vcf.gz"
+      ]
+    ]
+  }
+}

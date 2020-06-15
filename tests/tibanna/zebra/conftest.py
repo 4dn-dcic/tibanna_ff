@@ -58,6 +58,11 @@ def update_ffmeta_event_data_bamcheck(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_bamcheck.json')
 
 
+@pytest.fixture(scope='session')
+def update_ffmeta_event_data_cmphet(ff_keys):
+    return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_cmphet.json')
+
+
 @valid_env
 def post_new_fastqfile(key, upload_file=None, upload_content=None):
     """upload_content must be in bytes"""

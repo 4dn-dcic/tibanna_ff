@@ -124,3 +124,25 @@ def test_bamcheck(update_ffmeta_event_data_bamcheck):
     assert len(updater.post_items['quality_metric_bamcheck']) == 1
     uuid = list(updater.post_items['quality_metric_bamcheck'].keys())[0]
     assert 'quickcheck' in updater.post_items['quality_metric_bamcheck'][uuid]
+
+
+@valid_env
+def test_cmphet(update_ffmeta_event_data_cmphet):
+    updater = FourfrontUpdater(**update_ffmeta_event_data_cmphet)
+    assert updater.workflow
+    assert 'arguments' in updater.workflow
+    assert updater.workflow_qc_arguments
+    assert 'comHet_vcf' in updater.workflow_qc_arguments
+    assert updater.workflow_qc_arguments['comHet_vcf'][0].qc_type == 'quality_metric_cmphet'
+    assert updater.workflow_qc_arguments['comHet_vcf'][1].qc_type == 'quality_metric_vcfcheck'
+    updater.update_qc()
+    qc1 = updater.workflow_qc_arguments['comHet_vcf'][0]
+    assert qc1.workflow_argument_name == 'comHet_vcf-check'
+    qc2 = updater.workflow_qc_arguments['comHet_vcf'][1]
+    assert qc2.workflow_argument_name == 'comHet_vcf-json'
+    assert updater.post_items
+    assert 'quality_metric_qclist' in updater.post_items
+    assert 'quality_metric_cmphet' in updater.post_items
+    assert 'quality_metric_vcfcheck' in updater.post_items
+    assert 'qc_list' in updater.post_items['quality_metric_qc_list']
+    assert len(updater.post_items['quality_metric_qc_list']['qc_list']) == 2
