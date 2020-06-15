@@ -137,9 +137,9 @@ def test_cmphet(update_ffmeta_event_data_cmphet):
     assert updater.workflow_qc_arguments['comHet_vcf'][1].qc_type == 'quality_metric_vcfcheck'
     updater.update_qc()
     qc1 = updater.workflow_qc_arguments['comHet_vcf'][0]
-    assert qc1.workflow_argument_name == 'comHet_vcf-check'
+    assert qc1.workflow_argument_name == 'comHet_vcf-json'
     qc2 = updater.workflow_qc_arguments['comHet_vcf'][1]
-    assert qc2.workflow_argument_name == 'comHet_vcf-json'
+    assert qc2.workflow_argument_name == 'comHet_vcf-check'
     assert updater.post_items
     assert 'quality_metric_qclist' in updater.post_items
     assert 'quality_metric_cmphet' in updater.post_items
