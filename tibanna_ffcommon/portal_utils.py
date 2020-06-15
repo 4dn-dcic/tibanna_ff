@@ -1407,14 +1407,16 @@ class FourfrontUpdaterAbstract(object):
             if not qc_target_accessions:
                 raise Exception("QC target %s does not exist" % qc_arg)
             qc_target_accession = qc_target_accessions[0]  # The first target accession is use in the url for the report files
-            qc_schemas = set(self.qc_schema(_.qc_type) for _ in qc_list)
+            qc_types = set([_.qc_type for _ in qc_list])
             # create quality_metric_qclist if >1 qc types for a given qc_arg
-            if len(qc_schemas) > 1:
+            if len(qc_types) > 1:
                qclist_object = self.create_qc_template()
+               qclist_object['qc_list'] = [] 
             else:
                qclist_object = None
-            for qc_schema in qc_schemas:
-                qc_list_of_type = [_ for _ in qc_list if c.qc_type == qc_schema]
+            for qc_type in qc_types:
+                qc_list_of_type = [_ for _ in qc_list if _.qc_type == qc_type]
+                qc_schema = self.qc_schema(qc_type)
                 qc_object = self.create_qc_template()
                 for qc in qc_list_of_type:
                     qc_bucket = self.bucket(qc.workflow_argument_name)
@@ -1494,7 +1496,7 @@ class FourfrontUpdaterAbstract(object):
                 child_qc_uuids = [_['value'] for _ in qclist_array]
                 child_qc_types = [_['qc_type'] for _ in qclist_array]
                 if existing_qctype in child_qc_types:  # if existing qc metric is of the same type, overwrite.
-                    self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid}
+                    self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
                 elif existing_qctype == 'quality_metric_qclist':
                     # merge the two qclist - use the existing one and delete the new one
                     # we assume that the same qc type occurs only once per qc list

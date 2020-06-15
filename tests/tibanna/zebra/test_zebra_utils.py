@@ -144,5 +144,5 @@ def test_cmphet(update_ffmeta_event_data_cmphet):
     assert 'quality_metric_qclist' in updater.post_items
     assert 'quality_metric_cmphet' in updater.post_items
     assert 'quality_metric_vcfcheck' in updater.post_items
-    assert 'qc_list' in updater.post_items['quality_metric_qc_list']
-    assert len(updater.post_items['quality_metric_qc_list']['qc_list']) == 2
+    assert 'qc_list' in updater.post_items['quality_metric_qclist']
+    assert len(updater.post_items['quality_metric_qclist']['qc_list']) == 2
