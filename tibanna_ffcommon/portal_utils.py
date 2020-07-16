@@ -795,7 +795,7 @@ class FourfrontStarterAbstract(object):
 
 
 class QCArgumentInfo(SerializableObject):
-    def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type,
+    def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type=None,
                  qc_zipped=False, qc_html=False, qc_json=False, qc_table=False,
                  qc_zipped_html=None, qc_zipped_tables=None):
         if argument_type != 'Output QC file':
@@ -809,6 +809,9 @@ class QCArgumentInfo(SerializableObject):
         self.qc_table = qc_table
         self.qc_zipped_html = qc_zipped_html
         self.qc_zipped_tables = qc_zipped_tables
+        if self.qc_table or self.qc_zipped_tables:
+            if not self.qc_type:
+                raise Exception("qc_type is required if qc_table or qc_zipped_table") 
 
 
 class InputExtraArgumentInfo(SerializableObject):
