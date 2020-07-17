@@ -797,7 +797,7 @@ class FourfrontStarterAbstract(object):
 class QCArgumentInfo(SerializableObject):
     def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type=None,
                  qc_zipped=False, qc_html=False, qc_json=False, qc_table=False,
-                 qc_zipped_html=None, qc_zipped_tables=None):
+                 qc_zipped_html=None, qc_zipped_tables=None, qc_acl='public-read'):
         if argument_type != 'Output QC file':
             raise Exception("QCArgument it not Output QC file: %s" % argument_type)
         self.workflow_argument_name = workflow_argument_name
@@ -809,6 +809,7 @@ class QCArgumentInfo(SerializableObject):
         self.qc_table = qc_table
         self.qc_zipped_html = qc_zipped_html
         self.qc_zipped_tables = qc_zipped_tables
+        self.qc_acl = qc_acl
         if self.qc_table or self.qc_zipped_tables:
             if not self.qc_type:
                 raise Exception("qc_type is required if qc_table or qc_zipped_table") 
@@ -1614,7 +1615,7 @@ class FourfrontUpdaterAbstract(object):
         if qc.qc_zipped:
             unzipped_data = self.s3(qc.workflow_argument_name).unzip_s3_to_s3(qc_key,
                                                                               target_accession,
-                                                                              acl='public-read')
+                                                                              acl=qc.qc_acl)
             for k, v in unzipped_data.items():
                 v['data'] = v['data'].decode('utf-8', 'backslashreplace')
             return unzipped_data
