@@ -1430,7 +1430,11 @@ class FourfrontUpdaterAbstract(object):
                     qc_bucket = self.bucket(qc.workflow_argument_name)
                     qc_key = self.file_key(qc.workflow_argument_name)
                     if qc.qc_zipped:
-                        unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession)
+                        if qc.qc_zipped_tables:
+                            return_unzipped_qc_data = True
+                        else:
+                            return_unzipped_qc_data = False
+                        unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession, return_unzipped_qc_data)
                         if qc.qc_zipped_tables:
                             qcz_datafiles = []
                             for qcz in qc.qc_zipped_tables:
@@ -1607,7 +1611,7 @@ class FourfrontUpdaterAbstract(object):
     def create_qc_template(self):
         return {'uuid': str(uuid4())}
 
-    def unzip_qc_data(self, qc, qc_key, target_accession):
+    def unzip_qc_data(self, qc, qc_key, target_accession, return_unzipped_qc_data=True):
         """qc is a QCArgumentInfo object.
         if qc is zipped, unzip it, put the files to destination s3,
         and store the content and target s3 key to a dictionary and return.
@@ -1616,10 +1620,12 @@ class FourfrontUpdaterAbstract(object):
             unzipped_data = self.s3(qc.workflow_argument_name).unzip_s3_to_s3(qc_key,
                                                                               target_accession,
                                                                               acl=qc.qc_acl)
-            for k, v in unzipped_data.items():
-                v['data'] = v['data'].decode('utf-8', 'backslashreplace')
-            return unzipped_data
-
+            if return_unzipped_qc_data:
+                for k, v in unzipped_data.items():
+                    v['data'] = v['data'].decode('utf-8', 'backslashreplace')
+                return unzipped_data
+            else:
+                return None
         else:
             return None
 
