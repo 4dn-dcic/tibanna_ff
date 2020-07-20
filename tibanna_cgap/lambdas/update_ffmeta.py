@@ -12,8 +12,8 @@ config = {
     'runtime': 'python3.6',
     'role': 'lambda_full_s3',
     'description': 'Tibanna zebra update_ffmeta',
-    'timeout': 600,
-    'memory_size': 1024
+    'timeout': 600,  # for BAMSNAP
+    'memory_size': 1024  # for BAMSNAP
 }
 
 
