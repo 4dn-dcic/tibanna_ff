@@ -13,7 +13,7 @@ config = {
     'region': AWS_REGION,
     'runtime': 'python3.6',
     'role': 'lambda_full_s3',
-    'description': 'Tibanna pony start_run',
+    'description': 'Tibanna zebra start_run',
     'timeout': 300,
     'memory_size': 256
 }

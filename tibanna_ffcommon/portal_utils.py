@@ -1469,12 +1469,13 @@ class FourfrontUpdaterAbstract(object):
                         qc_object.update({'url': qc_url})
                     if self.custom_qc_fields:
                         qc_object.update(self.custom_qc_fields)
-                    self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
-                if qc.qc_type:
-                    self.update_post_items(qc_object['uuid'], qc_object, qc.qc_type)
+                    if qc_type:
+                        self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
+                if qc_type:
+                    self.update_post_items(qc_object['uuid'], qc_object, qc_type)
                     if qclist_object:
                         # the uuids and types are in the same order
-                        qclist_object['qc_list'].append({'qc_type': qc.qc_type, 'value': qc_object['uuid']})
+                        qclist_object['qc_list'].append({'qc_type': qc_type, 'value': qc_object['uuid']})
             # add quality_metric_qclist in the post items
             if qclist_object:
                self.update_post_items(qclist_object['uuid'], qclist_object, 'quality_metric_qclist')
@@ -1619,7 +1620,8 @@ class FourfrontUpdaterAbstract(object):
         if qc.qc_zipped:
             unzipped_data = self.s3(qc.workflow_argument_name).unzip_s3_to_s3(qc_key,
                                                                               target_accession,
-                                                                              acl=qc.qc_acl)
+                                                                              acl=qc.qc_acl,
+                                                                              store_results=return_unzipped_qc_data)
             if return_unzipped_qc_data:
                 for k, v in unzipped_data.items():
                     v['data'] = v['data'].decode('utf-8', 'backslashreplace')
