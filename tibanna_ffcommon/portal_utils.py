@@ -75,6 +75,7 @@ class FFInputAbstract(SerializableObject):
         self.tag = kwargs.get('tag', None)
         self.custom_pf_fields = kwargs.get('custom_pf_fields', None)  # custon fields for PF
         self.wfr_meta = kwargs.get('wfr_meta', None)  # custom fields for WFR
+        self.custom_qc_fields = kwargs.get('custom_qc_fields', None)  # custom fields for QC
         self.output_files = kwargs.get('output_files', [])  # for user-supplied output files
         self.dependency = kwargs.get('dependency', None)
         self.wf_meta_ = None
