@@ -54,6 +54,11 @@ def start_run_event_bwa_check():
 
 
 @pytest.fixture(scope='session')
+def start_run_event_vcfqc():
+    return get_event_file_for('start_run', event_file='event_vcfqc.json')
+
+
+@pytest.fixture(scope='session')
 def update_ffmeta_event_data_bamcheck(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_bamcheck.json')
 

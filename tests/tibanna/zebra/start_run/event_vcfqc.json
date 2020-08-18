@@ -1,0 +1,57 @@
+{
+  "app_name": "workflow_granite-qcVCF",
+  "workflow_uuid": "33a85705-b757-49e0-aaef-d786695d6d03",
+  "parameters": {
+    "trio_errors": true,
+    "het_hom": true,
+    "ti_tv": true,
+    "samples": [
+      "UDN110060_sample",
+      "UDN837717_sample",
+      "UDN907962_sample"
+    ],
+    "pedigree": "[{\"gender\": \"M\", \"individual\": \"GAPIDMT9QVPO\", \"parents\": [], \"sample_name\": \"UDN907962_sample\"}, {\"gender\": \"F\", \"individual\": \"GAPID24CIQJQ\", \"parents\": [], \"sample_name\": \"UDN837717_sample\"}, {\"gender\": \"F\", \"individual\": \"GAPIDTYQRSRZ\", \"parents\": [\"GAPID24CIQJQ\", \"GAPIDMT9QVPO\"], \"sample_name\": \"UDN110060_sample\"}]"
+  },
+  "config": {
+    "instance_type": "t3.small",
+    "ebs_size": "1.5x",
+    "EBS_optimized": true,
+    "spot_instance": false,
+    "log_bucket": "tibanna-output",
+    "key_name": "4dn-encode",
+    "public_postrun_json": true,
+    "behavior_on_capacity_limit": "wait_and_retry",
+    "run_name": "workflow_granite-qcVCF_GAPFIDC6GF2H"
+  },
+  "wfr_meta": {
+    "project": "/projects/12a92962-8265-4fc0-b2f8-cf14f05db58b/",
+    "institution": "/institutions/hms-dbmi/"
+  },
+  "custom_qc_fields": {
+    "project": "/projects/12a92962-8265-4fc0-b2f8-cf14f05db58b/",
+    "institution": "/institutions/hms-dbmi/",
+    "filtering_condition": "((Exonic and splice variants OR spliceAI>0.2) AND (gnomAD AF<0.01 AND not seen in 2 individuals among a set of 20 unrelated samples)) OR (Clinvar Pathogenic/Likely Pathogenic or Conflicting Submissions)"
+  },
+  "input_files": [
+    {
+      "workflow_argument_name": "input_vcf",
+      "object_key": "GAPFIDC6GF2H.vcf.gz",
+      "uuid": "030aa77b-4f37-4348-9653-eb56f3179aba",
+      "bucket_name": "elasticbeanstalk-fourfront-cgap-wfoutput",
+      "unzip": "gz"
+    }
+  ],
+  "output_bucket": "elasticbeanstalk-fourfront-cgap-wfoutput",
+  "_tibanna": {
+    "run_id": "GAPFIDC6GF2H",
+    "env": "fourfront-cgap",
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra:workflow_granite-qcVCF_GAPFIDC6GF2H",
+    "run_type": "workflow_granite-qcVCF",
+    "run_name": "workflow_granite-qcVCF_GAPFIDC6GF2H",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra:workflow_granite-qcVCF_GAPFIDC6GF2H"
+  },
+  "step_function_name": "tibanna_zebra",
+  "public_postrun_json": true,
+  "env_name": "fourfront-cgap",
+  "jobid": "pp3PkZVAl6kX"
+}

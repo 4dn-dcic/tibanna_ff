@@ -108,6 +108,15 @@ def test_fourfront_starter2(start_run_event_bwa_check):
 
 
 @valid_env
+def test_fourfront_starter_custom_qc(start_run_event_vcfqc):
+    starter = FourfrontStarter(**start_run_event_vcfqc)
+    assert starter
+    outjson = starter.inp.as_dict()
+    assert 'custom_qc_fields' in outjson
+    assert 'filtering_condition' in outjson['custom_qc_fields']
+
+
+@valid_env
 def test_bamcheck(update_ffmeta_event_data_bamcheck):
     updater = FourfrontUpdater(**update_ffmeta_event_data_bamcheck)
     assert updater.workflow
