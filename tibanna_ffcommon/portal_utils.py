@@ -796,9 +796,9 @@ class FourfrontStarterAbstract(object):
 
 
 class QCArgumentInfo(SerializableObject):
-    def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type,
+    def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type=None,
                  qc_zipped=False, qc_html=False, qc_json=False, qc_table=False,
-                 qc_zipped_html=None, qc_zipped_tables=None):
+                 qc_zipped_html=None, qc_zipped_tables=None, qc_acl='public-read'):
         if argument_type != 'Output QC file':
             raise Exception("QCArgument it not Output QC file: %s" % argument_type)
         self.workflow_argument_name = workflow_argument_name
@@ -810,6 +810,10 @@ class QCArgumentInfo(SerializableObject):
         self.qc_table = qc_table
         self.qc_zipped_html = qc_zipped_html
         self.qc_zipped_tables = qc_zipped_tables
+        self.qc_acl = qc_acl
+        if self.qc_table or self.qc_zipped_tables:
+            if not self.qc_type:
+                raise Exception("qc_type is required if qc_table or qc_zipped_table") 
 
 
 class InputExtraArgumentInfo(SerializableObject):
@@ -1409,21 +1413,29 @@ class FourfrontUpdaterAbstract(object):
                 raise Exception("QC target %s does not exist" % qc_arg)
             qc_target_accession = qc_target_accessions[0]  # The first target accession is use in the url for the report files
             qc_types = set([_.qc_type for _ in qc_list])
+            qc_types_no_none = set([_.qc_type for _ in qc_list if _])
             # create quality_metric_qclist if >1 qc types for a given qc_arg
-            if len(qc_types) > 1:
+            if len(qc_types_no_none) > 1:
                qclist_object = self.create_qc_template()
                qclist_object['qc_list'] = [] 
             else:
                qclist_object = None
             for qc_type in qc_types:
                 qc_list_of_type = [_ for _ in qc_list if _.qc_type == qc_type]
-                qc_schema = self.qc_schema(qc_type)
+                if qc_type:
+                    qc_schema = self.qc_schema(qc_type)
+                else:
+                    qc_schema = None
                 qc_object = self.create_qc_template()
                 for qc in qc_list_of_type:
                     qc_bucket = self.bucket(qc.workflow_argument_name)
                     qc_key = self.file_key(qc.workflow_argument_name)
                     if qc.qc_zipped:
-                        unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession)
+                        if qc.qc_zipped_tables:
+                            return_unzipped_qc_data = True
+                        else:
+                            return_unzipped_qc_data = False
+                        unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession, return_unzipped_qc_data)
                         if qc.qc_zipped_tables:
                             qcz_datafiles = []
                             for qcz in qc.qc_zipped_tables:
@@ -1458,21 +1470,24 @@ class FourfrontUpdaterAbstract(object):
                         qc_object.update({'url': qc_url})
                     if self.custom_qc_fields:
                         qc_object.update(self.custom_qc_fields)
-                    self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
-                self.update_post_items(qc_object['uuid'], qc_object, qc.qc_type)
-                if qclist_object:
-                    # the uuids and types are in the same order
-                    qclist_object['qc_list'].append({'qc_type': qc.qc_type, 'value': qc_object['uuid']})
+                    if qc_type:
+                        self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
+                if qc_type:
+                    self.update_post_items(qc_object['uuid'], qc_object, qc_type)
+                    if qclist_object:
+                        # the uuids and types are in the same order
+                        qclist_object['qc_list'].append({'qc_type': qc_type, 'value': qc_object['uuid']})
             # add quality_metric_qclist in the post items
             if qclist_object:
                self.update_post_items(qclist_object['uuid'], qclist_object, 'quality_metric_qclist')
             # allowing multiple input files to point to the same qc object.
             for t_acc in qc_target_accessions:
-                if qclist_object:
-                    self.patch_qc(t_acc, qclist_object['uuid'], 'quality_metric_qclist',
-                                  qclist_array=qclist_object['qc_list'])
-                else:
-                    self.patch_qc(t_acc, qc_object['uuid'], qc.qc_type)
+                if qc_type:
+                    if qclist_object:
+                        self.patch_qc(t_acc, qclist_object['uuid'], 'quality_metric_qclist',
+                                      qclist_array=qclist_object['qc_list'])
+                    else:
+                        self.patch_qc(t_acc, qc_object['uuid'], qc_type)
 
     def patch_qc(self, qc_target_accession, qc_uuid, qc_type, qclist_array=None):
         try:
@@ -1598,7 +1613,7 @@ class FourfrontUpdaterAbstract(object):
     def create_qc_template(self):
         return {'uuid': str(uuid4())}
 
-    def unzip_qc_data(self, qc, qc_key, target_accession):
+    def unzip_qc_data(self, qc, qc_key, target_accession, return_unzipped_qc_data=True):
         """qc is a QCArgumentInfo object.
         if qc is zipped, unzip it, put the files to destination s3,
         and store the content and target s3 key to a dictionary and return.
@@ -1606,11 +1621,14 @@ class FourfrontUpdaterAbstract(object):
         if qc.qc_zipped:
             unzipped_data = self.s3(qc.workflow_argument_name).unzip_s3_to_s3(qc_key,
                                                                               target_accession,
-                                                                              acl='public-read')
-            for k, v in unzipped_data.items():
-                v['data'] = v['data'].decode('utf-8', 'backslashreplace')
-            return unzipped_data
-
+                                                                              acl=qc.qc_acl,
+                                                                              store_results=return_unzipped_qc_data)
+            if return_unzipped_qc_data:
+                for k, v in unzipped_data.items():
+                    v['data'] = v['data'].decode('utf-8', 'backslashreplace')
+                return unzipped_data
+            else:
+                return None
         else:
             return None
 

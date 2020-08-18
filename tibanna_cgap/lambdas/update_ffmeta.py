@@ -11,9 +11,9 @@ config = {
     'region': AWS_REGION,
     'runtime': 'python3.6',
     'role': 'lambda_full_s3',
-    'description': 'Tibanna pony update_ffmeta',
-    'timeout': 300,
-    'memory_size': 256
+    'description': 'Tibanna zebra update_ffmeta',
+    'timeout': 600,  # for BAMSNAP
+    'memory_size': 1024  # for BAMSNAP
 }
 
 
