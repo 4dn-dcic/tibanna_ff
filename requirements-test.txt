@@ -1,4 +1,4 @@
-invoke==0.18.1
+invoke>=1.4
 # syntax checker
 flake8==2.4.1
 # for testing
