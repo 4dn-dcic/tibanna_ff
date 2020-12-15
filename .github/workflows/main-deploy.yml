@@ -1,4 +1,4 @@
-# Deployment for Tibanna_ffr
+# Deployment for Tibanna_ff
 
 name: deploy-prod
 
@@ -38,7 +38,7 @@ jobs:
           S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
         run: 
           invoke test --deployment
-          tibanna_4dn deploy_pony;
+          tibanna_4dn deploy_pony
           tibanna_4dn deploy_core -n start_run
           tibanna_4dn deploy_core -n run_task
           tibanna_4dn deploy_core -n check_task
