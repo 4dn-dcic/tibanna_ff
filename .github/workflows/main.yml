@@ -45,6 +45,7 @@ jobs:
       - name: QA
         env:
           S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
+          CODACY_PROJECT_TOKEN: $ {{ secrets.CODACY_PROJECT_TOKEN }} 
         run: |
           invoke test --no-flake --no-post
           python-codacy-coverage -r coverage.xml
