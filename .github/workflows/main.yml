@@ -43,6 +43,8 @@ jobs:
           pip install codacy-coverage
           
       - name: QA
+        env:
+          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
         run: |
           invoke test --no-flake --no-post
           python-codacy-coverage -r coverage.xml
