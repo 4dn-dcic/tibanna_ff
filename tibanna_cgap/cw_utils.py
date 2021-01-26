@@ -1,6 +1,5 @@
 import boto3, os
 from tibanna.utils import (
-    printlog,
     upload,
     read_s3
 )

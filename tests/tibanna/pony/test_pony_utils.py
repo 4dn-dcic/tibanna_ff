@@ -9,8 +9,7 @@ from tibanna_4dn.pony_utils import (
     ProcessedFileMetadata,
 )
 import pytest
-from tests.tibanna.pony.conftest import valid_env
-from tibanna.utils import printlog
+from tests.tibanna.pony.conftest import valid_env, logger
 import mock
 from tibanna.vars import DYNAMODB_TABLE, DYNAMODB_KEYNAME
 from tibanna_ffcommon.core import API
@@ -89,7 +88,7 @@ def test_merge_source_experiment(start_run_md5_data):
     starter = FourfrontStarter(**data)
     starter.inp.input_files = [input_file]
     res = starter.merge_source_experiments()
-    printlog(res)
+    logger.debug("response from merge_source_experiment=" + str(res))
     assert 'fake_source_experiment' in res
 
 
@@ -123,7 +122,7 @@ def test_add_meta_to_dynamodb(start_run_md5_data):
     starter.inp.jobid = jobid
     starter.create_ff()
     starter.add_meta_to_dynamodb()
-    printlog("jobid=%s" % jobid)
+    logger.debug("jobid=%s" % jobid)
     time.sleep(10)
     dd_info = API().info(jobid)
     assert dd_info

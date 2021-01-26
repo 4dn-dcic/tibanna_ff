@@ -2,13 +2,17 @@
 import boto3
 import json
 import uuid
-from tibanna.utils import printlog
+from tibanna import create_logger
 from tibanna_4dn.vars import (
     AWS_REGION,
     STEP_FUNCTION_ARN,
     LAMBDA_TYPE,
     ACCESSION_PREFIX
 )
+
+
+logger = create_logger(__name__)
+
 
 config = {
     'function_name': 'validate_md5_s3_trigger_' + LAMBDA_TYPE,
@@ -35,7 +39,7 @@ def handler(event, context):
     upload_key = event['Records'][0]['s3']['object']['key']
     accession = upload_key.split('/')[1].split('.')[0]
     if not accession.startswith(ACCESSION_PREFIX):
-        printlog("Skipping trigger: not the correct accession prefix %s" % accession)
+        logger.info("Skipping trigger: not the correct accession prefix %s" % accession)
         return event
     client = boto3.client('stepfunctions', region_name=AWS_REGION)
     response = client.start_execution(
@@ -43,5 +47,5 @@ def handler(event, context):
         name=accession + '_' + str(uuid.uuid4()),
         input=json.dumps(event),
     )
-    printlog(str(response))
+    logger.debug("respose from start_execution= " + str(response))
     return event

@@ -21,10 +21,10 @@ from tibanna.nnested_array import (
     create_dim
 )
 from dcicutils.s3_utils import s3Utils
+from tibanna import create_logger
 from tibanna.utils import (
     does_key_exist,
-    read_s3,
-    printlog
+    read_s3
 )
 from tibanna.base import (
     SerializableObject
@@ -50,6 +50,9 @@ from .exceptions import (
     FdnConnectionException,
     MalFormattedFFInputException
 )
+
+
+logger = create_logger(__name__)
 
 
 class FFInputAbstract(SerializableObject):
@@ -129,7 +132,7 @@ class FFInputAbstract(SerializableObject):
                     raise FdnConnectionException(e)
                 # assume all file types are the same for a given argument
                 infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env, infile_type)
-            printlog("infile = " + str(infile))
+            logger.debug("infile = " + str(infile))
 
         # fill in output_bucket
         if not self.output_bucket:
@@ -166,7 +169,7 @@ class FFInputAbstract(SerializableObject):
         args = dict()
         for k in ['app_name', 'app_version', 'cwl_directory_url', 'cwl_main_filename', 'cwl_child_filenames',
                   'wdl_directory_url', 'wdl_main_filename', 'wdl_child_filenames']:
-            printlog(self.wf_meta.get(k))
+            logger.debug("wfmeta[%s]=%s" % (k, str(self.wf_meta.get(k))))
             args[k] = self.wf_meta.get(k, '')
         if self.wf_meta.get('workflow_language', '') == 'WDL':
             args['language'] = 'wdl'
@@ -203,7 +206,7 @@ class FFInputAbstract(SerializableObject):
                 args['output_target'][arg_name] = ff_meta.uuid + '/' + arg_name + random_tag
             if 'secondary_file_formats' in of and 'extra_files' in of and of['extra_files']:
                 for ext in of.get('extra_files'):
-                    printlog("adding secondary file: %s for arg %s" % (ext.get('upload_key', ''), arg_name))
+                    logger.info("adding secondary file: %s for arg %s" % (ext.get('upload_key', ''), arg_name))
                     if arg_name not in args['secondary_output_target']:
                         args['secondary_output_target'][arg_name] = []
                     args['secondary_output_target'][arg_name].append(ext.get('upload_key'))
@@ -219,7 +222,7 @@ class FFInputAbstract(SerializableObject):
 
     def output_target_for_input_extra(self, target_inf, of):
         extrafileexists = False
-        printlog("target_inf = %s" % str(target_inf))  # debugging
+        logger.debug("target_inf = %s" % str(target_inf))
         target_inf_meta = get_metadata(target_inf.get('value'),
                                        key=self.tibanna_settings.ff_keys,
                                        ff_env=self.tibanna_settings.env,
@@ -241,7 +244,7 @@ class FFInputAbstract(SerializableObject):
             target_inf_meta['extra_files'] = [new_extra]
         if self.config.overwrite_input_extra or not extrafileexists:
             # first patch metadata
-            printlog("extra_files_to_patch: %s" % str(target_inf_meta.get('extra_files')))  # debugging
+            logger.debug("extra_files_to_patch: %s" % str(target_inf_meta.get('extra_files')))
             patch_metadata({'extra_files': target_inf_meta.get('extra_files')},
                            target_inf.get('value'),
                            key=self.tibanna_settings.ff_keys,
@@ -253,9 +256,9 @@ class FFInputAbstract(SerializableObject):
             orgfile_key = target_inf_meta.get('upload_key')
             orgfile_format = parse_formatstr(target_inf_meta.get('file_format'))
             fe_map = FormatExtensionMap(self.tibanna_settings.ff_keys)
-            printlog("orgfile_key = %s" % orgfile_key)
-            printlog("orgfile_format = %s" % orgfile_format)
-            printlog("target_format = %s" % target_format)
+            logger.debug("orgfile_key = %s" % orgfile_key)
+            logger.debug("orgfile_format = %s" % orgfile_format)
+            logger.debug("target_format = %s" % target_format)
             target_key = get_extra_file_key(orgfile_format, orgfile_key, target_format, fe_map)
             return target_key
         else:
@@ -404,7 +407,7 @@ class WorkflowRunMetadataAbstract(SerializableObject):
                 type_name = 'workflow_run_awsem'
             else:
                 raise Exception("cannot determine workflow schema type from the run platform: should be AWSEM.")
-        printlog(self.as_dict())  # debug
+        logger.debug("in function post: self.as_dict()= " + str(self.as_dict()))
         return post_metadata(self.as_dict(), type_name, key=key)
 
     def patch(self, key, type_name=None):
@@ -434,7 +437,7 @@ class ProcessedFileMetadataAbstract(SerializableObject):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def post(self, key):
-        printlog(self.__dict__)  # debugging
+        logger.debug("in function post: self.__dict__ = " + str(self.__dict__))
         return post_metadata(self.as_dict(), "file_processed", key=key, add_on='force_md5')
 
     def patch(self, key, fields=None):
@@ -442,7 +445,7 @@ class ProcessedFileMetadataAbstract(SerializableObject):
             patch_json = {k: v for k, v in self.as_dict().items() if k in fields}
         else:
             patch_json = self.as_dict()
-        print(patch_json)
+        logger.debug("patch_json= " + str(patch_json))
         return patch_metadata(patch_json, key=key, add_on='force_md5')
 
     def add_higlass_uid(self, higlass_uid):
@@ -521,12 +524,12 @@ def get_extra_file_key(infile_format, infile_key, extra_file_format, fe_map):
 class FormatExtensionMap(object):
     def __init__(self, ff_keys):
         try:
-            printlog("Searching in server : " + ff_keys['server'])
+            logger.debug("Searching in server : " + ff_keys['server'])
             ffe_all = search_metadata("/search/?type=FileFormat&frame=object", key=ff_keys)
         except Exception as e:
             raise Exception("Can't get the list of FileFormat objects. %s\n" % e)
         self.fe_dict = dict()
-        printlog("**ffe_all = " + str(ffe_all))
+        logger.debug("**ffe_all = " + str(ffe_all))
         for k in ffe_all:
             file_format = k['file_format']
             self.fe_dict[file_format] = \
@@ -562,8 +565,8 @@ class TibannaSettings(SerializableObject):
             settings = {}
         self.settings = settings
 
-        printlog(str(self.as_dict()))
-        printlog("sysbucket=" + self.s3.sys_bucket )
+        logger.debug("in TibannaSettings.__init__ : self.as_dict() = " + str(self.as_dict()))
+        logger.debug("sysbucket=" + self.s3.sys_bucket )
 
     def get_reporter(self):
         '''
@@ -696,7 +699,7 @@ class FourfrontStarterAbstract(object):
                                               arg.get('processed_extra_file_use_for', {}))
         else:
             extra_files = None
-        printlog("appending %s to pfs" % arg.get('workflow_argument_name'))
+        logger.debug("appending %s to pfs" % arg.get('workflow_argument_name'))
         return self.ProcessedFileMetadata(
             file_format=arg.get('argument_format'),
             extra_files=extra_files,
@@ -762,7 +765,7 @@ class FourfrontStarterAbstract(object):
                 infileobj = InputFileForWFRMeta(input_file['workflow_argument_name'], u, o,
                                                 input_file.get('format_if_extra', ''), d)
                 ff_infile_list.append(infileobj.as_dict())
-        printlog("ff_infile_list is %s" % ff_infile_list)
+        logger.debug("ff_infile_list is %s" % ff_infile_list)
         return ff_infile_list
 
     def add_meta_to_dynamodb(self):
@@ -791,7 +794,7 @@ class FourfrontStarterAbstract(object):
                 }
             )
         except Exception as e:
-            printlog(str(e))
+            logger.warning(str(e))
             pass
 
 
@@ -1066,16 +1069,16 @@ class FourfrontUpdaterAbstract(object):
 
     # patch/post-related functionalities
     def post_all(self):
-        printlog("posting metadata : %s" % str(self.post_items))
+        logger.info("posting metadata : %s" % str(self.post_items))
         for schema, v in self.post_items.items():
             for item in v:
-                printlog("posting metadata %s to schema %s" % (str(v[item]), schema))
+                logger.info("posting metadata %s to schema %s" % (str(v[item]), schema))
                 try:
                     res = post_metadata(v[item], schema,
                                         key=self.tibanna_settings.ff_keys,
                                         ff_env=self.tibanna_settings.env,
                                         add_on='force_md5')
-                    printlog("response=" + str(res))
+                    logger.debug("response=" + str(res))
                 except Exception as e:
                     raise e
 
@@ -1113,7 +1116,7 @@ class FourfrontUpdaterAbstract(object):
         if uuid in self.patch_items:
             del self.patch_items[uuid]
         else:
-            printlog("warning: attempt to delete patch item that does not exist")
+            logger.warning("attempt to delete patch item that does not exist")
             pass
 
     def add_to_pf_patch_items(self, pf_uuid, fields):
@@ -1191,13 +1194,13 @@ class FourfrontUpdaterAbstract(object):
                         for pfextra in pf['extra_files']:
                             if pfextra['upload_key'] == secondary_key:
                                 return parse_formatstr(pfextra['file_format'])
-                        printlog("No extra file matching key %s" % secondary_key)
+                        logger.debug("No extra file matching key %s" % secondary_key)
                         return None
-                    printlog("No extra file for argname %s" % argname)
+                    logger.debug("No extra file for argname %s" % argname)
                     return None
                 else:
                     return pf['format']
-        printlog("No workflow run output file matching argname %s" % argname)
+        logger.debug("No workflow run output file matching argname %s" % argname)
         return None
 
     def all_extra_formats(self, argname=None, pf_uuid=None):
@@ -1504,8 +1507,8 @@ class FourfrontUpdaterAbstract(object):
             existing_qctype = res['quality_metric'].split('/')[1].replace('-', '_'). \
                               replace('quality_metrics', 'quality_metric')
             existing_qc_uuid = res['quality_metric'].split('/')[2]
-            printlog("existing qc=" + res['quality_metric'] + ' ' + existing_qctype)
-            printlog("new qc=" + qc_uuid + ' ' + qc_type)
+            logger.debug("existing qc=" + res['quality_metric'] + ' ' + existing_qctype)
+            logger.debug("new qc=" + qc_uuid + ' ' + qc_type)
             if qc_type == 'quality_metric_qclist':
                 if qclist_array:
                     raise Exception("qclist_array must be provided to function patch_qc if qc_type is qclist")
@@ -1713,7 +1716,7 @@ class FourfrontUpdaterAbstract(object):
             raise Exception("bam restriction enzyme check output must have exactly one line")
         content = re_check_content[0].split()
         if content[0] != "clipped-mates":
-            print(content[0])
+            logger.debug("parse_re_check content= " + str(content[0]))
             raise Exception("bam restriction enzyme check contains unexpected content")
         else:
             return float(content[4])
@@ -1796,21 +1799,21 @@ class FourfrontUpdaterAbstract(object):
             if self.status(arg) != 'COMPLETED':
                 self.ff_meta.run_status = 'error'
         self.update_all_pfs()
-        printlog("updating report...")
+        logger.info("updating report...")
         self.update_md5()
         self.update_rna_strandedness()
         self.update_fastq_first_line()
         self.update_file_processed_format_re_check()
-        printlog("updating qc...")
+        logger.info("updating qc...")
         self.update_qc()
         self.update_input_extras()
         self.create_wfr_qc()
-        printlog("posting all...")
+        logger.info("posting all...")
         self.post_all()
-        printlog("patching all...")
+        logger.info("patching all...")
         self.patch_all()
         self.ff_meta.run_status = 'complete'
-        printlog("patching workflow run metadata...")
+        logger.info("patching workflow run metadata...")
         self.patch_ffmeta()
 
     def get_postrunjson_url(self, config, jobid, metadata_only):
@@ -1836,7 +1839,7 @@ class FourfrontUpdaterAbstract(object):
                               Message={'Subject': {'Data': subject},
                                        'Body': {'Text': {'Data': msg}}})
         except Exception as e:
-            printlog("Cannot send email: %s" % e)
+            logger.warning("Cannot send email: %s" % e)
 
     def register_to_higlass(self, tbn, bucket, key, filetype, datatype, genome_assembly=None):
         if bucket not in self.higlass_buckets:
@@ -1860,7 +1863,7 @@ class FourfrontUpdaterAbstract(object):
         except:
             # do not raise error (do not fail the wrf) - will be taken care of by foursight later
             return None
-        printlog("LOG resiter_to_higlass(POST request response): " + str(res.json()))
+        logger.info("resiter_to_higlass(POST request response): " + str(res.json()))
         return res.json()['uuid']
 
 

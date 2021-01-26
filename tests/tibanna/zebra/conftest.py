@@ -6,6 +6,7 @@ import json
 import uuid
 import boto3
 from tests.tibanna.ffcommon.conftest import read_event_file
+from tibanna import create_logger
 from tibanna_ffcommon.portal_utils import (
     TibannaSettings
 )
@@ -18,6 +19,10 @@ from tibanna_cgap.vars import (
     BUCKET_NAME,
     DEV_ENV
 )
+
+
+logger = create_logger(__name__)
+
 
 def pytest_runtest_setup(item):
     # called for running each test in directory

@@ -1,0 +1,43 @@
+{
+  "app_name": "workflow_bwa-mem_no_unzip-check",
+  "workflow_uuid": "cgap:workflow_bwa-mem_no_unzip-check_v17",
+  "parameters": {},
+  "config": {
+    "instance_type": "c5n.18xlarge",
+    "ebs_size": "5x",
+    "EBS_optimized": true,
+    "behavior_on_capacity_limit": "wait_and_retry",
+    "spot_instance": true,
+    "log_bucket": "tibanna-output",
+    "key_name": "4dn-encode",
+    "public_postrun_json": true
+  },
+  "custom_pf_fields": {
+    "raw_bam": {
+      "file_type": "intermediate file",
+      "description": "Intermediate alignment file",
+      "genome_assembly": "GRCh38"
+    }
+  },
+  "input_files": [
+    {
+      "workflow_argument_name": "fastq_R1",
+      "uuid": "d1733520-6025-4407-9bd8-f485890c3e9c",
+      "mounted": true
+    },
+    {
+      "workflow_argument_name": "fastq_R2",
+      "uuid": "7acc9169-fef2-47f6-af54-3be53ab0d4c9",
+      "mounted": true
+    },
+    {
+      "workflow_argument_name": "reference",
+      "uuid": "b24ed5ed-a037-48a0-a938-3fecfb90d0cf",
+      "mounted": true
+    }
+  ],
+  "_tibanna": {
+    "env": "fourfront-cgapwolf",
+    "run_type": "workflow_bwa-mem_no_unzip-check"
+  }
+}

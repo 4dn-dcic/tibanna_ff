@@ -7,8 +7,7 @@ from tibanna_cgap.zebra_utils import (
     FourfrontUpdater,
     ZebraInput
 )
-from tests.tibanna.zebra.conftest import valid_env
-from tibanna.utils import printlog
+from tests.tibanna.zebra.conftest import valid_env, logger
 
 
 @valid_env
@@ -154,7 +153,7 @@ def test_cmphet(update_ffmeta_event_data_cmphet):
     assert 'quality_metric_qclist' in updater.post_items
     assert 'quality_metric_cmphet' in updater.post_items
     assert 'quality_metric_vcfcheck' in updater.post_items
-    printlog(str(updater.post_items['quality_metric_qclist']))
+    logger.debug("post_items[quality_metric_qclist]=" + str(updater.post_items['quality_metric_qclist']))
     qclist_uuid = list(updater.post_items['quality_metric_qclist'].keys())[0]
     assert 'qc_list' in updater.post_items['quality_metric_qclist'][qclist_uuid]
     assert len(updater.post_items['quality_metric_qclist'][qclist_uuid]['qc_list']) == 2

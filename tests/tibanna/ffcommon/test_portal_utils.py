@@ -13,7 +13,6 @@ from tibanna_ffcommon.exceptions import (
     MalFormattedFFInputException
 )
 import pytest
-from tibanna.utils import printlog
 import mock
 
 
