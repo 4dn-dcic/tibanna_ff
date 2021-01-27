@@ -9,7 +9,7 @@
     "wdl_directory_url": "",
     "wdl_main_filename": "",
     "wdl_child_filenames": "",
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
     "input_parameters": {
       "motif": {
         "common_enz": "MboI"
@@ -33,7 +33,7 @@
     "secondary_files": {},
     "input_env": {},
     "alt_cond_output_argnames": {},
-    "language": "cwl_draft3",
+    "language": "cwl_v1",
     "singularity": false,
     "cwl_directory_local": "",
     "dependency": {}
