@@ -171,7 +171,9 @@ class FFInputAbstract(SerializableObject):
                   'wdl_directory_url', 'wdl_main_filename', 'wdl_child_filenames']:
             logger.debug("wfmeta[%s]=%s" % (k, str(self.wf_meta.get(k))))
             args[k] = self.wf_meta.get(k, '')
-        if self.wf_meta.get('workflow_language', '') == 'WDL':
+        if self.wf_meta.get('workflow_language', '') == 'WDL_DRAFT2':
+            args['language'] = 'wdl_draft2'
+        elif self.wf_meta.get('workflow_language', '') == 'WDL':
             args['language'] = 'wdl'
         else:
             # switch to v1 if available
