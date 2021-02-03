@@ -171,7 +171,7 @@
   ],
   "parameters": {},
   "config": {
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
     "ebs_size": 0,
     "instance_type": "",
     "EBS_optimized": ""

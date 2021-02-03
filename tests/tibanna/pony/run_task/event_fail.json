@@ -8,7 +8,7 @@
       "report": "some_random_output_file_name"
     },
     "cwl_main_filename": "md5.cwl",
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
     "secondary_files": {},
     "output_S3_bucket": "random_nonexisting_outputbucket",
     "app_version": "0.0.4",

@@ -11,15 +11,11 @@
   "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
   "tag": "0.2.5",
   "config": {
-    "cwl_version": "draft3",
-
+    "cwl_version": "v1",
     "ebs_iops": 500,
     "shutdown_min": "30",
     "ebs_type": "io1",
-    
-
     "key_name": "4dn-encode",
-    
     "password": "hahaha",
     "log_bucket": "tibanna-output"
   },

@@ -1,5 +1,9 @@
+from tibanna import create_logger
 from tibanna.exceptions import *
 import traceback
+
+
+logger = create_logger(__name__)
 
 
 class TibannaStartException(Exception):
@@ -27,16 +31,13 @@ def exception_coordinator(lambda_name, metadata_only_func):
     4. 'metadata' only parameter, if set to true, just create metadata instead of run workflow
     '''
     def decorator(function):
-        import logging
-        logging.basicConfig()
-        logger = logging.getLogger('logger')
         ignored_exceptions = [EC2StartingException, StillRunningException,
                               TibannaStartException, FdnConnectionException,
                               DependencyStillRunningException, EC2InstanceLimitWaitException]
 
         def wrapper(event, context):
             if context:
-                logger.info(context)
+                logger.info("context= " + str(context))
             logger.info(event)
             if lambda_name in event.get('skip', []):
                 logger.info('skipping %s since skip was set in input_json' % lambda_name)

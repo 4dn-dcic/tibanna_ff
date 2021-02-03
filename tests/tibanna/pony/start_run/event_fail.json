@@ -1,6 +1,6 @@
 {
     "config": {
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
       "password": "",
       "shutdown_min" : 30,
       "log_bucket": "tibanna-output",

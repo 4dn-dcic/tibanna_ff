@@ -166,18 +166,14 @@
         "nthreads_parse_sort": 16
     },
     "config": {
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
         "ebs_size": 0,
         "ebs_type": "io1",
         "EBS_optimized": "",
         "ebs_iops": 500,
         "shutdown_min": "30",
         "instance_type": "",
-
-        
-
         "key_name": "4dn-encode",
-        
         "password": "hahaha",
         "log_bucket": "tibanna-output"
     },

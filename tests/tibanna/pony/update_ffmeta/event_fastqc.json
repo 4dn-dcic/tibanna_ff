@@ -67,7 +67,7 @@
   "pf_meta": [],
   "parameters": {},
   "config": {
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
     "ebs_size": 10,
     "password": "",
     "ebs_type": "io1",

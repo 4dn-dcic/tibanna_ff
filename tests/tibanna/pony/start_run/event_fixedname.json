@@ -1,6 +1,6 @@
 {
     "config": {
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
       "ebs_type" : "io1",
       "ebs_iops" : 500,
       "password": "",
