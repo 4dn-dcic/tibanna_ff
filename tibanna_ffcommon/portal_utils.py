@@ -87,7 +87,7 @@ class FFInputAbstract(SerializableObject):
         self._tibanna = _tibanna
         self.tibanna_settings = None
         if _tibanna:
-            env = _tibanna.get('env')
+            env = _tibanna.get('env', '')
             try:
                 self.tibanna_settings = TibannaSettings(env, settings=_tibanna)
             except Exception as e:
@@ -345,7 +345,7 @@ class WorkflowRunMetadataAbstract(SerializableObject):
     fourfront metadata
     '''
 
-    def __init__(self, workflow, awsem_app_name='', app_version=None, input_files=[],
+    def __init__(self, workflow=None, awsem_app_name='', app_version=None, input_files=[],
                  parameters=[], title=None, uuid=None, output_files=None,
                  run_status='started', run_platform='AWSEM', run_url='', tag=None,
                  aliases=None,  awsem_postrun_json=None, submitted_by=None, extra_meta=None,
@@ -555,20 +555,26 @@ class FormatExtensionMap(object):
 
 class TibannaSettings(SerializableObject):
 
-    def __init__(self, env, ff_keys=None, sbg_keys=None, settings=None):
-        self.env = env
-        self.s3 = s3Utils(env=env)
+    def __init__(self, env=None, ff_keys=None, sbg_keys=None, settings=None):
+        if not env:
+            self.env = None
+            self.s3 = None
+            self.ff_keys = None
+            self.settings = None
+        else:
+            self.env = env
+            self.s3 = s3Utils(env=env)
 
-        if not ff_keys:
-            ff_keys = self.s3.get_access_keys('access_key_tibanna')
-        self.ff_keys = ff_keys
+            if not ff_keys:
+                ff_keys = self.s3.get_access_keys('access_key_tibanna')
+            self.ff_keys = ff_keys
 
-        if not settings:
-            settings = {}
-        self.settings = settings
+            if not settings:
+                settings = {}
+            self.settings = settings
 
-        logger.debug("in TibannaSettings.__init__ : self.as_dict() = " + str(self.as_dict()))
-        logger.debug("sysbucket=" + self.s3.sys_bucket )
+            logger.debug("in TibannaSettings.__init__ : self.as_dict() = " + str(self.as_dict()))
+            logger.debug("sysbucket=" + self.s3.sys_bucket )
 
     def get_reporter(self):
         '''
@@ -803,7 +809,8 @@ class FourfrontStarterAbstract(object):
 class QCArgumentInfo(SerializableObject):
     def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type=None,
                  qc_zipped=False, qc_html=False, qc_json=False, qc_table=False,
-                 qc_zipped_html=None, qc_zipped_tables=None, qc_acl='public-read'):
+                 qc_zipped_html=None, qc_zipped_tables=None, qc_acl='public-read',
+                 qc_unzip_from_ec2=False):
         if argument_type != 'Output QC file':
             raise Exception("QCArgument it not Output QC file: %s" % argument_type)
         self.workflow_argument_name = workflow_argument_name
@@ -819,6 +826,7 @@ class QCArgumentInfo(SerializableObject):
         if self.qc_table or self.qc_zipped_tables:
             if not self.qc_type:
                 raise Exception("qc_type is required if qc_table or qc_zipped_table") 
+        self.qc_unzip_from_ec2 = qc_unzip_from_ec2
 
 
 class InputExtraArgumentInfo(SerializableObject):
@@ -843,11 +851,13 @@ class FourfrontUpdaterAbstract(object):
     higlass_buckets = []
 
     def __init__(self, postrunjson=None, ff_meta=None, pf_meta=None, _tibanna=None, custom_qc_fields=None,
-                 config=None, jobid=None, metadata_only=False, **kwargs):
+                 config=None, jobid=None, metadata_only=False, strict=True, **kwargs):
         self.jobid = jobid
         self.config = Config(**config) if config else None
-        self.ff_meta = self.WorkflowRunMetadata(**ff_meta) if ff_meta else None
-        self._postrunjson = self.get_postrunjson(postrunjson)
+        if not ff_meta:
+            ff_meta = {}
+        self.ff_meta = self.WorkflowRunMetadata(**ff_meta)
+        self._postrunjson = self.get_postrunjson(postrunjson, strict=strict)
         if pf_meta:
             self.pf_output_files = {pf['uuid']: self.ProcessedFileMetadata(**pf) for pf in pf_meta}
         else:
@@ -865,9 +875,11 @@ class FourfrontUpdaterAbstract(object):
         self.patch_items = dict()  # a collection of patch jsons (key = uuid)
         self.post_items = dict()  # a collection of patch jsons (key = uuid)
 
-    def get_postrunjson(self, postrunjson_in_input):
+    def get_postrunjson(self, postrunjson_in_input, strict=True):
+        if not postrunjson_in_input:
+            postrunjson_in_input = {}
         try:
-            return AwsemPostRunJson(**postrunjson_in_input)  # it will fail here if it doesn't have Job or config.
+            return AwsemPostRunJson(**postrunjson_in_input, strict=strict)  # it will fail here if it doesn't have Job or config.
         except:
             postrunjsonfilename = "%s.postrun.json" % self.jobid
             if not does_key_exist(self.config.log_bucket, postrunjsonfilename):
@@ -1008,16 +1020,19 @@ class FourfrontUpdaterAbstract(object):
         return None
 
     # metadata object-related basic functionalities
+    def get_metadata(self, id):
+        return get_metadata(id,
+                            key=self.tibanna_settings.ff_keys,
+                            ff_env=self.tibanna_settings.env,
+                            add_on='frame=object',
+                            check_queue=True)
+
     def file_items(self, argname):
         """get the actual metadata file items for a specific argname"""
         items_list = []
         for acc in self.accessions(argname):
             try:
-                res = get_metadata(acc,
-                                   key=self.tibanna_settings.ff_keys,
-                                   ff_env=self.tibanna_settings.env,
-                                   add_on='frame=object',
-                                   check_queue=True)
+                res = self.get_metadata(acc)
             except Exception as e:
                 raise FdnConnectionException("Can't get metadata for accession %s: %s" % (acc, str(e)))
             items_list.append(res)
@@ -1026,11 +1041,7 @@ class FourfrontUpdaterAbstract(object):
     @property
     def workflow(self):
         try:
-            res = get_metadata(self.ff_meta.workflow,
-                               key=self.tibanna_settings.ff_keys,
-                               ff_env=self.tibanna_settings.env,
-                               add_on='frame=object',
-                               check_queue=True)
+            res = self.get_metadata(self.ff_meta.workflow)
         except Exception as e:
             raise FdnConnectionException("Can't get metadata for workflow %s: %s" % (self.ff_meta.workflow, str(e)))
         return res
@@ -1049,13 +1060,11 @@ class FourfrontUpdaterAbstract(object):
     def workflow_qc_arguments(self):
         """dictionary of QCArgumentInfo object list as value and
         argument_to_be_attached_to as key"""
+        wqcas = dict()
         qc_args = [QCArgumentInfo(**qc) for qc in self.workflow_arguments('Output QC file')]
-        qc_args_per_attach = dict()
-        for qcarg in qc_args:
-            if qcarg.argument_to_be_attached_to not in qc_args_per_attach:
-                qc_args_per_attach[qcarg.argument_to_be_attached_to] = []
-            qc_args_per_attach[qcarg.argument_to_be_attached_to].append(qcarg)
-        return qc_args_per_attach
+        for arg in set([_.argument_to_be_attached_to for _ in qc_args]):
+            wqcas.update({arg: [_ for _ in qc_args if _.argument_to_be_attached_to == arg]})
+        return wqcas
 
     @property
     def workflow_input_extra_arguments(self):
@@ -1408,6 +1417,55 @@ class FourfrontUpdaterAbstract(object):
                     self.update_patch_items(ip['uuid'], {'higlass_uid': higlass_uid})
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
+
+    def update_a_qc(self, qc, qc_target_accession, qc_schema):
+        qc_object = dict()
+        qc_bucket = self.bucket(qc.workflow_argument_name)
+        qc_key = self.file_key(qc.workflow_argument_name)
+        if qc.qc_zipped:
+            if qc.qc_zipped_tables:
+                return_unzipped_qc_data = True
+            else:
+                return_unzipped_qc_data = False
+            unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession, return_unzipped_qc_data)
+            if qc.qc_zipped_tables:
+                qcz_datafiles = []
+                for qcz in qc.qc_zipped_tables:
+                    qcz_datafiles.extend(filter(lambda x: x.endswith(qcz), unzipped_qc_data))
+                if qcz_datafiles:
+                    data_to_parse = [unzipped_qc_data[df]['data'] for df in qcz_datafiles]
+                    qc_meta_from_zip = self.parse_qc_table(data_to_parse, qc_schema)
+                    qc_object.update(qc_meta_from_zip)
+            # if there is an html, add qc_url for the html
+            if qc.qc_zipped_html:
+                target_html = qc_target_accession + '/' + qc.qc_zipped_html
+                qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
+            else:
+                qc_url = None
+        else:
+            # if there is an html, add qc_url for the html
+            if qc.qc_html:
+                target_html = qc_target_accession + '/qc_report.html'
+                qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
+            else:
+                qc_url = None
+            data = self.read(qc.workflow_argument_name)
+            if qc.qc_html:
+                self.s3(qc.workflow_argument_name).s3_put(data.encode(),
+                                                          target_html,
+                                                          acl='public-read')
+            elif qc.qc_json:
+                qc_object.update(self.parse_qc_json([data]))
+            elif qc.qc_table:
+                qc_object.update(self.parse_qc_table([data], qc_schema))
+        if qc_url:
+            qc_object.update({'url': qc_url})
+        if self.custom_qc_fields:
+            qc_object.update(self.custom_qc_fields)
+        if qc_type:
+            self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
+        return qc_object
+
     # update functions for QC
     def update_qc(self):
         for qc_arg, qc_list in self.workflow_qc_arguments.items():
@@ -1416,7 +1474,6 @@ class FourfrontUpdaterAbstract(object):
             qc_target_accessions = self.accessions(qc_arg)
             if not qc_target_accessions:
                 raise Exception("QC target %s does not exist" % qc_arg)
-            qc_target_accession = qc_target_accessions[0]  # The first target accession is use in the url for the report files
             qc_types = set([_.qc_type for _ in qc_list])
             qc_types_no_none = set([_.qc_type for _ in qc_list if _])
             # create quality_metric_qclist if >1 qc types for a given qc_arg
@@ -1433,50 +1490,7 @@ class FourfrontUpdaterAbstract(object):
                     qc_schema = None
                 qc_object = self.create_qc_template()
                 for qc in qc_list_of_type:
-                    qc_bucket = self.bucket(qc.workflow_argument_name)
-                    qc_key = self.file_key(qc.workflow_argument_name)
-                    if qc.qc_zipped:
-                        if qc.qc_zipped_tables:
-                            return_unzipped_qc_data = True
-                        else:
-                            return_unzipped_qc_data = False
-                        unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession, return_unzipped_qc_data)
-                        if qc.qc_zipped_tables:
-                            qcz_datafiles = []
-                            for qcz in qc.qc_zipped_tables:
-                                qcz_datafiles.extend(filter(lambda x: x.endswith(qcz), unzipped_qc_data))
-                            if qcz_datafiles:
-                                data_to_parse = [unzipped_qc_data[df]['data'] for df in qcz_datafiles]
-                                qc_meta_from_zip = self.parse_qc_table(data_to_parse, qc_schema)
-                                qc_object.update(qc_meta_from_zip)
-                        # if there is an html, add qc_url for the html
-                        if qc.qc_zipped_html:
-                            target_html = qc_target_accession + '/' + qc.qc_zipped_html
-                            qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
-                        else:
-                            qc_url = None
-                    else:
-                        # if there is an html, add qc_url for the html
-                        if qc.qc_html:
-                            target_html = qc_target_accession + '/qc_report.html'
-                            qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
-                        else:
-                            qc_url = None
-                        data = self.read(qc.workflow_argument_name)
-                        if qc.qc_html:
-                            self.s3(qc.workflow_argument_name).s3_put(data.encode(),
-                                                                      target_html,
-                                                                      acl='public-read')
-                        elif qc.qc_json:
-                            qc_object.update(self.parse_qc_json([data]))
-                        elif qc.qc_table:
-                            qc_object.update(self.parse_qc_table([data], qc_schema))
-                    if qc_url:
-                        qc_object.update({'url': qc_url})
-                    if self.custom_qc_fields:
-                        qc_object.update(self.custom_qc_fields)
-                    if qc_type:
-                        self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
+                    qc_object.update(update_a_qc(qc, qc_target_accession, qc_schema))
                 if qc_type:
                     self.update_post_items(qc_object['uuid'], qc_object, qc_type)
                     if qclist_object:

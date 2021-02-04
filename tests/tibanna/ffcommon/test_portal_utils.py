@@ -122,6 +122,57 @@ def qcarginfo_fastqc():
     }
 
 
+@pytest.fixture
+def qcarginfo_bamsnap():
+    return {
+        "argument_type": "Output QC file",
+        "workflow_argument_name": "bamsnap_images",
+        "argument_to_be_attached_to": "input_vcf",
+        "qc_zipped": True,
+        "qc_unzip_from_ec2": True,
+        "qc_acl": "private"
+    }
+
+
+def test_QCArgumentInfo_bamsnap(qcarginfo_bamsnap):
+    qc = QCArgumentInfo(**qcarginfo_bamsnap)
+    assert qc.qc_zipped
+    assert qc.qc_unzip_from_ec2
+    assert qc.qc_acl == 'private'
+    assert qc.argument_to_be_attached_to == 'input_vcf'
+    assert qc.workflow_argument_name == 'bamsnap_images'
+    assert qc.qc_type is None
+
+
+def test_FourfrontUpdaterAbstract_workflow_qc_arguments(qcarginfo_bamsnap):
+    updater = FourfrontUpdaterAbstract()
+
+
+def test_mock():
+    updater = FourfrontUpdaterAbstract(strict=False)
+    fake_wf = {'arguments': [{},{},{},qcarginfo_bamsnap]}
+    with mock.patch('tibanna_ffcommon.portal_utils.FourfrontUpdaterAbstract.get_metadata', return_value=fake_wf):
+        wf = updater.workflow
+    assert wf == fake_wf
+
+
+def test_FourfrontUpdaterAbstract_workflow_qc_arguments(qcarginfo_bamsnap):
+    updater = FourfrontUpdaterAbstract(strict=False)
+    fake_wf = {'arguments': [qcarginfo_bamsnap]}
+    with mock.patch('tibanna_ffcommon.portal_utils.FourfrontUpdaterAbstract.get_metadata', return_value=fake_wf):
+        qc = updater.workflow_qc_arguments
+    assert len(qc) == 1
+    assert 'input_vcf' in qc
+    assert len(qc['input_vcf']) == 1
+    qc1 = qc['input_vcf'][0]
+    assert qc1.qc_zipped
+    assert qc1.qc_unzip_from_ec2
+    assert qc1.qc_acl == 'private'
+    assert qc1.argument_to_be_attached_to == 'input_vcf'
+    assert qc1.workflow_argument_name == 'bamsnap_images'
+    assert qc1.qc_type is None
+
+
 def test_QCArgumentInfo(qcarginfo_fastqc):
     qc = QCArgumentInfo(**qcarginfo_fastqc)
     assert qc.qc_zipped
