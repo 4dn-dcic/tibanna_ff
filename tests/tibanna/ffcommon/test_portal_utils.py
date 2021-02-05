@@ -14,6 +14,7 @@ from tibanna_ffcommon.exceptions import (
 )
 import pytest
 import mock
+import logging
 
 
 def test_tibanna():
@@ -45,7 +46,7 @@ def test_ff_input_abstract_missing_field_error2():
             'output_bucket': 'c'}
     with pytest.raises(MalFormattedFFInputException) as excinfo:
         FFInputAbstract(**data)
-    assert "missing field in input json: config" in str(excinfo)
+    assert "missing field in input json: config" in str(excinfo.value)
 
 
 def test_ff_input_abstract_missing_field_error3():
@@ -53,7 +54,7 @@ def test_ff_input_abstract_missing_field_error3():
             'output_bucket': 'c'}
     with pytest.raises(MalFormattedFFInputException) as excinfo:
         FFInputAbstract(**data)
-    assert "missing field in input json: workflow_uuid" in str(excinfo)
+    assert "missing field in input json: workflow_uuid" in str(excinfo.value)
 
 
 def test_workflow_run_metadata_abstract():
@@ -64,11 +65,12 @@ def test_workflow_run_metadata_abstract():
     assert ff.title.startswith('b c run')
 
 
-def test_workflow_run_metadata_abstract_missing_field_error1():
+def test_workflow_run_metadata_abstract_missing_field_error1(caplog):
     data = {'awsem_app_name': 'b', 'app_version': 'c'}
-    with pytest.raises(Exception) as excinfo:
-        WorkflowRunMetadataAbstract(**data)
-    assert 'missing' in str(excinfo)
+    WorkflowRunMetadataAbstract(**data)
+    log = caplog.get_records('call')[0]
+    assert log.levelno == logging.WARNING
+    assert 'workflow is missing' in log.message
 
 
 def test_processed_file_metadata_abstract():
@@ -187,7 +189,7 @@ def test_wrong_QCArgumentInfo(qcarginfo_fastqc):
     with pytest.raises(Exception) as exec_info:
         QCArgumentInfo(**qcarginfo)
     assert exec_info
-    assert 'QCArgument it not Output QC file' in str(exec_info)
+    assert 'QCArgument it not Output QC file' in str(exec_info.value)
 
 
 def test_parse_rna_strandedness():

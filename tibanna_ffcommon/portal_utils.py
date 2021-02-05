@@ -354,6 +354,8 @@ class WorkflowRunMetadataAbstract(SerializableObject):
         Workflow (uuid of the workflow to run) has to be given.
         Workflow_run uuid is auto-generated when the object is created.
         """
+        if not workflow:
+            logger.warning("workflow is missing. %s may not behave as expected" % self.__class__.__name__)
         if run_platform == 'AWSEM':
             self.awsem_app_name = awsem_app_name
             # self.app_name = app_name
@@ -1418,7 +1420,7 @@ class FourfrontUpdaterAbstract(object):
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
 
-    def update_a_qc(self, qc, qc_target_accession, qc_schema):
+    def update_a_qc(self, qc, qc_target_accession, qc_schema, qc_type, qc_object_uuid):
         qc_object = dict()
         qc_bucket = self.bucket(qc.workflow_argument_name)
         qc_key = self.file_key(qc.workflow_argument_name)
@@ -1463,7 +1465,7 @@ class FourfrontUpdaterAbstract(object):
         if self.custom_qc_fields:
             qc_object.update(self.custom_qc_fields)
         if qc_type:
-            self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object['uuid']
+            self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object_uuid
         return qc_object
 
     # update functions for QC
@@ -1474,6 +1476,7 @@ class FourfrontUpdaterAbstract(object):
             qc_target_accessions = self.accessions(qc_arg)
             if not qc_target_accessions:
                 raise Exception("QC target %s does not exist" % qc_arg)
+            qc_target_accession = qc_target_accessions[0]  # The first target accession is use in the url for the report files
             qc_types = set([_.qc_type for _ in qc_list])
             qc_types_no_none = set([_.qc_type for _ in qc_list if _])
             # create quality_metric_qclist if >1 qc types for a given qc_arg
@@ -1490,7 +1493,9 @@ class FourfrontUpdaterAbstract(object):
                     qc_schema = None
                 qc_object = self.create_qc_template()
                 for qc in qc_list_of_type:
-                    qc_object.update(update_a_qc(qc, qc_target_accession, qc_schema))
+                    update_to_qc_object = self.update_a_qc(qc, qc_target_accession, qc_schema,
+                                                           qc_type, qc_object['uuid'])
+                    qc_object.update(update_to_qc_object)
                 if qc_type:
                     self.update_post_items(qc_object['uuid'], qc_object, qc_type)
                     if qclist_object:
