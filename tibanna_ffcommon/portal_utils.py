@@ -1479,7 +1479,7 @@ class FourfrontUpdaterAbstract(object):
             qc_schema = None
         qc_item_to_be = self.create_qc_template()
         for qc in qc_list_of_type:
-            qc_item_to_be.update(self_.update_a_qc(qc, qc_target_accession, qc_schema,
+            qc_item_to_be.update(self._update_a_qc(qc, qc_target_accession, qc_schema,
                                                    qc_type, qc_item_to_be['uuid']))
         return qc_item_to_be
 
