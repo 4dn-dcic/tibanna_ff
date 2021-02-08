@@ -1420,7 +1420,8 @@ class FourfrontUpdaterAbstract(object):
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
 
-    def update_a_qc(self, qc, qc_target_accession, qc_schema, qc_type, qc_object_uuid):
+    def _update_a_qc(self, qc, qc_target_accession, qc_schema, qc_type, qc_object_uuid):
+        """Internal update function for qc per workflow qc argument"""
         qc_object = dict()
         qc_bucket = self.bucket(qc.workflow_argument_name)
         qc_key = self.file_key(qc.workflow_argument_name)
@@ -1468,6 +1469,20 @@ class FourfrontUpdaterAbstract(object):
             self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object_uuid
         return qc_object
 
+    def _update_qc_per_type(self, qc_type, qc_list, qc_target_accession):
+        """Internal update function for QC for a given type
+        returns QC metadata item to post in dictionary form"""
+        qc_list_of_type = [_ for _ in qc_list if _.qc_type == qc_type]
+        if qc_type:
+            qc_schema = self.qc_schema(qc_type)
+        else:
+            qc_schema = None
+        qc_item_to_be = self.create_qc_template()
+        for qc in qc_list_of_type:
+            qc_item_to_be.update(self_.update_a_qc(qc, qc_target_accession, qc_schema,
+                                                   qc_type, qc_item_to_be['uuid']))
+        return qc_item_to_be
+
     # update functions for QC
     def update_qc(self):
         for qc_arg, qc_list in self.workflow_qc_arguments.items():
@@ -1481,26 +1496,18 @@ class FourfrontUpdaterAbstract(object):
             qc_types_no_none = set([_.qc_type for _ in qc_list if _])
             # create quality_metric_qclist if >1 qc types for a given qc_arg
             if len(qc_types_no_none) > 1:
-               qclist_object = self.create_qc_template()
-               qclist_object['qc_list'] = [] 
+                qclist_item_to_be = self.create_qc_template()
+                qclist_item_to_be['qc_list'] = [] 
             else:
-               qclist_object = None
+                qclist_item_to_be = None
             for qc_type in qc_types:
-                qc_list_of_type = [_ for _ in qc_list if _.qc_type == qc_type]
+                qc_item_to_be = self._update_qc_per_type(qc_type, qc_list, qc_target_accession)
                 if qc_type:
-                    qc_schema = self.qc_schema(qc_type)
-                else:
-                    qc_schema = None
-                qc_object = self.create_qc_template()
-                for qc in qc_list_of_type:
-                    update_to_qc_object = self.update_a_qc(qc, qc_target_accession, qc_schema,
-                                                           qc_type, qc_object['uuid'])
-                    qc_object.update(update_to_qc_object)
-                if qc_type:
-                    self.update_post_items(qc_object['uuid'], qc_object, qc_type)
-                    if qclist_object:
+                    self.update_post_items(qc_item_to_be['uuid'], qc_item, qc_type)
+                    if qclist_item_to_be:
                         # the uuids and types are in the same order
-                        qclist_object['qc_list'].append({'qc_type': qc_type, 'value': qc_object['uuid']})
+                        qclist_item_to_be['qc_list'].append({'qc_type': qc_type, 'value': qc_item_to_be['uuid']})
+        
             # add quality_metric_qclist in the post items
             if qclist_object:
                self.update_post_items(qclist_object['uuid'], qclist_object, 'quality_metric_qclist')

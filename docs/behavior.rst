@@ -141,11 +141,37 @@ To allow flexibility in the format of QC type output, certain qc flags are speci
 - ``"qc_table": true|false`` : the output file is a table file (tab-delimited text file)
 - ``"qc_zipped_html": <name_of_html_file>`` : the name of the html file in case the output zipped file contains an html file
 - ``"qc_zipped_tables": <array_of_name(or_suffix)_of_table_files>`` : the name of the table files in case the output zipped file contains table files.
-- ``"qc_type": <name_of_quality_metric_type>`` : name of the QC metric type (e.g. ``quality_metric_fastqc``, ``quality_metric_bamcheck``)
+- ``"qc_type": <name_of_quality_metric_type>`` : name of the ``QualityMetric`` item type (e.g. ``quality_metric_fastqc``, ``quality_metric_bamcheck``). This field can be skipped which means that no ``QualityMetric`` item will be created even though the other QC processings (e.g. unzipping the contents, moving the file to a specific location and creating an html, etc) may still happen. This None option was added originally to be able to handle bamsnap output files as QC files without generating a ``QualityMetric`` item. However, we ended up moving the bamsnap handling to EC2 since it frequently hit lambda memory and runtime limit while unzipping the output (see ``qc_unzip_from_ec2``)
 - ``"argument_to_be_attached_to": <argument>`` : the workflow argument name of the file (either input or output) from which the ``QualityMetric`` object should be linked. (e.g. if the QualityMetric object will be link to the processed bam file whose argument name is ``raw_bam``, this field can be set to ``raw_bam``.) 
-
+- ``"qc_unzip_from_ec2": true|false`` : whether the output zip file should be unzipped to s3 directly from ec2 (default false). This is relevant only if the qc output is zipped and we want the contents of the zip file to be extracted to a folder in S3. 
 
 As you can see above, a text-style QC output can either be a JSON or a TSV format. The main difference is that if the output is a TSV format, the corresponding fields must exist and be specified in the schema of the QualityMetric item. A JSON-format output goes directly to the QualityMetric item, and to allow this, the schema must have ``additional_properties`` to be set ``true``.
+
+
+Behavior of Tibanna-ff given different QC parameters
+----------------------------------------------------
+
+
+|qc_table6|
+
+
+|qc_table1|
+|qc_table2|
+|qc_table3|
+|qc_table4|
+|qc_table5|
+
+
+
+.. |qc_table1| image:: images/qc_table1.png
+.. |qc_table2| image:: images/qc_table2.png
+.. |qc_table3| image:: images/qc_table3.png
+.. |qc_table4| image:: images/qc_table4.png
+.. |qc_table6| image:: images/qc_table6.png
+
+
+
+
 
 
 Multiple QC metrics
