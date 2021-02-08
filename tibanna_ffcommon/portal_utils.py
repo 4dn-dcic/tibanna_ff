@@ -1503,22 +1503,22 @@ class FourfrontUpdaterAbstract(object):
             for qc_type in qc_types:
                 qc_item_to_be = self._update_qc_per_type(qc_type, qc_list, qc_target_accession)
                 if qc_type:
-                    self.update_post_items(qc_item_to_be['uuid'], qc_item, qc_type)
+                    self.update_post_items(qc_item_to_be['uuid'], qc_item_to_be, qc_type)
                     if qclist_item_to_be:
                         # the uuids and types are in the same order
                         qclist_item_to_be['qc_list'].append({'qc_type': qc_type, 'value': qc_item_to_be['uuid']})
         
             # add quality_metric_qclist in the post items
-            if qclist_object:
-               self.update_post_items(qclist_object['uuid'], qclist_object, 'quality_metric_qclist')
-            # allowing multiple input files to point to the same qc object.
+            if qclist_item_to_be:
+               self.update_post_items(qclist_item_to_be['uuid'], qclist_item_to_be, 'quality_metric_qclist')
+            # allowing multiple input files to point to the same qc_item_to_be.
             for t_acc in qc_target_accessions:
                 if qc_type:
-                    if qclist_object:
-                        self.patch_qc(t_acc, qclist_object['uuid'], 'quality_metric_qclist',
-                                      qclist_array=qclist_object['qc_list'])
+                    if qclist_item_to_be:
+                        self.patch_qc(t_acc, qclist_item_to_be['uuid'], 'quality_metric_qclist',
+                                      qclist_array=qclist_item_to_be['qc_list'])
                     else:
-                        self.patch_qc(t_acc, qc_object['uuid'], qc_type)
+                        self.patch_qc(t_acc, qc_item_to_be['uuid'], qc_type)
 
     def patch_qc(self, qc_target_accession, qc_uuid, qc_type, qclist_array=None):
         try:
