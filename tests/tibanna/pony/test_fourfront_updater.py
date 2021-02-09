@@ -122,7 +122,7 @@ def test_md5(update_ffmeta_event_data_newmd5):
     assert updater.app_name == 'md5'
     with pytest.raises(Exception) as exec_info:
         updater.update_md5()
-    assert 'md5sum not matching the original one' in str(exec_info)
+    assert 'md5sum not matching the original one' in str(exec_info.value)
     real_md5_content = 'bc75002f8a473bc6854d562789525a90\n6bb2dfa5b435ed03105cb59c32442d23'
     s3.put_object(Body=real_md5_content.encode('utf-8'),
                   Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)

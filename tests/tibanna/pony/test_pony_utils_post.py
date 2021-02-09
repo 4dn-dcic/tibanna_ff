@@ -104,10 +104,3 @@ def test_fourfront_starter8(start_run_hicprocessingbam_customfield_wArgname_data
     starter = FourfrontStarter(**start_run_hicprocessingbam_customfield_wArgname_data)
     assert starter
     starter.run()
-
-
-@valid_env
-def test_fourfront_starter9(start_run_hicprocessingpartb_data):
-    starter = FourfrontStarter(**start_run_hicprocessingpartb_data)
-    assert starter
-    starter.run()
