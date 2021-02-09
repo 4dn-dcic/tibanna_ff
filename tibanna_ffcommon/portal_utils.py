@@ -48,7 +48,8 @@ from .config import (
 from .exceptions import (
     TibannaStartException,
     FdnConnectionException,
-    MalFormattedFFInputException
+    MalFormattedFFInputException,
+    MalFormattedWorkflowMetadataException
 )
 
 
