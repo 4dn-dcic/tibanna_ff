@@ -21,6 +21,11 @@ class MalFormattedFFInputException(Exception):
     pass
 
 
+class MalFormattedWorkflowMetadataException(Exception):
+    """There is an error with pony/zebra workflow metadata"""
+    pass
+
+
 def exception_coordinator(lambda_name, metadata_only_func):
     '''
     friendly wrapper for your lambda functions, based on input_json / event comming in...
