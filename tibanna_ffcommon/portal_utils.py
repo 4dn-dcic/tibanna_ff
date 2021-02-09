@@ -1449,7 +1449,9 @@ class FourfrontUpdaterAbstract(object):
         qc_object = dict()
         qc_bucket = self.bucket(qc.workflow_argument_name)
         qc_key = self.file_key(qc.workflow_argument_name)
-        if qc.qc_zipped and not qc.qc_unzip_from_ec2:
+        if qc.qc_zipped and qc.qc_unzip_from_ec2:
+            qc_url = None
+        elif qc.qc_zipped and not qc.qc_unzip_from_ec2:
             if qc.qc_zipped_tables:
                 return_unzipped_qc_data = True
             else:
