@@ -103,17 +103,11 @@ class FFInputAbstract(SerializableObject):
             self.config.email = False
 
         def get_object_key_from_uuid(uuid):
-            infile_meta = get_metadata(uuid,
-                                       key=self.tibanna_settings.ff_keys,
-                                       ff_env=self.tibanna_settings.env,
-                                       add_on='frame=object')
+            infile_meta = self.get_metadata(uuid)
             return infile_meta['upload_key'].replace(uuid + '/', '')
 
         def get_file_type_from_uuid(uuid):
-            infile_meta = get_metadata(uuid,
-                                       key=self.tibanna_settings.ff_keys,
-                                       ff_env=self.tibanna_settings.env,
-                                       add_on='frame=object')
+            infile_meta = self.get_metadata(uuid)
             return(infile_meta['@type'][0])
 
         # fill in input_files info if object_key and bucket_name is not provided
@@ -151,19 +145,40 @@ class FFInputAbstract(SerializableObject):
     def input_file_uuids(self):
         return [_['uuid'] for _ in self.input_files]
 
+    def get_metadata(self, id):
+        return get_metadata(id,
+                            key=self.tibanna_settings.ff_keys,
+                            ff_env=self.tibanna_settings.env,
+                            add_on='frame=object',
+                            check_queue=True)
+
     @property
     def wf_meta(self):
         if self.wf_meta_:
             return self.wf_meta_
         try:
-            self.wf_meta_ = get_metadata(self.workflow_uuid,
-                                         key=self.tibanna_settings.ff_keys,
-                                         ff_env=self.tibanna_settings.env,
-                                         add_on='frame=object')
+            self.wf_meta_ = self.get_metadata(self.workflow_uuid)
             return self.wf_meta_
         except Exception as e:
             raise FdnConnectionException(e)
 
+    def get_accessions_from_argname(self, argname, ff_meta):
+        accessions = []
+        for inf in ff_meta.input_files + ff_meta.output_files:
+            if inf['workflow_argument_name'] == argname:
+                if 'value' not in inf:
+                    continue
+                if isinstance(inf['value'], dict):
+                    if 'accesion' in inf['value']:
+                        accessions.append(inf['value']['accession'])
+                    else:
+                        res = self.get_metadata(inf['value']['uuid'])
+                        accessions.append(res['accession'])
+                else:
+                    res = self.get_metadata(inf['value'])
+                    accessions.append(res['accession'])
+        return accessions
+                
     def add_args(self, ff_meta):
         # create args
         args = dict()
@@ -199,13 +214,21 @@ class FFInputAbstract(SerializableObject):
                 target_inf = ff_meta.input_files[0]  # assume only one input for now
                 target_key = self.output_target_for_input_extra(target_inf, of)
                 args['output_target'][arg_name] = target_key
-            else:
-                random_tag = str(int(random.random() * 1000000000000))
-                # add a random tag at the end for non-processed file e.g. md5 report,
-                # so that if two or more wfr are trigerred (e.g. one with parent file, one with extra file)
-                # it will create a different output. Not implemented for processed files -
-                # it's tricky because processed files must have a specific name.
-                args['output_target'][arg_name] = ff_meta.uuid + '/' + arg_name + random_tag
+            else: # output QC or report file
+                wf_of = [_ for _ in self.wf_meta.get('arguments') if _['workflow_argument_name'] == arg_name][0]
+                if wf_of.get('qc_zipped', False) and wf_of.get('qc_unzip_from_ec2', False):
+                    if 'argument_to_be_attached_to' not in wf_of:
+                        raise MalFormattedWorkflowMetadataException
+                    target_argument = wf_of.get('argument_to_be_attached_to')
+                    target_accession = self.get_accessions_from_argname(target_argument, ff_meta)[0]
+                    args['output_target'][arg_name] = {"unzip": True, "object_prefix": target_accession}
+                else:
+                    random_tag = str(int(random.random() * 1000000000000))
+                    # add a random tag at the end for non-processed file e.g. md5 report,
+                    # so that if two or more wfr are trigerred (e.g. one with parent file, one with extra file)
+                    # it will create a different output. Not implemented for processed files -
+                    # it's tricky because processed files must have a specific name.
+                    args['output_target'][arg_name] = ff_meta.uuid + '/' + arg_name + random_tag
             if 'secondary_file_formats' in of and 'extra_files' in of and of['extra_files']:
                 for ext in of.get('extra_files'):
                     logger.info("adding secondary file: %s for arg %s" % (ext.get('upload_key', ''), arg_name))
