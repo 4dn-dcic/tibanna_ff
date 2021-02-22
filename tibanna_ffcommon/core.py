@@ -2,11 +2,8 @@ from tibanna.core import API as _API
 from .stepfunction import StepFunctionFFAbstract
 from .vars import (
     S3_ENCRYPT_KEY,
-    TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
-    DYNAMODB_TABLE,
-    DYNAMODB_KEYNAME
+    TIBANNA_DEFAULT_STEP_FUNCTION_NAME
 )
-import boto3
 
 
 class API(_API):

@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import copy
 from .pony_utils import FourfrontUpdater
-from tibanna.utils import printlog
+from tibanna import create_logger
+
+
+logger = create_logger(__name__)
 
 
 def update_ffmeta(input_json):
@@ -15,15 +18,15 @@ def update_ffmeta(input_json):
         input_json_copy['metadata_only'] = input_json_copy['config'].get('runmode', {}).get('metadata_only', False)
 
     # actual metadata update
-    printlog("creating FourfrontUpdater object")
+    logger.info("creating FourfrontUpdater object")
     try:
         updater = FourfrontUpdater(**input_json_copy)
     except Exception as e:
-        printlog("error creating FourfrontUpdater: %s" % str(e))
+        logger.error("error creating FourfrontUpdater: %s" % str(e))
         raise e
-    printlog("checking error")
+    logger.info("checking error")
     if input_json_copy.get('error', False):
-        printlog("got error from earlier step, calling handle_error")
+        logger.info("got error from earlier step, calling handle_error")
         updater.handle_error(input_json_copy['error'])
     try:
         updater.update_metadata()

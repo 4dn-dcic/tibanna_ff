@@ -1,0 +1,57 @@
+{
+    "app_name": "bamsnap",
+    "workflow_uuid": "cgap:bamsnap_v20",
+    "parameters": {
+        "nproc": 16,
+        "titles": [
+            "UDN208608 (Proband)",
+            "UDN920501 (Mother)",
+            "UDN067002 (Father)"
+        ]
+    },
+    "config": {
+        "instance_type": "c5.4xlarge",
+        "ebs_size": 10,
+        "EBS_optimized": true,
+        "spot_instance": true,
+        "log_bucket": "tibanna-output",
+        "key_name": "4dn-encode",
+        "public_postrun_json": true,
+        "behavior_on_capacity_limit": "wait_and_retry"
+    },
+    "wfr_meta": {
+        "project": "/projects/12a92962-8265-4fc0-b2f8-cf14f05db58b/",
+        "institution": "/institutions/hms-dbmi/"
+    },
+    "custom_qc_fields": {
+        "project": "/projects/12a92962-8265-4fc0-b2f8-cf14f05db58b/",
+        "institution": "/institutions/hms-dbmi/"
+    },
+    "input_files": [
+        {
+            "workflow_argument_name": "input_bams",
+            "uuid": [
+                "0e4618a6-5020-475b-91d1-d8d8e751039d",
+                "fabe6ab5-a7dd-4256-bcad-19dd165357e8",
+                "bef7b700-43de-4f0e-aaa4-3c01af16e340"
+            ],
+            "mount": true
+        },
+        {
+            "workflow_argument_name": "input_vcf",
+            "uuid": "3f77edc5-bf47-4402-8443-cb43861553a1",
+            "mount": true
+        },
+        {
+            "workflow_argument_name": "ref",
+            "uuid": "1936f246-22e1-45dc-bb5c-9cfd55537fe7",
+            "mount": true
+        }
+    ],
+    "_tibanna": {
+        "env": "fourfront-cgapwolf",
+        "run_type": "bamsnap",
+        "run_name": "bamsnap_test_small_vcf"
+    }
+}
+

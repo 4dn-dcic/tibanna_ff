@@ -13,8 +13,8 @@ from tibanna_ffcommon.exceptions import (
     MalFormattedFFInputException
 )
 import pytest
-from tibanna.utils import printlog
 import mock
+import logging
 
 
 def test_tibanna():
@@ -46,7 +46,7 @@ def test_ff_input_abstract_missing_field_error2():
             'output_bucket': 'c'}
     with pytest.raises(MalFormattedFFInputException) as excinfo:
         FFInputAbstract(**data)
-    assert "missing field in input json: config" in str(excinfo)
+    assert "missing field in input json: config" in str(excinfo.value)
 
 
 def test_ff_input_abstract_missing_field_error3():
@@ -54,7 +54,7 @@ def test_ff_input_abstract_missing_field_error3():
             'output_bucket': 'c'}
     with pytest.raises(MalFormattedFFInputException) as excinfo:
         FFInputAbstract(**data)
-    assert "missing field in input json: workflow_uuid" in str(excinfo)
+    assert "missing field in input json: workflow_uuid" in str(excinfo.value)
 
 
 def test_workflow_run_metadata_abstract():
@@ -65,11 +65,12 @@ def test_workflow_run_metadata_abstract():
     assert ff.title.startswith('b c run')
 
 
-def test_workflow_run_metadata_abstract_missing_field_error1():
+def test_workflow_run_metadata_abstract_missing_field_error1(caplog):
     data = {'awsem_app_name': 'b', 'app_version': 'c'}
-    with pytest.raises(Exception) as excinfo:
-        WorkflowRunMetadataAbstract(**data)
-    assert 'missing' in str(excinfo)
+    WorkflowRunMetadataAbstract(**data)
+    log = caplog.get_records('call')[0]
+    assert log.levelno == logging.WARNING
+    assert 'workflow is missing' in log.message
 
 
 def test_processed_file_metadata_abstract():
@@ -123,6 +124,57 @@ def qcarginfo_fastqc():
     }
 
 
+@pytest.fixture
+def qcarginfo_bamsnap():
+    return {
+        "argument_type": "Output QC file",
+        "workflow_argument_name": "bamsnap_images",
+        "argument_to_be_attached_to": "input_vcf",
+        "qc_zipped": True,
+        "qc_unzip_from_ec2": True,
+        "qc_acl": "private"
+    }
+
+
+def test_QCArgumentInfo_bamsnap(qcarginfo_bamsnap):
+    qc = QCArgumentInfo(**qcarginfo_bamsnap)
+    assert qc.qc_zipped
+    assert qc.qc_unzip_from_ec2
+    assert qc.qc_acl == 'private'
+    assert qc.argument_to_be_attached_to == 'input_vcf'
+    assert qc.workflow_argument_name == 'bamsnap_images'
+    assert qc.qc_type is None
+
+
+def test_FourfrontUpdaterAbstract_workflow_qc_arguments(qcarginfo_bamsnap):
+    updater = FourfrontUpdaterAbstract()
+
+
+def test_mock():
+    updater = FourfrontUpdaterAbstract(strict=False)
+    fake_wf = {'arguments': [{},{},{},qcarginfo_bamsnap]}
+    with mock.patch('tibanna_ffcommon.portal_utils.FourfrontUpdaterAbstract.get_metadata', return_value=fake_wf):
+        wf = updater.workflow
+    assert wf == fake_wf
+
+
+def test_FourfrontUpdaterAbstract_workflow_qc_arguments(qcarginfo_bamsnap):
+    updater = FourfrontUpdaterAbstract(strict=False)
+    fake_wf = {'arguments': [qcarginfo_bamsnap]}
+    with mock.patch('tibanna_ffcommon.portal_utils.FourfrontUpdaterAbstract.get_metadata', return_value=fake_wf):
+        qc = updater.workflow_qc_arguments
+    assert len(qc) == 1
+    assert 'input_vcf' in qc
+    assert len(qc['input_vcf']) == 1
+    qc1 = qc['input_vcf'][0]
+    assert qc1.qc_zipped
+    assert qc1.qc_unzip_from_ec2
+    assert qc1.qc_acl == 'private'
+    assert qc1.argument_to_be_attached_to == 'input_vcf'
+    assert qc1.workflow_argument_name == 'bamsnap_images'
+    assert qc1.qc_type is None
+
+
 def test_QCArgumentInfo(qcarginfo_fastqc):
     qc = QCArgumentInfo(**qcarginfo_fastqc)
     assert qc.qc_zipped
@@ -137,7 +189,7 @@ def test_wrong_QCArgumentInfo(qcarginfo_fastqc):
     with pytest.raises(Exception) as exec_info:
         QCArgumentInfo(**qcarginfo)
     assert exec_info
-    assert 'QCArgument it not Output QC file' in str(exec_info)
+    assert 'QCArgument it not Output QC file' in str(exec_info.value)
 
 
 def test_parse_rna_strandedness():
@@ -157,5 +209,5 @@ def test_parse_fastq_first_line():
 def test_parse_re_check():
     report_content = 'clipped-mates with RE motif: 76.54 %'
     res = FourfrontUpdaterAbstract.parse_re_check(report_content)
-    assert type(res) is float 
+    assert type(res) is float
     assert res == 76.54

@@ -1,12 +1,7 @@
-import boto3, os
 from tibanna.utils import (
-    printlog,
     upload,
     read_s3
 )
-# from datetime import timezone
-from datetime import datetime
-from datetime import timedelta
 from tibanna.cw_utils import TibannaResource as TibannaResource_
 
 # instance_id = 'i-0167a6c2d25ce5822'

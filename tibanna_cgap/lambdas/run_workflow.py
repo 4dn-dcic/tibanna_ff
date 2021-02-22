@@ -25,7 +25,7 @@ def handler(event, context):
     try:
         start = str(res['_tibanna']['response']['startDate'])
         res['_tibanna']['response']['startDate'] = start
-    except:
+    except Exception:
         pass
 
     return res

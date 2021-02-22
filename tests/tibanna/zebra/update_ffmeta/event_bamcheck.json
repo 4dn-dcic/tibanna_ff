@@ -12,7 +12,7 @@
     "wdl_directory_url": "",
     "wdl_main_filename": "",
     "wdl_child_filenames": [],
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
     "input_files": {
       "fastq_R1": {
         "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
@@ -173,7 +173,7 @@
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
     "json_bucket": "tibanna-output",
     "ami_id": "ami-0f06a8358d41c4b9c",
-    "language": "cwl_draft3",
+    "language": "cwl_v1",
     "job_tag": "workflow_bwa-mem_no_unzip-check",
     "instance_id": "i-00a1716161a60ccb0",
     "instance_ip": "52.3.236.71",
@@ -185,7 +185,7 @@
         "App_name": "workflow_bwa-mem_no_unzip-check",
         "App_version": "v8",
         "cwl_url": "https://raw.githubusercontent.com/dbmi-bgm/cgap-pipeline/master/cwl",
-        "language": "cwl_draft3",
+        "language": "cwl_v1",
         "main_cwl": "workflow_bwa-mem-to-bam_no_unzip_plus_integrity-check.cwl",
         "other_cwl_files": "bwa-mem-to-bam_no_unzip.cwl,integrity-check.cwl"
       },
@@ -344,7 +344,7 @@
       "instance_type": "c5n.18xlarge",
       "job_tag": "workflow_bwa-mem_no_unzip-check",
       "json_bucket": "tibanna-output",
-      "language": "cwl_draft3",
+      "language": "cwl_v1",
       "log_bucket": "tibanna-output",
       "mem": 0,
       "public_postrun_json": true,

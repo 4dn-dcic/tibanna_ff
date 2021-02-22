@@ -141,11 +141,55 @@ To allow flexibility in the format of QC type output, certain qc flags are speci
 - ``"qc_table": true|false`` : the output file is a table file (tab-delimited text file)
 - ``"qc_zipped_html": <name_of_html_file>`` : the name of the html file in case the output zipped file contains an html file
 - ``"qc_zipped_tables": <array_of_name(or_suffix)_of_table_files>`` : the name of the table files in case the output zipped file contains table files.
-- ``"qc_type": <name_of_quality_metric_type>`` : name of the QC metric type (e.g. ``quality_metric_fastqc``, ``quality_metric_bamcheck``)
-- ``"argument_to_be_attached_to": <argument>`` : the workflow argument name of the file (either input or output) from which the ``QualityMetric`` object should be linked. (e.g. if the QualityMetric object will be link to the processed bam file whose argument name is ``raw_bam``, this field can be set to ``raw_bam``.) 
-
+- ``"qc_type": <name_of_quality_metric_type>`` : name of the ``QualityMetric`` item type (e.g. ``quality_metric_fastqc``, ``quality_metric_bamcheck``). This field can be skipped which means that no ``QualityMetric`` item will be created even though the other QC processings (e.g. unzipping the contents, moving the file to a specific location and creating an html, etc) may still happen. This None option was added originally to be able to handle bamsnap output files as QC files without generating a ``QualityMetric`` item. However, we ended up moving the bamsnap handling to EC2 since it frequently hit lambda memory and runtime limit while unzipping the output (see ``qc_unzip_from_ec2``)
+- ``"argument_to_be_attached_to": <argument>`` : the workflow argument name of the file (either input or output) from which the ``QualityMetric`` object should be linked. (e.g. if the QualityMetric object will be link to the processed bam file whose argument name is ``raw_bam``, this field can be set to ``raw_bam``.)  This is a required parameter.
+- ``"qc_unzip_from_ec2": true|false`` : whether the output zip file should be unzipped to s3 directly from ec2 (default false). This is relevant only if the qc output is zipped and we want the contents of the zip file to be extracted to a folder in S3. 
 
 As you can see above, a text-style QC output can either be a JSON or a TSV format. The main difference is that if the output is a TSV format, the corresponding fields must exist and be specified in the schema of the QualityMetric item. A JSON-format output goes directly to the QualityMetric item, and to allow this, the schema must have ``additional_properties`` to be set ``true``.
+
+
+Behavior of Tibanna-ff given different QC parameters
+----------------------------------------------------
+
+The following table is an example scenario where a workflow generates six different QC outputs, which is highly unlikely to happen in the real world, but it is introduced to illustrate the behaviors.
+
+|qc_table6|
+
+The first column is the argument name which is unique to each of the six QC outputs. Each of them could have a different QC parameter combination. The second column is the ``argument_to_be_attached_to``, which is a required parameter. The third column is the ``QualityMetric`` item type for each QC output. The fourth column describes the ``QualityMetric`` itemms to be created and the fifth column describes the ``QualityMetricQclist`` item to be created to accommodate multiple ``QualityMetric`` itemms created for a given ``argument_to_be_attached_to``. A ``QualityMetricQclist`` item is not created if there is only one ``QualityMetric`` item linked from the file metadata of the ``argument_to_be_attached_to``, unless the same file metadata already has a ``QualityMetric`` item from a different workflow run.
+
+The first row is a typical case scenario in which one QC argument to be attached to one input file and so one ``QualityMetric`` item will be created for this one.
+
+|qc_table1|
+
+The second and third rows show two different QC arguments to be attached to the same file and each has its own ``qc_type``. In this case, a ``QualityMetric`` item will be created for each QC argument and a ``QualityMetricQclist`` item will also be created to link two ``QualityMetric`` items to a single file item. An example could be a BAM file linked to both ``bamcheck`` and ``bamqc`` outputs, the former about the sanity check of the output file integrity and the latter about the statistics on the contents of the file including the number of reads, coverages, etc. 
+
+|qc_table2|
+
+The fourth and fifth rows show a similar case except that two different QC arguments have the same ``qc_type``. Since a file item cannot have multiple ``QualityMetric`` items of the same type, this means only one ``QualityMetric`` item will be created and the two QC arguments will be merged into this single ``QualityMetric`` item. Since only one ``QualityMetric`` item is generated, no ``QualityMetricQclist`` item is created. This case may not be intuitive, but an example is a workflow that generates two separate QC output files, one in JSON format and the other in the HTML format. In such a case, we want to create a single ``QualityMetric`` item with the fields taken from the JSON output and a link to the HTML report.
+
+|qc_table3|
+
+
+The sixth row shows a case where ``qc_type`` is not set (set to ``None``). In this case, no ``QualityMetric`` item is generated. It is used for hidden QC files that do not have a ``QualityMetric`` item associated with it, such as the output for ``bamsnap``.
+
+|qc_table4|
+
+
+Note that QC arguments with the same ``qc_type`` do not lead to a merge if their ``argument_to_be_attached_to`` is different, since each of the file items will have their own ``QualityMetric`` item in this case.
+
+|qc_table5|
+
+
+.. |qc_table1| image:: images/qc_table1.png
+.. |qc_table2| image:: images/qc_table2.png
+.. |qc_table3| image:: images/qc_table3.png
+.. |qc_table4| image:: images/qc_table4.png
+.. |qc_table5| image:: images/qc_table5.png
+.. |qc_table6| image:: images/qc_table6.png
+
+
+
+
 
 
 Multiple QC metrics

@@ -1,7 +1,6 @@
 import boto3
 import gzip
 from uuid import uuid4
-from tibanna.utils import printlog
 from dcicutils.ff_utils import (
     get_metadata,
     post_metadata,
@@ -23,9 +22,6 @@ from tibanna_ffcommon.portal_utils import (
     FourfrontUpdaterAbstract,
     FFInputAbstract,
     aslist
-)
-from tibanna_ffcommon.exceptions import (
-    FdnConnectionException
 )
 
 

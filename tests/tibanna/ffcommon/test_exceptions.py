@@ -91,4 +91,4 @@ def test_exception_coordinator_add_awsem_error_to_output():
     data = {"push_error_to_end": False}
     with pytest.raises(AWSEMJobErrorException) as expinfo:
         awsem_error_fun(data, None)
-    assert 'awsem made a mess' in str(expinfo)
+    assert 'awsem made a mess' in str(expinfo.value)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from dcicutils.ff_utils import get_metadata
-from tibanna.utils import _tibanna_settings, printlog
+from tibanna import create_logger
+from tibanna.utils import _tibanna_settings
 # from tibanna_4dn.vars import TIBANNA_DEFAULT_STEP_FUNCTION_NAME
 from tibanna_cgap.core import API
 from tibanna_ffcommon.exceptions import TibannaStartException, FdnConnectionException
@@ -10,6 +11,9 @@ from tibanna_ffcommon.portal_utils import (
     parse_formatstr
 )
 from tibanna_cgap.vars import AWS_REGION, LAMBDA_TYPE, BUCKET_NAME
+
+
+logger = create_logger(__name__)
 
 
 config = {
@@ -123,7 +127,7 @@ def get_file_format(meta, object_key, ff_keys):
     file_format, extra_formats = get_fileformats_for_accession(meta)
     if file_format:
         fe_map = FormatExtensionMap(ff_keys)
-        printlog(fe_map)
+        logger.debug("fe_map = " + str(fe_map))
         if extension == fe_map.get_extension(file_format):
             return (file_format, None)
         elif extension in fe_map.get_other_extensions(file_format):

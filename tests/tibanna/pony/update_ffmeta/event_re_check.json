@@ -9,7 +9,7 @@
     "wdl_directory_url": "",
     "wdl_main_filename": "",
     "wdl_child_filenames": "",
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
     "input_parameters": {
       "motif": {
         "common_enz": "MboI"
@@ -33,7 +33,7 @@
     "secondary_files": {},
     "input_env": {},
     "alt_cond_output_argnames": {},
-    "language": "cwl_draft3",
+    "language": "cwl_v1",
     "singularity": false,
     "cwl_directory_local": "",
     "dependency": {}
@@ -123,7 +123,7 @@
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
     "json_bucket": "tibanna-output",
     "ami_id": "ami-0f06a8358d41c4b9c",
-    "language": "cwl_draft3",
+    "language": "cwl_v1",
     "job_tag": "re_checker_workflow",
     "instance_id": "i-02b8497a0193a552f",
     "instance_ip": "34.230.72.139",
@@ -134,7 +134,7 @@
       "App": {
         "App_name": "re_checker_workflow",
         "App_version": "v1.1",
-        "language": "cwl_draft3",
+        "language": "cwl_v1",
         "cwl_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-RE-checker/v1.1/cwl/",
         "main_cwl": "RE-checker.cwl",
         "other_cwl_files": ""
@@ -215,7 +215,7 @@
       "instance_type": "t3.medium",
       "job_tag": "re_checker_workflow",
       "json_bucket": "tibanna-output",
-      "language": "cwl_draft3",
+      "language": "cwl_v1",
       "log_bucket": "tibanna-output",
       "mem": 4,
       "overwrite_input_extra": false,

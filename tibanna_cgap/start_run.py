@@ -3,7 +3,10 @@
 import boto3
 import json
 from .zebra_utils import FourfrontStarter
-from tibanna.utils import printlog
+from tibanna import create_logger
+
+
+logger = create_logger(__name__)
 
 
 def start_run(input_json):
@@ -22,5 +25,5 @@ def start_run(input_json):
                       Key=starter.inp.jobid + '.input.json',
                       Bucket=starter.inp.config.log_bucket)
     starter.run()
-    printlog(starter.inp.as_dict())  # debugging
+    logger.debug("starter.inp.as_dict() = " + str(starter.inp.as_dict()))
     return(starter.inp.as_dict())

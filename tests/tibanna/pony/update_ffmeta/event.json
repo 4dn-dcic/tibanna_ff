@@ -64,7 +64,7 @@
   "jobid": "8fRIlIfwRNDT",
   "pf_meta": [],
   "config": {
-    "cwl_version": "draft3",
+    "cwl_version": "v1",
     "ebs_size": 20,
     "ebs_type": "io1",
     "json_dir": "/tmp/json",
@@ -80,7 +80,7 @@
   },
   "postrunjson": {
     "config": {
-      "cwl_version": "draft3",
+      "cwl_version": "v1",
       "ebs_size": 20,
       "ebs_type": "io1",
       "json_dir": "/tmp/json",

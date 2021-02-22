@@ -4,6 +4,7 @@ def create_higlass_config(file_format, extra, file_type, data_type):
             'file_type': file_type,
             'data_type': data_type}
 
+
 higlass_config = [
     create_higlass_config('mcool', None, 'cooler', 'matrix'),
     create_higlass_config('bw', None, 'bigwig', 'vector'),
