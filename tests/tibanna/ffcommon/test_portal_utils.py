@@ -209,5 +209,5 @@ def test_parse_fastq_first_line():
 def test_parse_re_check():
     report_content = 'clipped-mates with RE motif: 76.54 %'
     res = FourfrontUpdaterAbstract.parse_re_check(report_content)
-    assert type(res) is float 
+    assert type(res) is float
     assert res == 76.54

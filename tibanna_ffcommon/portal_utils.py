@@ -179,7 +179,7 @@ class FFInputAbstract(SerializableObject):
                     res = self.get_metadata(inf['value'])
                     accessions.append(res['accession'])
         return accessions
-                
+ 
     def add_args(self, ff_meta):
         # create args
         args = dict()
@@ -215,7 +215,7 @@ class FFInputAbstract(SerializableObject):
                 target_inf = ff_meta.input_files[0]  # assume only one input for now
                 target_key = self.output_target_for_input_extra(target_inf, of)
                 args['output_target'][arg_name] = target_key
-            else: # output QC or report file
+            else:  # output QC or report file
                 wf_of = [_ for _ in self.wf_meta.get('arguments') if _['workflow_argument_name'] == arg_name][0]
                 if wf_of.get('qc_zipped', False) and wf_of.get('qc_unzip_from_ec2', False):
                     if 'argument_to_be_attached_to' not in wf_of:
@@ -600,7 +600,7 @@ class TibannaSettings(SerializableObject):
             self.settings = settings
 
             logger.debug("in TibannaSettings.__init__ : self.as_dict() = " + str(self.as_dict()))
-            logger.debug("sysbucket=" + self.s3.sys_bucket )
+            logger.debug("sysbucket=" + self.s3.sys_bucket)
 
     def get_reporter(self):
         '''
@@ -851,13 +851,13 @@ class QCArgumentInfo(SerializableObject):
         self.qc_acl = qc_acl
         if self.qc_table or self.qc_zipped_tables:
             if not self.qc_type:
-                raise Exception("qc_type is required if qc_table or qc_zipped_table") 
+                raise Exception("qc_type is required if qc_table or qc_zipped_table")
         self.qc_unzip_from_ec2 = qc_unzip_from_ec2
 
 
 class InputExtraArgumentInfo(SerializableObject):
     def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to,
-                       extra_file_use_for=None, **kwargs):
+                 extra_file_use_for=None, **kwargs):
         if argument_type != 'Output to-be-extra-input file':
             raise Exception("InputExtraArgumentInfo is not Output to-be-extra-input file: %s" % argument_type)
         self.workflow_argument_name = workflow_argument_name
@@ -907,7 +907,7 @@ class FourfrontUpdaterAbstract(object):
         try:
             # it will fail here if it doesn't have Job or config.
             return AwsemPostRunJson(**postrunjson_in_input, strict=strict)
-        except:
+        except Exception:
             postrunjsonfilename = "%s.postrun.json" % self.jobid
             if not does_key_exist(self.config.log_bucket, postrunjsonfilename):
                 return None
@@ -960,10 +960,10 @@ class FourfrontUpdaterAbstract(object):
     def app_name(self):
         try:
             return self.ff_meta.awsem_app_name
-        except:
+        except Exception:
             try:
                 return self.postrunjson.Job.App.App_name
-            except:
+            except Exception:
                 raise Exception("Cannot retrieve app_name")
 
     # postrunjson-related basic functionalities
@@ -1332,7 +1332,7 @@ class FourfrontUpdaterAbstract(object):
                 exists = self.s3(argname).does_key_exist(k, self.bucket(argname))
                 if not exists:
                     return "FAILED"
-            except:
+            except Exception:
                 return "FAILED"
         return "COMPLETED"
 
@@ -1707,7 +1707,7 @@ class FourfrontUpdaterAbstract(object):
         self.update_patch_items(input_meta['uuid'], patch_content)
 
     @classmethod
-    def parse_rna_strandedness_report(self, read):
+    def parse_rna_strandedness_report(cls, read):
         """parses md5 report file content and returns md5, content_md5"""
         strandedness_array = read.rstrip('\n').split('\n')
         if not strandedness_array:
@@ -1734,7 +1734,7 @@ class FourfrontUpdaterAbstract(object):
         self.update_patch_items(input_meta['uuid'], patch_content)
 
     @classmethod
-    def parse_fastq_first_line_report(self, read):
+    def parse_fastq_first_line_report(cls, read):
         """parses fastq_first_line report file content and returns the content"""
         fastq_first_line_content = read.rstrip('\n').split('\n')
         if not fastq_first_line_content:
@@ -1761,7 +1761,7 @@ class FourfrontUpdaterAbstract(object):
         self.update_patch_items(input_meta['uuid'], patch_content)
 
     @classmethod
-    def parse_re_check(self, read):
+    def parse_re_check(cls, read):
         """parses output of re checker to return percent clipped sites with re motif"""
         re_check_content = read.rstrip('\n').split('\n')
         if not re_check_content:

@@ -1,4 +1,3 @@
-import pytest
 import os
 import json
 import time
@@ -76,7 +75,7 @@ def test_fastqc():
     assert res['run_status'] == 'complete'
     assert 'quality_metric' in res
 
-    
+ 
 def test_bwa():
     key = dev_key()
     # prep new File

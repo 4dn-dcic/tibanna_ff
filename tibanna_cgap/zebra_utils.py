@@ -23,9 +23,6 @@ from tibanna_ffcommon.portal_utils import (
     FFInputAbstract,
     aslist
 )
-from tibanna_ffcommon.exceptions import (
-    FdnConnectionException
-)
 
 
 class ZebraInput(FFInputAbstract):
