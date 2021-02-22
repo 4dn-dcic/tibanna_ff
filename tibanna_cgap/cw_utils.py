@@ -10,6 +10,4 @@ from tibanna.cw_utils import TibannaResource as TibannaResource_
 
 
 class TibannaResource(TibannaResource_):
-    @classmethod
-    def create_html(cls):
-        return super(TibannaResource, cls).create_html(report_title='Pipeline Run Metrics')
+    report_title = 'Pipeline Run Metrics'
