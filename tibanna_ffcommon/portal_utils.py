@@ -905,7 +905,8 @@ class FourfrontUpdaterAbstract(object):
         if not postrunjson_in_input:
             postrunjson_in_input = {}
         try:
-            return AwsemPostRunJson(**postrunjson_in_input, strict=strict)  # it will fail here if it doesn't have Job or config.
+            # it will fail here if it doesn't have Job or config.
+            return AwsemPostRunJson(**postrunjson_in_input, strict=strict)
         except:
             postrunjsonfilename = "%s.postrun.json" % self.jobid
             if not does_key_exist(self.config.log_bucket, postrunjsonfilename):
@@ -1443,7 +1444,6 @@ class FourfrontUpdaterAbstract(object):
                     self.update_patch_items(ip['uuid'], {'higlass_uid': higlass_uid})
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
-
     def _update_a_qc(self, qc, qc_target_accession, qc_schema, qc_type, qc_object_uuid):
         """Internal update function for qc per workflow qc argument"""
         qc_object = dict()
@@ -1517,13 +1517,14 @@ class FourfrontUpdaterAbstract(object):
             qc_target_accessions = self.accessions(qc_arg)
             if not qc_target_accessions:
                 raise Exception("QC target %s does not exist" % qc_arg)
-            qc_target_accession = qc_target_accessions[0]  # The first target accession is use in the url for the report files
+            # The first target accession is use in the url for the report files
+            qc_target_accession = qc_target_accessions[0]
             qc_types = set([_.qc_type for _ in qc_list])
             qc_types_no_none = set([_.qc_type for _ in qc_list if _])
             # create quality_metric_qclist if >1 qc types for a given qc_arg
             if len(qc_types_no_none) > 1:
                 qclist_item_to_be = self.create_qc_template()
-                qclist_item_to_be['qc_list'] = [] 
+                qclist_item_to_be['qc_list'] = []
             else:
                 qclist_item_to_be = None
             for qc_type in qc_types:
@@ -1533,10 +1534,10 @@ class FourfrontUpdaterAbstract(object):
                     if qclist_item_to_be:
                         # the uuids and types are in the same order
                         qclist_item_to_be['qc_list'].append({'qc_type': qc_type, 'value': qc_item_to_be['uuid']})
-        
+
             # add quality_metric_qclist in the post items
             if qclist_item_to_be:
-               self.update_post_items(qclist_item_to_be['uuid'], qclist_item_to_be, 'quality_metric_qclist')
+                self.update_post_items(qclist_item_to_be['uuid'], qclist_item_to_be, 'quality_metric_qclist')
             # allowing multiple input files to point to the same qc_item_to_be.
             for t_acc in qc_target_accessions:
                 if qc_type:
@@ -1622,7 +1623,6 @@ class FourfrontUpdaterAbstract(object):
                                                     {'qc_type': qc_type, 'value': qc_uuid}]
                     self.update_post_items(new_qclist_object['uuid'], new_qclist_object, 'quality_metric_qclist')
                     self.update_patch_items(qc_target_accession, {'quality_metric': new_qclist_object['uuid']})
-
 
     def qc_schema(self, qc_schema_name):
         try:
@@ -1756,7 +1756,7 @@ class FourfrontUpdaterAbstract(object):
             return
         percent = self.parse_re_check(self.read(report_arg))
         input_arg = 'bamfile'
-        input_meta = self.file_items(input_arg)[0] # assume one input file
+        input_meta = self.file_items(input_arg)[0]  # assume one input file
         patch_content = {'percent_clipped_sites_with_re_motif': percent}
         self.update_patch_items(input_meta['uuid'], patch_content)
 
