@@ -1,0 +1,249 @@
+{
+  "jobid": "xsoJ9xuzD1OM",
+  "args": {
+    "app_name": "bamsnap",
+    "app_version": "v20",
+    "cwl_directory_url": "https://raw.githubusercontent.com/dbmi-bgm/cgap-pipeline/v20/cwl",
+    "cwl_main_filename": "bamsnap.cwl",
+    "cwl_child_filenames": [],
+    "wdl_directory_url": "",
+    "wdl_main_filename": "",
+    "wdl_child_filenames": "",
+    "cwl_version": "v1",
+    "input_parameters": {
+      "nproc": 16,
+      "titles": [
+        "UDN208608 (Proband)",
+        "UDN920501 (Mother)",
+        "UDN067002 (Father)"
+      ]
+    },
+    "additional_benchmarking_parameters": {},
+    "output_S3_bucket": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+    "output_target": {
+      "bamsnap_images": {
+        "unzip": true,
+        "object_prefix": "GAPFIMWCU98T"
+      }
+    },
+    "secondary_output_target": {},
+    "input_files": {
+      "input_bams": {
+        "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+        "rename": "",
+        "unzip": "",
+        "mount": true,
+        "object_key": [
+          "0e4618a6-5020-475b-91d1-d8d8e751039d/GAPFILFZ3CDD.bam",
+          "fabe6ab5-a7dd-4256-bcad-19dd165357e8/GAPFIF8283K4.bam",
+          "bef7b700-43de-4f0e-aaa4-3c01af16e340/GAPFITH3GP2L.bam"
+        ]
+      },
+      "input_vcf": {
+        "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+        "rename": "",
+        "unzip": "",
+        "mount": true,
+        "object_key": "3f77edc5-bf47-4402-8443-cb43861553a1/GAPFIMWCU98T.vcf.gz"
+      },
+      "ref": {
+        "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-files",
+        "rename": "",
+        "unzip": "",
+        "mount": true,
+        "object_key": "1936f246-22e1-45dc-bb5c-9cfd55537fe7/GAPFIXRDPDK5.fa"
+      }
+    },
+    "secondary_files": {
+      "input_bams": {
+        "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+        "rename": "",
+        "mount": true,
+        "object_key": [
+          [
+            "0e4618a6-5020-475b-91d1-d8d8e751039d/GAPFILFZ3CDD.bam.bai"
+          ],
+          [
+            "fabe6ab5-a7dd-4256-bcad-19dd165357e8/GAPFIF8283K4.bam.bai"
+          ],
+          [
+            "bef7b700-43de-4f0e-aaa4-3c01af16e340/GAPFITH3GP2L.bam.bai"
+          ]
+        ]
+      },
+      "ref": {
+        "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-files",
+        "rename": "",
+        "mount": true,
+        "object_key": [
+          "1936f246-22e1-45dc-bb5c-9cfd55537fe7/GAPFIXRDPDK5.dict",
+          "1936f246-22e1-45dc-bb5c-9cfd55537fe7/GAPFIXRDPDK5.fa.fai"
+        ]
+      }
+    },
+    "custom_errors": [],
+    "input_env": {},
+    "alt_cond_output_argnames": {},
+    "language": "cwl_v1",
+    "singularity": false,
+    "cwl_directory_local": "",
+    "dependency": {}
+  },
+  "input_files": [
+    {
+      "workflow_argument_name": "input_bams",
+      "uuid": [
+        "0e4618a6-5020-475b-91d1-d8d8e751039d",
+        "fabe6ab5-a7dd-4256-bcad-19dd165357e8",
+        "bef7b700-43de-4f0e-aaa4-3c01af16e340"
+      ],
+      "mount": true,
+      "object_key": [
+        "GAPFILFZ3CDD.bam",
+        "GAPFIF8283K4.bam",
+        "GAPFITH3GP2L.bam"
+      ],
+      "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-wfoutput"
+    },
+    {
+      "workflow_argument_name": "input_vcf",
+      "uuid": "3f77edc5-bf47-4402-8443-cb43861553a1",
+      "mount": true,
+      "object_key": "GAPFIMWCU98T.vcf.gz",
+      "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-wfoutput"
+    },
+    {
+      "workflow_argument_name": "ref",
+      "uuid": "1936f246-22e1-45dc-bb5c-9cfd55537fe7",
+      "mount": true,
+      "object_key": "GAPFIXRDPDK5.fa",
+      "bucket_name": "elasticbeanstalk-fourfront-cgapwolf-files"
+    }
+  ],
+  "workflow_uuid": "cgap:bamsnap_v20",
+  "output_bucket": "elasticbeanstalk-fourfront-cgapwolf-wfoutput",
+  "parameters": [
+    {
+      "workflow_argument_name": "nproc",
+      "value": "16"
+    },
+    {
+      "workflow_argument_name": "titles",
+      "value": "['UDN208608 (Proband)', 'UDN920501 (Mother)', 'UDN067002 (Father)']"
+    }
+  ],
+  "additional_benchmarking_parameters": {},
+  "wfr_meta": {
+    "project": "/projects/12a92962-8265-4fc0-b2f8-cf14f05db58b/",
+    "institution": "/institutions/hms-dbmi/"
+  },
+  "custom_qc_fields": {
+    "project": "/projects/12a92962-8265-4fc0-b2f8-cf14f05db58b/",
+    "institution": "/institutions/hms-dbmi/"
+  },
+  "output_files": [],
+  "push_error_to_end": true,
+  "_tibanna": {
+    "run_id": "6cd710d0-465f-4dcd-8de9-8495ff5e9931",
+    "env": "fourfront-cgapwolf",
+    "url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra_dev:bamsnap_test_small_vcf-82bbfe1b-b0f6-40e9-b6ef-2c9ff989b6b3",
+    "run_type": "bamsnap",
+    "run_name": "bamsnap_test_small_vcf-82bbfe1b-b0f6-40e9-b6ef-2c9ff989b6b3",
+    "exec_arn": "arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra_dev:bamsnap_test_small_vcf-82bbfe1b-b0f6-40e9-b6ef-2c9ff989b6b3"
+  },
+  "ff_meta": {
+    "institution": "/institutions/hms-dbmi/",
+    "project": "/projects/12a92962-8265-4fc0-b2f8-cf14f05db58b/",
+    "awsem_app_name": "bamsnap",
+    "awsem_job_id": "xsoJ9xuzD1OM",
+    "run_status": "started",
+    "uuid": "d9196dce-e551-491a-ad79-1e0d4f1bcdf8",
+    "workflow": "cgap:bamsnap_v20",
+    "run_platform": "AWSEM",
+    "run_url": "https://console.aws.amazon.com/states/home?region=us-east-1#/executions/details/arn:aws:states:us-east-1:643366669028:execution:tibanna_zebra_dev:bamsnap_test_small_vcf-82bbfe1b-b0f6-40e9-b6ef-2c9ff989b6b3",
+    "title": "bamsnap v20 run 2021-02-22 19:07:54.554362",
+    "input_files": [
+      {
+        "workflow_argument_name": "input_bams",
+        "value": "0e4618a6-5020-475b-91d1-d8d8e751039d",
+        "ordinal": 1,
+        "dimension": "0"
+      },
+      {
+        "workflow_argument_name": "input_bams",
+        "value": "fabe6ab5-a7dd-4256-bcad-19dd165357e8",
+        "ordinal": 2,
+        "dimension": "1"
+      },
+      {
+        "workflow_argument_name": "input_bams",
+        "value": "bef7b700-43de-4f0e-aaa4-3c01af16e340",
+        "ordinal": 3,
+        "dimension": "2"
+      },
+      {
+        "workflow_argument_name": "input_vcf",
+        "value": "3f77edc5-bf47-4402-8443-cb43861553a1",
+        "ordinal": 1,
+        "dimension": "0"
+      },
+      {
+        "workflow_argument_name": "ref",
+        "value": "1936f246-22e1-45dc-bb5c-9cfd55537fe7",
+        "ordinal": 1,
+        "dimension": "0"
+      }
+    ],
+    "output_files": [
+      {
+        "workflow_argument_name": "bamsnap_images",
+        "type": "Output QC file"
+      }
+    ],
+    "parameters": [
+      {
+        "workflow_argument_name": "nproc",
+        "value": "16"
+      },
+      {
+        "workflow_argument_name": "titles",
+        "value": "['UDN208608 (Proband)', 'UDN920501 (Mother)', 'UDN067002 (Father)']"
+      }
+    ]
+  },
+  "pf_meta": [],
+  "config": {
+    "instance_type": "c5.4xlarge",
+    "ebs_size": 10,
+    "EBS_optimized": true,
+    "spot_instance": true,
+    "log_bucket": "tibanna-output",
+    "key_name": "4dn-encode",
+    "public_postrun_json": true,
+    "behavior_on_capacity_limit": "wait_and_retry",
+    "run_name": "bamsnap_test_small_vcf-82bbfe1b-b0f6-40e9-b6ef-2c9ff989b6b3",
+    "cpu": "",
+    "ebs_iops": "",
+    "password": "",
+    "spot_duration": "",
+    "availability_zone": "",
+    "security_group": "",
+    "subnet": "",
+    "mem": 0,
+    "ebs_type": "gp3",
+    "shutdown_min": "now",
+    "cloudwatch_dashboard": false,
+    "root_ebs_size": 8,
+    "awsf_image": "4dndcic/tibanna-awsf:1.0.4b1",
+    "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf3/",
+    "json_bucket": "tibanna-output",
+    "overwrite_input_extra": false,
+    "email": false,
+    "ami_id": "ami-0a7ddfc7e412ab6e0",
+    "language": "cwl_v1",
+    "job_tag": "bamsnap",
+    "instance_id": "i-008eb0d2585fa3b79",
+    "instance_ip": "34.229.64.249",
+    "start_time": "20210222-19:08:03-UTC"
+  }
+}
