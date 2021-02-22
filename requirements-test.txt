@@ -1,6 +1,6 @@
 invoke>=1.4
 # syntax checker
-flake8==3.8.4
+flake8==3.7.9
 pycodestyle==2.5.0
 # for testing
 pytest==5.0.0
