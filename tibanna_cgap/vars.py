@@ -3,6 +3,7 @@ import os
 
 
 LAMBDA_TYPE = 'zebra'
+SFN_TYPE = 'zebra'
 ACCESSION_PREFIX = 'GAP'
 
 
@@ -20,4 +21,4 @@ DEV_ENV = 'fourfront-cgapwolf'
 IAM_BUCKETS = [BUCKET_NAME(DEV_ENV, 'FileProcessed'),
                BUCKET_NAME(DEV_ENV, 'FileFastq'),
                'tibanna-output']
-DEV_SFN = 'tibanna_' + LAMBDA_TYPE + '_' + DEV_SUFFIX
+DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_SUFFIX

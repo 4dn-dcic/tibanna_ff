@@ -2,6 +2,7 @@ from tibanna_ffcommon.vars import *
 import os
 
 LAMBDA_TYPE = 'pony'
+SFN_TYPE = 'pony'
 ACCESSION_PREFIX = '4DN'
 
 
@@ -21,4 +22,4 @@ IAM_BUCKETS = [BUCKET_NAME(DEV_ENV, 'FileProcessed'),
                BUCKET_NAME(DEV_ENV, 'FileFastq'),
                'tibanna-output']
 
-DEV_SFN = 'tibanna_' + LAMBDA_TYPE + '_' + DEV_SUFFIX
+DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_SUFFIX
