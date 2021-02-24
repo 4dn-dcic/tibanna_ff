@@ -180,7 +180,7 @@ def make_input(event, wf='md5', dependency=None, run_name_prefix='validate'):
     if event.get('run_name'):
         run_name = event.get('run_name')  # used for testing
 
-    return _make_input(env, wf, uuid, run_name, dependency)
+    return _make_input(env, wf, object_key, uuid, run_name, dependency)
 
 
 _workflows = {'md5':
@@ -194,7 +194,7 @@ _workflows = {'md5':
               }
 
 
-def _make_input(env, workflow, uuid, run_name, dependency=None):
+def _make_input(env, workflow, object_key, uuid, run_name, dependency=None):
     workflow_uuid = _workflows[workflow]['uuid']
     workflow_arg_name = _workflows[workflow]['arg_name']
 
