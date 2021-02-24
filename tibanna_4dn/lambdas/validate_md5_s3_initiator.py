@@ -176,11 +176,11 @@ def make_input(event, wf='md5', dependency=None, run_name_prefix='validate'):
     if 'prod' in env:
         env = 'data'
 
-    run_name = run_name_prefix + "_%s" % (upload_key.split('/')[1].split('.')[0])
+    run_name = run_name_prefix + "_%s" % (object_key.split('.')[0])
     if event.get('run_name'):
         run_name = event.get('run_name')  # used for testing
 
-    return _make_input(env, bucket, wf, object_key, uuid, run_name, dependency)
+    return _make_input(env, wf, uuid, run_name, dependency)
 
 
 _workflows = {'md5':
@@ -194,8 +194,7 @@ _workflows = {'md5':
               }
 
 
-def _make_input(env, bucket, workflow, object_key, uuid, run_name, dependency=None):
-    output_bucket = BUCKET_NAME(env, 'FileProcessed')
+def _make_input(env, workflow, uuid, run_name, dependency=None):
     workflow_uuid = _workflows[workflow]['uuid']
     workflow_arg_name = _workflows[workflow]['arg_name']
 
@@ -204,16 +203,12 @@ def _make_input(env, bucket, workflow, object_key, uuid, run_name, dependency=No
             "workflow_uuid": workflow_uuid,
             "input_files": [
                 {"workflow_argument_name": workflow_arg_name,
-                 "bucket_name": bucket,
                  "uuid": uuid,
-                 "object_key": object_key,
                  "mount": True
                  }
              ],
-            "output_bucket": output_bucket,
             "config": {
-                "ebs_type": "gp2",
-                "ebs_iops": "",
+                "instance_type": "t3.small",
                 "ebs_size": 10,
                 "shutdown_min": 0,
                 "log_bucket": "tibanna-output",
