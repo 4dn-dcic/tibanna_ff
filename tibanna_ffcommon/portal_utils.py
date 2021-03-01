@@ -748,7 +748,9 @@ class FourfrontStarterAbstract(object):
 
     # ff (workflowrun)-related functions
     def create_ff(self):
-        extra_meta = self.inp.common_fields
+        extra_meta = dict()
+        if self.inp.common_fields:
+            extra_meta.update(self.inp.common_fields)
         if self.inp.wfr_meta:
             extra_meta.update(self.inp.wfr_meta)
         self.ff = self.WorkflowRunMetadata(
