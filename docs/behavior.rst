@@ -232,6 +232,12 @@ Custom fields
 In case we want to pass one custom fields to ``WorkflowRun``, ``FileProcessed`` or ``QualityMetric`` objects that are created by a workflow run, we can do that by adding custom fields to the input json. Common examples of custom field would be ``lab`` and ``award`` for pony and ``project`` and ``institution`` for zebra. One could also set ``genome_assembly`` to be passed to a ``FileProcessed`` object.
 
 
+Common Cutsom fields
+~~~~~~~~~~~~~~~~~~~~
+
+Common custom fields can be specified in the ``common_fields`` field of the input json and the contents will be passed to all created items including ``WorkflowRun``, ``FileProcessed`` and ``QualityMetric``, including ``QualityMetricWorkflowrun`` and ``QualityMetricQclist``. This can be used for ``lab`` and ``award`` for pony and ``project`` and ``institution`` for zebra. More specific custom fields can be defined using ``wfr_meta``, ``custom_pf_fields`` and ``custom_qc_fields``.
+
+
 Custom fields for workflow run
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -263,12 +269,12 @@ In the above example, if we have two output files with argument names ``out_bam`
 Custom fields for quality metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``custom_qc_fields`` field specifies custom fields to be passed to a ``FileProcessed`` object, and all the ``QualityMetric`` objects generated (including ``QualityMetricWorkflowrun``) will have the fields specified by ``custom_qc_fields``.
+The ``custom_qc_fields`` field specifies custom fields to be passed to all ``QualityMetric``, except ``QualityMetricWorkflowrun`` and ``QualityMetricQclist``.
 
 ::
 
     "custom_qc_fields": { "key1": "value1", "key2": "value2" ,,, }
 
 
-In the above example, all the ``QualityMetric`` objects will have field ``key1`` with value ``value1`` and field ``key2`` with value ``value2``.
+In the above example, the ``QualityMetric`` items will have field ``key1`` with value ``value1`` and field ``key2`` with value ``value2``.
 
