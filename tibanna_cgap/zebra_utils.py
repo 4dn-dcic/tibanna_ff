@@ -119,8 +119,10 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     def create_qc_template(self):
         res = super().create_qc_template()
-        res.update({"institution": DEFAULT_INSTITUTION,
-                    "project": DEFAULT_PROJECT})
+        if 'institution' not in res:
+            res.update({"institution": DEFAULT_INSTITUTION})
+        if 'project' not in res:
+            res.update({"project": DEFAULT_PROJECT})
         return res
 
 

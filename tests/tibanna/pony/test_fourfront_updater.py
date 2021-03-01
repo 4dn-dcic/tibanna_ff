@@ -47,7 +47,7 @@ def test_post_patch(update_ffmeta_event_data_fastqc2):
     assert updater.post_items['quality_metric_fastqc'][item_uuid]['uuid'] == item_uuid
     updater.create_wfr_qc()
     wfr_qc_uuid = updater.ff_meta.quality_metric
-    assert updater.post_items['QualityMetricWorkflowrun'][wfr_qc_uuid]['lab'] == "6240db37-c902-4f2a-b8eb-44a3e6ccfe11"
+    assert updater.post_items['QualityMetricWorkflowrun'][wfr_qc_uuid]['lab'] == '4dn-dcic-lab'
     updater.post_all()
     updater.update_patch_items(item_uuid, {'Per base sequence content': 'PASS'})
     updater.patch_all()

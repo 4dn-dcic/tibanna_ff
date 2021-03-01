@@ -57,173 +57,173 @@ def ff_keys(s3_utils):
     return s3_utils.get_access_keys('access_key_tibanna')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def s3_trigger_event_data():
     return get_event_file_for('validate_md5_s3_trigger')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def s3_trigger_event_data_pf():
     return get_event_file_for('validate_md5_s3_trigger', event_file='event_pf.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def s3_trigger_event_data_pf_extra_status():
     return get_event_file_for('validate_md5_s3_trigger', event_file='event_pf_extra_status.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_md5_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_md5.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_md5_mount_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_md5-mount.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_repliseq_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_repliseq.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_pseudo_workflow_event_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_metadata_only.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_nestedarray_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event-nestedarray.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_dependency_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_dependency.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_dependency_fail_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_dependency_fail.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_fail_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_fail.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_fixedname_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_fixedname.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_hicprocessingbam_customfield_wALL_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_hicprocessingbam_customfield_wALL.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_hicprocessingbam_customfield_wArgname_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys,
                               event_file='event_hicprocessingbam_customfield_wArgname.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_hicprocessingpartb_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_hicprocessingpartb.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_extra_md5(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_extra_md5.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_newmd5(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_newmd5.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_bed2multivec(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_bed2multivec.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_pairsqc(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_pairsqc.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_repliseq(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_repliseq.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_imargi(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_imargi.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_mcool(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_mcool.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_fastqc(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_fastqc.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_fastqc2(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_fastqc2.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_chipseq(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_chipseq.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_metaonly_data(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_metadataonly.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_metaonly_data2(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_metadata_2.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_tmpdata(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_tmp.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_hicbam(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_hicbam.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_rna_strandedness(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_rna_strandedness.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_madqc(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_madqc.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_fastq_first_line(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_fastq_first_line.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_re_check(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_re_check.json')
 

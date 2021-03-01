@@ -119,8 +119,10 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     def create_qc_template(self):
         res = super().create_qc_template()
-        res.update({"award": DEFAULT_AWARD,
-                    "lab": DEFAULT_LAB})
+        if 'award' not in res:
+            res.update({"award": DEFAULT_AWARD})
+        if 'lab' not in res:
+            res.update({"lab": DEFAULT_LAB})
         return res
 
 
