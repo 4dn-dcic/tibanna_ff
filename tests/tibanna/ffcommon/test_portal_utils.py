@@ -206,8 +206,47 @@ def test_parse_fastq_first_line():
     assert len(res) == 1
     assert res[0] == '@HWI-ST1318:469:HV2C3BCXY:1:1101:2874:1977 1:N:0:ATGTCA'
 
+
 def test_parse_re_check():
     report_content = 'clipped-mates with RE motif: 76.54 %'
     res = FourfrontUpdaterAbstract.parse_re_check(report_content)
     assert type(res) is float
     assert res == 76.54
+
+
+def test_parse_custom_fields():
+    custom_pf_fields = {'somearg': {'a': 'b', 'c': 'd'},
+                        'arg2': {'x': 'y'},
+                        'ALL': {'e': 'f'}}
+    common_fields = {'g': 'h', 'i': 'j'} 
+    res = FourfrontStarterAbstract.parse_custom_fields(custom_pf_fields, common_fields, "somearg")
+    for fld in ['a', 'c', 'e', 'g', 'i']:
+        assert fld in res
+    assert 'x' not in res
+
+
+def test_parse_custom_fields_overwrite():
+    """testing custom_pf_fields overwriting common_fields"""
+    custom_pf_fields = {'somearg': {'a': 'b', 'c': 'd'},
+                        'arg2': {'x': 'y'},
+                        'ALL': {'e': 'f'}}
+    common_fields = {'a': 'h', 'e': 'j'}
+    res = FourfrontStarterAbstract.parse_custom_fields(custom_pf_fields, common_fields, "somearg")
+    for fld in ['a', 'c', 'e']:
+        assert fld in res
+    assert res['a'] == 'b'  # common_fields overwritten by custom_pf_fields[argname]
+    assert res['e'] == 'f'  # common_fields overwritten by custom_pf_fields[All]
+
+
+def test_create_wfr_qc():
+    """custom_qc_fields does not apply to wfr_qc, but common_fields do"""
+    updater = FourfrontUpdaterAbstract(**{'config': {'log_bucket': 'some_bucket'}}, strict=False)
+    updater.jobid = 'some_jobid'
+    updater.custom_qc_fields = {'a': 'b', 'c': 'd'}
+    updater.common_fields = {'a': 'h', 'e': 'j'}
+    updater.create_wfr_qc()
+    wfr_qc_uuid = list(updater.post_items['QualityMetricWorkflowrun'].keys())[0]
+    wfr_qc = updater.post_items['QualityMetricWorkflowrun'][wfr_qc_uuid]
+    assert 'e' in wfr_qc and wfr_qc['e'] == 'j'  # common_fields
+    assert 'c' not in wfr_qc  # custom_qc_fields does NOT get into wfr qc
+    assert 'a' in wfr_qc and wfr_qc['a'] == 'h'  # common_fields NOT overwritten by custom_qc_fields

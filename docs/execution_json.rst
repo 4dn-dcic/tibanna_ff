@@ -63,6 +63,10 @@ Example job description
         "email": true,
         "public_postrun_json" : true
       },
+      "common_fields": {
+        "award": "/awards/5UM1HL128773-04/",
+        "lab": "/labs/bing-ren-lab/"
+      },
       "custom_pf_fields": {
         "out_bam": {
             "genome_assembly": "GRCh38"
@@ -72,8 +76,7 @@ Example job description
         "notes": "a nice workflow run"
       },
       "custom_qc_fields": {
-        "award": "/awards/5UM1HL128773-04/",
-        "lab": "/labs/bing-ren-lab/"
+        "qc_note": "a nice qc"
       },
       "push_error_to_end": true
       "dependency": {
@@ -108,8 +111,9 @@ Example job description
   - The ``key_name`` field is recommended to be set ``4dn-encoded`` which is the key used by the 4DN DCIC team.
 
 - The ``push_error_to_end`` field (optional), if set true, passes any error to the last step so that the metadata can be updated with proper error status. (default true)
-- The ``custom_pf_fields`` field (optional) contains a dictionary that can be directly passed to the processed file metadata. The key may be either ``ALL`` (applies to all processed files) or the argument name for a specific processed file (or both).
-- The ``wfr_meta`` field (optional) contains a dictionary that can be directly passed to the workflow run metadata.
-- The ``custom_qc_fields`` field (optional) contains a dictionary that can be directly passed to an associated Quality Metric object.
+- The ``common_fields`` field (optional) contains a dictionary that can be directly passed to all the items created including WorkflowRun, ProcessedFile, QualityMetricWorkflowrun, QualityMetricQclist, and any other QualityMetric items. This field is overwritten by ``custom_pf_fields``, ``wfr_meta`` or ``custom_qc_fields`` if provided.
+- The ``custom_pf_fields`` field (optional) contains a dictionary that can be directly passed to the processed file metadata. The key may be either ``ALL`` (applies to all processed files) or the argument name for a specific processed file (or both). This can overwrite ``common_fields``.
+- The ``wfr_meta`` field (optional) contains a dictionary that can be directly passed to the workflow run metadata. This can overwrite ``common_fields``.
+- The ``custom_qc_fields`` field (optional) contains a dictionary that can be directly passed to an associated Quality Metric object. This field does not apply to QualityMetricWorkflowrun and QualityMetricQclist. This field can overwrite ``common_fields``.
 - The ``dependency`` field (optional) sets dependent jobs. The job will not start until the dependencies successfully finish. If dependency fails, the current job will also fail. The ``exec_arn`` is the list of step function execution arns. The job will wait at the run_task step, not at the start_task step (for consistenty with unicorn). This field will be passed to run_task as ``dependency`` inside the ``args`` field.
 

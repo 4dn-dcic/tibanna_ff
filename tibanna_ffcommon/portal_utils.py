@@ -77,9 +77,11 @@ class FFInputAbstract(SerializableObject):
         self.parameters = convert_param(self.parameters_, True)
         self.additional_benchmarking_parameters = kwargs.get('additional_benchmarking_parameters', {})
         self.tag = kwargs.get('tag', None)
+        self.common_fields = kwargs.get('common_fields', None)  # common custom fields (PF, WFR, QC, WFR_QC, QC_LIST)
+        # these three can overwrite common_fields for pf, wfr and qc respectively
         self.custom_pf_fields = kwargs.get('custom_pf_fields', None)  # custon fields for PF
         self.wfr_meta = kwargs.get('wfr_meta', None)  # custom fields for WFR
-        self.custom_qc_fields = kwargs.get('custom_qc_fields', None)  # custom fields for QC
+        self.custom_qc_fields = kwargs.get('custom_qc_fields', None)  # custom fields for QC (but not WFR_QC and QC_LIST)
         self.output_files = kwargs.get('output_files', [])  # for user-supplied output files
         self.dependency = kwargs.get('dependency', None)
         self.wf_meta_ = None
@@ -708,8 +710,11 @@ class FourfrontStarterAbstract(object):
             extra_files.append(extra)
         return extra_files
 
-    def parse_custom_fields(self, custom_fields, argname):
+    @staticmethod
+    def parse_custom_fields(custom_fields, common_fields, argname):
         pf_other_fields = dict()
+        if common_fields:
+            pf_other_fields.update(common_fields)
         if custom_fields:
             if argname in custom_fields:
                 pf_other_fields.update(custom_fields[argname])
@@ -737,12 +742,15 @@ class FourfrontStarterAbstract(object):
         return self.ProcessedFileMetadata(
             file_format=arg.get('argument_format'),
             extra_files=extra_files,
-            other_fields=self.parse_custom_fields(self.inp.custom_pf_fields, argname),
+            other_fields=self.parse_custom_fields(self.inp.custom_pf_fields, self.inp.common_fields, argname),
             **kwargs
         )
 
     # ff (workflowrun)-related functions
     def create_ff(self):
+        extra_meta = self.inp.common_fields
+        if self.inp.wfr_meta:
+            extra_meta.update(self.inp.wfr_meta)
         self.ff = self.WorkflowRunMetadata(
             workflow=self.inp.workflow_uuid,
             awsem_app_name=self.inp.wf_meta['app_name'],
@@ -752,7 +760,7 @@ class FourfrontStarterAbstract(object):
             run_url=self.tbn.settings.get('url', ''),
             output_files=self.create_ff_output_files(),
             parameters=self.inp.parameters,
-            extra_meta=self.inp.wfr_meta,
+            extra_meta=extra_meta,
             awsem_job_id=self.inp.jobid
         )
 
@@ -876,7 +884,8 @@ class FourfrontUpdaterAbstract(object):
     default_email_sender = ''
     higlass_buckets = []
 
-    def __init__(self, postrunjson=None, ff_meta=None, pf_meta=None, _tibanna=None, custom_qc_fields=None,
+    def __init__(self, postrunjson=None, ff_meta=None, pf_meta=None, _tibanna=None,
+                 common_fields=None, custom_qc_fields=None,
                  config=None, jobid=None, metadata_only=False, strict=True, **kwargs):
         self.jobid = jobid
         self.config = Config(**config) if config else None
@@ -890,6 +899,7 @@ class FourfrontUpdaterAbstract(object):
             self.pf_output_files = {}
         # if _tibanna is not set, still proceed with the other functionalities of the class
         self.custom_qc_fields = custom_qc_fields
+        self.common_fields = common_fields
         self.tibanna_settings = None
         if _tibanna and 'env' in _tibanna:
             try:
@@ -924,12 +934,10 @@ class FourfrontUpdaterAbstract(object):
             raise Exception("Postrun json not found at %s" % postrunjson_location)
 
     def create_wfr_qc(self):
-        qc_object = self.create_qc_template()
-        qc_object['url'] = METRICS_URL(self.config.log_bucket, self.jobid)
-        if self.custom_qc_fields:
-            qc_object.update(self.custom_qc_fields)
-        self.update_post_items(qc_object['uuid'], qc_object, 'QualityMetricWorkflowrun')
-        self.ff_meta.quality_metric = qc_object['uuid']
+        qc_item = self.create_qc_template()
+        qc_item['url'] = METRICS_URL(self.config.log_bucket, self.jobid)
+        self.update_post_items(qc_item['uuid'], qc_item, 'QualityMetricWorkflowrun')
+        self.ff_meta.quality_metric = qc_item['uuid']
 
     def handle_success(self):
         # update run status in metadata first
@@ -1444,9 +1452,9 @@ class FourfrontUpdaterAbstract(object):
                     self.update_patch_items(ip['uuid'], {'higlass_uid': higlass_uid})
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
-    def _update_a_qc(self, qc, qc_target_accession, qc_schema, qc_type, qc_object_uuid):
+    def _update_a_qc(self, qc, qc_target_accession, qc_schema, qc_type, qc_item_uuid):
         """Internal update function for qc per workflow qc argument"""
-        qc_object = dict()
+        qc_item = dict()
         qc_bucket = self.bucket(qc.workflow_argument_name)
         qc_key = self.file_key(qc.workflow_argument_name)
         if qc.qc_zipped and qc.qc_unzip_from_ec2:
@@ -1464,7 +1472,7 @@ class FourfrontUpdaterAbstract(object):
                 if qcz_datafiles:
                     data_to_parse = [unzipped_qc_data[df]['data'] for df in qcz_datafiles]
                     qc_meta_from_zip = self.parse_qc_table(data_to_parse, qc_schema)
-                    qc_object.update(qc_meta_from_zip)
+                    qc_item.update(qc_meta_from_zip)
             # if there is an html, add qc_url for the html
             if qc.qc_zipped_html:
                 target_html = qc_target_accession + '/' + qc.qc_zipped_html
@@ -1484,16 +1492,16 @@ class FourfrontUpdaterAbstract(object):
                                                           target_html,
                                                           acl='public-read')
             elif qc.qc_json:
-                qc_object.update(self.parse_qc_json([data]))
+                qc_item.update(self.parse_qc_json([data]))
             elif qc.qc_table:
-                qc_object.update(self.parse_qc_table([data], qc_schema))
+                qc_item.update(self.parse_qc_table([data], qc_schema))
         if qc_url:
-            qc_object.update({'url': qc_url})
+            qc_item.update({'url': qc_url})
         if self.custom_qc_fields:
-            qc_object.update(self.custom_qc_fields)
+            qc_item.update(self.custom_qc_fields)
         if qc_type:
-            self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_object_uuid
-        return qc_object
+            self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_item_uuid
+        return qc_item
 
     def _update_qc_per_type(self, qc_type, qc_list, qc_target_accession):
         """Internal update function for QC for a given type
@@ -1668,7 +1676,10 @@ class FourfrontUpdaterAbstract(object):
         return qc_json
 
     def create_qc_template(self):
-        return {'uuid': str(uuid4())}
+        qc_item = {'uuid': str(uuid4())}
+        if self.common_fields:
+            qc_item.update(self.common_fields)
+        return qc_item
 
     def unzip_qc_data(self, qc, qc_key, target_accession, return_unzipped_qc_data=True):
         """qc is a QCArgumentInfo object.

@@ -1,3 +1,7 @@
+from tibanna_cgap.vars import (
+    DEFAULT_PROJECT,
+    DEFAULT_INSTITUTION
+)
 from tibanna_ffcommon.portal_utils import (
     TibannaSettings,
     FormatExtensionMap,
@@ -157,3 +161,109 @@ def test_cmphet(update_ffmeta_event_data_cmphet):
     qclist_uuid = list(updater.post_items['quality_metric_qclist'].keys())[0]
     assert 'qc_list' in updater.post_items['quality_metric_qclist'][qclist_uuid]
     assert len(updater.post_items['quality_metric_qclist'][qclist_uuid]['qc_list']) == 2
+    assert updater.post_items['quality_metric_qclist'][qclist_uuid]['project'] == DEFAULT_PROJECT
+    assert updater.post_items['quality_metric_qclist'][qclist_uuid]['institution'] == DEFAULT_INSTITUTION
+
+
+@valid_env
+def test_cmphet_custom_qc_fields(update_ffmeta_event_data_cmphet):
+    update_ffmeta_event_data_cmphet['custom_qc_fields'] = {
+        'project': '/projects/test/',
+        'institution': '/institutions/test/'
+    }
+    updater = FourfrontUpdater(**update_ffmeta_event_data_cmphet)
+    assert updater.workflow
+    assert 'arguments' in updater.workflow
+    assert updater.workflow_qc_arguments
+    assert 'comHet_vcf' in updater.workflow_qc_arguments
+    assert updater.workflow_qc_arguments['comHet_vcf'][0].qc_type == 'quality_metric_cmphet'
+    assert updater.workflow_qc_arguments['comHet_vcf'][1].qc_type == 'quality_metric_vcfcheck'
+    updater.update_qc()
+    qc1 = updater.workflow_qc_arguments['comHet_vcf'][0]
+    assert qc1.workflow_argument_name == 'comHet_vcf-json'
+    qc2 = updater.workflow_qc_arguments['comHet_vcf'][1]
+    assert qc2.workflow_argument_name == 'comHet_vcf-check'
+    assert updater.post_items
+    assert 'quality_metric_qclist' in updater.post_items
+    assert 'quality_metric_cmphet' in updater.post_items
+    assert 'quality_metric_vcfcheck' in updater.post_items
+    logger.debug("post_items[quality_metric_qclist]=" + str(updater.post_items['quality_metric_qclist']))
+    qclist_uuid = list(updater.post_items['quality_metric_qclist'].keys())[0]
+    assert 'qc_list' in updater.post_items['quality_metric_qclist'][qclist_uuid]
+    assert len(updater.post_items['quality_metric_qclist'][qclist_uuid]['qc_list']) == 2
+    # custom_qc_fields does not apply to qclist
+    assert updater.post_items['quality_metric_qclist'][qclist_uuid]['project'] == DEFAULT_PROJECT
+    assert updater.post_items['quality_metric_qclist'][qclist_uuid]['institution'] == DEFAULT_INSTITUTION
+    qc_cmphet_uuid = list(updater.post_items['quality_metric_cmphet'].keys())[0]
+    qc_vcfcheck_uuid = list(updater.post_items['quality_metric_vcfcheck'].keys())[0]
+    assert updater.post_items['quality_metric_cmphet'][qc_cmphet_uuid]['project'] == "/projects/test/"
+    assert updater.post_items['quality_metric_cmphet'][qc_cmphet_uuid]['institution'] == "/institutions/test/"
+    assert updater.post_items['quality_metric_vcfcheck'][qc_vcfcheck_uuid]['project'] == "/projects/test/"
+    assert updater.post_items['quality_metric_vcfcheck'][qc_vcfcheck_uuid]['institution'] == "/institutions/test/"
+
+
+@valid_env
+def test_cmphet_common_fields(update_ffmeta_event_data_cmphet):
+    update_ffmeta_event_data_cmphet['common_fields'] = {
+        'project': '/projects/test/',
+        'institution': '/institutions/test/'
+    }
+    updater = FourfrontUpdater(**update_ffmeta_event_data_cmphet)
+    assert updater.workflow
+    assert 'arguments' in updater.workflow
+    assert updater.workflow_qc_arguments
+    assert 'comHet_vcf' in updater.workflow_qc_arguments
+    assert updater.workflow_qc_arguments['comHet_vcf'][0].qc_type == 'quality_metric_cmphet'
+    assert updater.workflow_qc_arguments['comHet_vcf'][1].qc_type == 'quality_metric_vcfcheck'
+    updater.update_qc()
+    qc1 = updater.workflow_qc_arguments['comHet_vcf'][0]
+    assert qc1.workflow_argument_name == 'comHet_vcf-json'
+    qc2 = updater.workflow_qc_arguments['comHet_vcf'][1]
+    assert qc2.workflow_argument_name == 'comHet_vcf-check'
+    assert updater.post_items
+    assert 'quality_metric_qclist' in updater.post_items
+    assert 'quality_metric_cmphet' in updater.post_items
+    assert 'quality_metric_vcfcheck' in updater.post_items
+    logger.debug("post_items[quality_metric_qclist]=" + str(updater.post_items['quality_metric_qclist']))
+    qclist_uuid = list(updater.post_items['quality_metric_qclist'].keys())[0]
+    assert 'qc_list' in updater.post_items['quality_metric_qclist'][qclist_uuid]
+    assert len(updater.post_items['quality_metric_qclist'][qclist_uuid]['qc_list']) == 2
+    # common fields do apply to qclist
+    assert updater.post_items['quality_metric_qclist'][qclist_uuid]['project'] == "/projects/test/"
+    assert updater.post_items['quality_metric_qclist'][qclist_uuid]['institution'] == "/institutions/test/"
+    qc_cmphet_uuid = list(updater.post_items['quality_metric_cmphet'].keys())[0]
+    qc_vcfcheck_uuid = list(updater.post_items['quality_metric_vcfcheck'].keys())[0]
+    assert updater.post_items['quality_metric_cmphet'][qc_cmphet_uuid]['project'] == "/projects/test/"
+    assert updater.post_items['quality_metric_cmphet'][qc_cmphet_uuid]['institution'] == "/institutions/test/"
+    assert updater.post_items['quality_metric_vcfcheck'][qc_vcfcheck_uuid]['project'] == "/projects/test/"
+    assert updater.post_items['quality_metric_vcfcheck'][qc_vcfcheck_uuid]['institution'] == "/institutions/test/"
+
+
+@valid_env
+def test_md5_common_fields(start_run_event_md5):
+    start_run_event_md5['common_fields'] = {
+        'project': '/projects/test/',
+        'institution': '/institutions/test/'
+    }
+    starter = FourfrontStarter(**start_run_event_md5)
+    # common fields apply to wfr (ff)
+    starter.create_ff()
+    assert starter.ff.project == '/projects/test/'
+    assert starter.ff.institution == '/institutions/test/'
+
+
+@valid_env
+def test_md5_wfr_meta_common_fields(start_run_event_md5):
+    start_run_event_md5['common_fields'] = {
+        'project': '/projects/test/',
+        'institution': '/institutions/test/'
+    }
+    start_run_event_md5['wfr_meta'] = {
+        'project': '/projects/test2/',
+        'institution': '/institutions/test2/'
+    }
+    starter = FourfrontStarter(**start_run_event_md5)
+    # common fields apply to wfr (ff)
+    starter.create_ff()
+    assert starter.ff.project == '/projects/test2/'  # wfr_meta overwrites common_fields
+    assert starter.ff.institution == '/institutions/test2/'  # wfr_meta overwrites common_fields
