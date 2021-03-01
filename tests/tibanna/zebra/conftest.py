@@ -48,27 +48,27 @@ def ff_keys(s3_utils):
     return s3_utils.get_access_keys('access_key_tibanna')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_event_md5():
     return get_event_file_for('start_run', event_file='event_md5.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_event_bwa_check():
     return get_event_file_for('start_run', event_file='event_bwa-check.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def start_run_event_vcfqc():
     return get_event_file_for('start_run', event_file='event_vcfqc.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_bamcheck(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_bamcheck.json')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def update_ffmeta_event_data_cmphet(ff_keys):
     return get_event_file_for('update_ffmeta', ff_keys=ff_keys, event_file='event_cmphet.json')
 
