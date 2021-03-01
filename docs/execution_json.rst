@@ -76,7 +76,7 @@ Example job description
         "notes": "a nice workflow run"
       },
       "custom_qc_fields": {
-        "qc_note": "a nice qc"
+        "filtering_condition": "some condition"
       },
       "push_error_to_end": true
       "dependency": {
