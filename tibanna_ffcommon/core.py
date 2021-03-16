@@ -2,7 +2,10 @@ from tibanna.core import API as _API
 from .stepfunction import StepFunctionFFAbstract
 from .vars import (
     S3_ENCRYPT_KEY,
-    TIBANNA_DEFAULT_STEP_FUNCTION_NAME
+    TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
+    RUN_TASK_LAMBDA_NAME,
+    CHECK_TASK_LAMBDA_NAME,
+    UPDATE_COST_LAMBDA_NAME
 )
 
 
@@ -19,8 +22,9 @@ class API(_API):
     sfn_type = ''  # fill in the actual type (e.g pony or zebra) for inherited class
     lambda_type = ''  # fill in the actual type (e.g pony or zebra) for inherited class
 
-    run_task_lambda = 'run_task'
-    check_task_lambda = 'check_task'
+    run_task_lambda = RUN_TASK_LAMBDA_NAME
+    check_task_lambda = CHECK_TASK_LAMBDA_NAME
+    update_cost_lambda = UPDATE_COST_LAMBDA_NAME
 
     @property
     def do_not_delete(self):
