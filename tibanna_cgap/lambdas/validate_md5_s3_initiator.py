@@ -212,8 +212,9 @@ def _make_input(env, bucket, workflow, object_key, uuid, run_name, dependency=No
              ],
             "output_bucket": output_bucket,
             "config": {
+                "instance_type": "t3.small",
                 "ebs_size": 10,
-                "ebs_type": "gp2",
+                "ebs_type": "gp3",
                 "ebs_iops": "",
                 "shutdown_min": 0,
                 "log_bucket": "tibanna-output",

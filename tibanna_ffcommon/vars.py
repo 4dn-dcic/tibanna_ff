@@ -6,6 +6,7 @@ DEV_SUFFIX = 'pre'
 
 RUN_TASK_LAMBDA_NAME = 'run_task'
 CHECK_TASK_LAMBDA_NAME = 'check_task'
+UPDATE_COST_LAMBDA_NAME = 'update_cost'
 
 
 def BUCKET_NAME(env, filetype):

@@ -1,5 +1,6 @@
 from tibanna_ffcommon.core import API as _API
 from .stepfunction import StepFunctionPony
+from .stepfunction_cost_updater import StepFunctionCostUpdater
 from .vars import (
     TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
     LAMBDA_TYPE,
@@ -25,6 +26,7 @@ class API(_API):
         return [tibanna, tibanna_ffcommon, tibanna_4dn]
 
     StepFunction = StepFunctionPony
+    StepFunctionCU = StepFunctionCostUpdater
     default_stepfunction_name = TIBANNA_DEFAULT_STEP_FUNCTION_NAME
     default_env = DEV_ENV
     sfn_type = LAMBDA_TYPE
@@ -40,4 +42,4 @@ class API(_API):
 
     def deploy_pony(self, suffix=None, usergroup='', setup=False):
         self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=setup,
-                            buckets=','.join(IAM_BUCKETS))
+                            buckets=','.join(IAM_BUCKETS), deploy_costupdater=True)

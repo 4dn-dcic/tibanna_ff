@@ -12,6 +12,7 @@ import pytest
 from tests.tibanna.pony.conftest import valid_env, logger
 import mock
 from tibanna.vars import DYNAMODB_TABLE, DYNAMODB_KEYNAME
+from tibanna.job import Job
 from tibanna_ffcommon.core import API
 import uuid
 import time
@@ -117,17 +118,18 @@ def test_processed_extra_file_use_for(start_run_repliseq_data):
 @pytest.mark.webtest
 def test_add_meta_to_dynamodb(start_run_md5_data):
     jobid = 'randomtestjobid-' + str(uuid.uuid4())
-    API().add_to_dydb(jobid, 'someexecname', 'somesfn', 'somelogbucket')
+    Job.add_to_dd(jobid, 'someexecname', 'somesfn', 'somelogbucket')
     starter = FourfrontStarter(**start_run_md5_data)
     starter.inp.jobid = jobid
     starter.create_ff()
     starter.add_meta_to_dynamodb()
     logger.debug("jobid=%s" % jobid)
     time.sleep(10)
-    dd_info = API().info(jobid)
+    dd_info = Job.info(jobid)
     assert dd_info
-    assert 'wfr_uuid' in dd_info
-    assert dd_info['wfr_uuid'] == starter.ff.uuid
+    print(dd_info)
+    assert 'WorkflowRun uuid' in dd_info
+    assert dd_info['WorkflowRun uuid'] == starter.ff.uuid
     assert 'env' in dd_info
     assert dd_info['env'] == starter.tbn.env
     # cleanup
