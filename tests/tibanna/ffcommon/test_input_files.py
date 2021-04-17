@@ -107,3 +107,15 @@ def test_FFInputFile_4dn_opendata(minimal_file_metadata_4dn_opendata):
     ffinpf.ff_env = 'data'
     assert ffinpf.bucket_name == '4dn-open-data-public'
     assert ffinpf.object_key == 'someacc.txt'
+
+def test_FFInputFile_as_dict(minimal_file_metadata1):
+    ffinpf = FFInputFile(uuid='someuuid', workflow_argument_name='somearg', ff_env='data')
+    ffinpf._metadata['someuuid'] = minimal_file_metadata1  # fake-cache a fake metadata
+    assert ffinpf.as_dict() == {'bucket_name': 'elasticbeanstalk-fourfront-webprod-wfoutput',
+                                'object_key': 'someacc.vcf.gz',
+                                'uuid': 'someuuid',
+                                'workflow_argument_name': 'somearg',
+                                'unzip': '',
+                                'mount': False,
+                                'rename': '',
+                                'format_if_extra': ''}
