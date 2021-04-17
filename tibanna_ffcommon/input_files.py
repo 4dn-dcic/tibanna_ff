@@ -347,30 +347,3 @@ class FFInputFile(object):
             errmsg += "(infile extension %s, extra_file_extension %s)" % (infile_extension, extra_file_extension)
             raise Exception(errmsg)
         return infile_key.replace(infile_extension, extra_file_extension)
-
-
-class UnicornArgsInputFiles(SerializableObject):
-    """Class representation for the input_files / secondary_input_files field
-    in the args section of the Unicorn input json (job description).
-    """
-    def __init__(self):
-        """Attribute input_files is a dictionary with workflow_argument_name
-        as key and a UnicornArgsInputFile object as value
-        """
-        self.input_files = {}
-
-    def add_input_file(self, input_file_dict, workflow_argument_name):
-        self.input_files.update({workflow_argument_name: UnicornArgsInputFile(**input_file_dict)})
-
-
-class UnicornArgsInputFile(SerializableObject):
-    """Class representation for each element in the input_files /
-    secondary_input_files field in the args section of the Unicorn input json
-    (job description).
-    """
-    def __init__(self, object_key, bucket_name, rename='', unzip='', mount=False):
-        self.object_key = object_key
-        self.bucket_name = bucket_name
-        self.rename = rename
-        self.unzip = unzip
-        self.mount = mount
