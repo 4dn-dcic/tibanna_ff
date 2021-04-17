@@ -9,7 +9,6 @@ from dcicutils.ff_utils import (
     get_metadata,
     post_metadata,
     patch_metadata,
-    search_metadata,
     generate_rand_accession,
     convert_param
 )
@@ -44,6 +43,10 @@ from tibanna.vars import (
 from .vars import BUCKET_NAME
 from .config import (
     higlass_config
+)
+from .file_format import (
+    FormatExtensionMap,
+    parse_formatstr
 )
 from .exceptions import (
     TibannaStartException,
@@ -181,7 +184,7 @@ class FFInputAbstract(SerializableObject):
                     res = self.get_metadata(inf['value'])
                     accessions.append(res['accession'])
         return accessions
- 
+
     def add_args(self, ff_meta):
         # create args
         args = dict()
@@ -500,12 +503,6 @@ class WorkflowRunOutputFiles(SerializableObject):
             self.upload_key = upload_key
 
 
-def parse_formatstr(file_format_str):
-    if not file_format_str:
-        return None
-    return file_format_str.replace('/file-formats/', '').replace('/', '')
-
-
 def create_ordinal(a):
     if isinstance(a, list):
         return list(range(1, len(a)+1))
@@ -549,36 +546,6 @@ def get_extra_file_key(infile_format, infile_key, extra_file_format, fe_map):
         errmsg += "(infile extension %s, extra_file_extension %s)" % (infile_extension, extra_file_extension)
         raise Exception(errmsg)
     return infile_key.replace(infile_extension, extra_file_extension)
-
-
-class FormatExtensionMap(object):
-    def __init__(self, ff_keys):
-        try:
-            logger.debug("Searching in server : " + ff_keys['server'])
-            ffe_all = search_metadata("/search/?type=FileFormat&frame=object", key=ff_keys)
-        except Exception as e:
-            raise Exception("Can't get the list of FileFormat objects. %s\n" % e)
-        self.fe_dict = dict()
-        logger.debug("**ffe_all = " + str(ffe_all))
-        for k in ffe_all:
-            file_format = k['file_format']
-            self.fe_dict[file_format] = \
-                {'standard_extension': k['standard_file_extension'],
-                 'other_allowed_extensions': k.get('other_allowed_extensions', []),
-                 'extrafile_formats': k.get('extrafile_formats', [])
-                 }
-
-    def get_extension(self, file_format):
-        if file_format in self.fe_dict:
-            return self.fe_dict[file_format]['standard_extension']
-        else:
-            return None
-
-    def get_other_extensions(self, file_format):
-        if file_format in self.fe_dict:
-            return self.fe_dict[file_format]['other_allowed_extensions']
-        else:
-            return []
 
 
 class TibannaSettings(SerializableObject):
@@ -1927,7 +1894,7 @@ class FourfrontUpdaterAbstract(object):
         try:
             res = requests.post(higlass_keys['server'] + '/api/v1/link_tile/',
                                 data=json.dumps(payload), auth=auth, headers=headers)
-        except:
+        except Exception:
             # do not raise error (do not fail the wrf) - will be taken care of by foursight later
             return None
         logger.info("resiter_to_higlass(POST request response): " + str(res.json()))

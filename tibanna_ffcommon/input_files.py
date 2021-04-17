@@ -1,12 +1,40 @@
+import re
+from dcicutils.ff_utils import (
+    get_metadata,
+)
+from tibanna.nnested_array import (
+    run_on_nested_arrays1,
+    run_on_nested_arrays2,
+    combine_two,
+    flatten
+)
+from tibanna import create_logger
+from tibanna.base import (
+    SerializableObject
+)
+from .vars import BUCKET_NAME
+from .exceptions import (
+    FdnConnectionException,
+    MalFormattedFFInputException
+)
+from .file_format import (
+    FormatExtensionMap,
+    parse_formatstr
+)
+
+
+logger = create_logger(__name__)
+
+
 class FFInputFiles(object):
     """Class representation for the input_files field in The
     pony/zebra input json (job description).
     """
-    def __init__(self, input_files, ff_key, ff_env):
+    def __init__(self, input_files, ff_key=None, ff_env=None):
         """input_files : list of dictionaries provided as part of
         Pony/Zebra input json as the field 'input_files'
         """
-        self.input_files = [FFInputFile(**inpf, ff_key=ff_key, ff_env=ff_env) for inpf in ff_input_files]
+        self.input_files = [FFInputFile(**inpf, ff_key=ff_key, ff_env=ff_env) for inpf in input_files]
         self.ff_key = ff_key
         self.ff_env = ff_env
 
@@ -23,7 +51,7 @@ class FFInputFiles(object):
         return sec_inp_files
 
 
-class FFInputFile(Object):
+class FFInputFile(object):
     """Class representation for each element in the input_files field in The
     pony/zebra input json (job description).
     """
@@ -52,44 +80,24 @@ class FFInputFile(Object):
                  format_if_extra='', ff_key=None, ff_env=None):
         self.uuid = uuid  # either a single value or a list
         self.workflow_argument_name = workflow_argument_name
-        ## here objct key means <accession>.<extension>
-        self.object_key = object_key # either a single value or a list
-        self.bucket_name = bucket_name
+        # here objct key means <accession>.<extension>
+        self._object_key = object_key  # either a single value or a list
+        self._bucket_name = bucket_name
         self.rename = rename  # either a single value or a list
         self.unzip = unzip
         self.mount = mount
         self.format_if_extra = format_if_extra
         self.ff_key = ff_key
         self.ff_env = ff_env
-        if self.ff_key and self.ff_env:
-            self.fill_in()
 
     def as_dict(self):
         return {field: getattr(self, field) for field in self.dict_fields}
-
-    def fill_in(self):
-        """fill in input_files info if object_key and bucket_name is not provided"""
-        if not self.object_key':
-            try:
-                self.object_key = run_on_nested_arrays1(self.uuid, self.get_object_key_from_uuid)
-            except Exception as e:
-                raise FdnConnectionException(e)
-        if not self.bucket_name':
-            try:
-                file_type = flatten(run_on_nested_arrays1(self.uuid, self.get_file_type_from_uuid))
-                if isinstance(file_type, list):
-                    file_type = file_type[0]
-            except Exception as e:
-                raise FdnConnectionException(e)
-            # assume all file types are the same for a given argument
-            self.bucket_name = BUCKET_NAME(self.ff_env, file_type)
-        logger.debug("infile = " + str(self.as_dict()))
 
     def crate_unicorn_arg_input_file(self):
         """returns a dictionary in the unicorn args input file format"""
         key = self.workflow_argument_name
         value = {fld: getattr(self, fld) for fld in self.common_unicorn_fields}
-        value.update('object_key': self.s3_key)  # do not use self.object_key here.
+        value.update({'object_key': self.s3_key})  # do not use self.object_key here.
         return {key: value}
 
     def create_unicorn_arg_secondary_input_file(self):
@@ -108,6 +116,25 @@ class FFInputFile(Object):
         return {key: value}
 
     @property
+    def bucket_name(self):
+        """The actual object key name(s) on the S3 bucket - most of the time
+        this is the same as upload_key(s) but in special cases,
+        this could include prefixes (e.g in case of 4DN Open Data)
+        """
+        if self._bucket_name:
+            return self._bucket_name  # user-specified
+        bucket_names = flatten(run_on_nested_arrays1(self.uuid,
+                                                     self.get_bucket_name_from_uuid))
+        if not isinstance(bucket_names, list):  # e.g. bucket_names is a single string
+            bucket_names = [bucket_names]
+        uniq_bucket_names = set(bucket_names)
+        if len(uniq_bucket_names) != 1:
+            err_msg = 'All the input files for a given argument name must be in the same bucket.'
+            raise MalFormattedFFInputException(err_msg)
+        else:
+            return list(uniq_bucket_names)[0]
+
+    @property
     def extra_file_renames(self):
         """The string or string list to be in the rename field of the secondary_input_files,
         which corresponds to the extra files of the uuid(s) of the input_files.
@@ -123,7 +150,7 @@ class FFInputFile(Object):
         # a situation like [[[],[]],[],[]] --> return None instead
         if not flatten(exf_rn):
             return None
-        if exf_rn and len(exf_rn)>0:
+        if exf_rn and len(exf_rn) > 0:
             exf_rn = list(filter(lambda x: x, exf_rn))
         if len(exf_rn) == 1:
             exf_rn = exf_rn[0]
@@ -160,8 +187,17 @@ class FFInputFile(Object):
         """
         try:
             return run_on_nested_arrays1(self.uuid, self.get_upload_key_from_uuid)
-        except:
+        except Exception:
             return combine_two(self.uuid, self.object_key)
+
+    @property
+    def object_key(self):
+        """The object_key is <accession>.<extension> without <uuid>.
+        Note that this is distinct from upload_key or s3_key.
+        """
+        if self._object_key:  # user-specified
+            return self._object_key
+        return run_on_nested_arrays1(self.uuid, self.get_object_key_from_uuid)
 
     # These methods get_xx_from_uuid operate a single uuid input (not a list)
     # e.g. if self.uuid is a list, these functions could operate on an element in it.
@@ -177,10 +213,10 @@ class FFInputFile(Object):
         if not rename:
             return None
         extra_file_formats = self.get_extra_file_formats_from_uuid(uuid)
-        if not extra_file_formats
+        if not extra_file_formats:
             return None
-        main_file_key = self.get_s3_key_from_uuid(uuid)
-        return [get_extra_file_key(main_file_format, rename, exff, self.fe_map)
+        main_file_format = self.get_file_format_from_uuid(uuid)
+        return [self.get_extra_file_key(main_file_format, rename, exff, self.fe_map)
                 for exff in extra_file_formats]
 
     def get_extra_file_s3_keys_from_uuid(self, uuid):
@@ -189,11 +225,11 @@ class FFInputFile(Object):
         this could include prefixes (e.g in case of 4DN Open Data)
         """
         extra_file_formats = self.get_extra_file_formats_from_uuid(uuid)
-        if not extra_file_formats
+        if not extra_file_formats:
             return None
         main_file_format = self.get_file_format_from_uuid(uuid)
         main_file_key = self.get_s3_key_from_uuid(uuid)
-        return [get_extra_file_key(main_file_format, main_file_key, exff, self.fe_map)
+        return [self.get_extra_file_key(main_file_format, main_file_key, exff, self.fe_map)
                 for exff in extra_file_formats]
 
     def get_extra_file_formats_from_uuid(self, uuid):
@@ -229,9 +265,21 @@ class FFInputFile(Object):
         else:
             return self.get_upload_key_from_uuid(uuid)
 
+    def get_bucket_name_from_uuid(self, uuid):
+        """The actual object key name(s) on the S3 bucket - most of the time
+        this is the same as upload_key(s) but in special cases,
+        this could include prefixes (e.g in case of 4DN Open Data)
+        """
+        open_data_url = self.get_open_data_url_from_uuid(uuid)
+        if open_data_url:
+            bucket, key = self.parse_s3_url(open_data_url)
+            return bucket
+        else:
+            return BUCKET_NAME(self.ff_env, self.get_file_type_from_uuid(uuid))
+
     def get_open_data_url_from_uuid(self, uuid):
         infile_meta = self.get_metadata(uuid)
-        return infile_meta('open_data_url', '')
+        return infile_meta.get('open_data_url', '')
 
     def get_upload_key_from_uuid(self, uuid):
         infile_meta = self.get_metadata(uuid)
@@ -245,7 +293,7 @@ class FFInputFile(Object):
         infile_meta = self.get_metadata(uuid)
         return(infile_meta['@type'][0])
 
-    @peroperty
+    @property
     def fe_map(self):
         """returns a format extension map (a mapping between file format and
         file extension) retrieved from the portal. The first time it is called,
@@ -267,11 +315,14 @@ class FFInputFile(Object):
         if self._metadata.get(id, ''):
             return self._metadata[id]
         else:
-            self._metadata[id] = get_metadata(id,
-                                              key=self.ff_key,
-                                              ff_env=self.ff_env,
-                                              add_on='frame=object',
-                                              check_queue=True)
+            try:
+                self._metadata[id] = get_metadata(id,
+                                                  key=self.ff_key,
+                                                  ff_env=self.ff_env,
+                                                  add_on='frame=object',
+                                                  check_queue=True)
+            except Exception as e:
+                raise FdnConnectionException(e)
             return self._metadata[id]
 
     @staticmethod
@@ -285,6 +336,17 @@ class FFInputFile(Object):
         bucket = url_words[0].split('.')[0]
         key = '/'.join(url_words[1:])
         return bucket, key
+
+    @staticmethod
+    def get_extra_file_key(infile_format, infile_key, extra_file_format, fe_map):
+        infile_extension = fe_map.get_extension(infile_format)
+        extra_file_extension = fe_map.get_extension(extra_file_format)
+        if not infile_extension or not extra_file_extension:
+            errmsg = "Extension not found for infile_format %s (key=%s)" % (infile_format, infile_key)
+            errmsg += "extra_file_format %s" % extra_file_format
+            errmsg += "(infile extension %s, extra_file_extension %s)" % (infile_extension, extra_file_extension)
+            raise Exception(errmsg)
+        return infile_key.replace(infile_extension, extra_file_extension)
 
 
 class UnicornArgsInputFiles(SerializableObject):
