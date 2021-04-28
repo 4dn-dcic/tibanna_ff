@@ -92,6 +92,29 @@ def test_FormatExtensionMap2(realistic_format_search_result):
     assert fe_map.get_other_extensions('bai') == []
     assert fe_map.get_extension('fastq') is None
 
+def test_FormatExtensionMap_no_ffkey(realistic_format_search_result):
+    fe_map = FormatExtensionMap(ffe_all=realistic_format_search_result)
+    assert hasattr(fe_map, 'fe_dict')
+    assert fe_map.fe_dict == {'bam':{'standard_extension': 'bam',
+                                     'other_allowed_extensions': [],
+                                     'extrafile_formats': ['/file-formats/bai/']},
+                              'bai':{'standard_extension': 'bam.bai',
+                                     'extrafile_formats': [],
+                                     'other_allowed_extensions': []}}
+    assert fe_map.get_extension('bam') == 'bam'
+    assert fe_map.get_other_extensions('bai') == []
+    assert fe_map.get_extension('fastq') is None
+
+def test_FormatExtensionMap_both_ffkey_ffe_all(realistic_format_search_result):
+    with pytest.raises(Exception) as ex_info:
+        fe_map = FormatExtensionMap({'server': 'some_server'}, ffe_all=realistic_format_search_result)
+    assert "Either ff_keys or ffe_all must be specified but not both" in str(ex_info.value)
+
+def test_FormatExtensionMap_neither_ffkey_ffe_all():
+    with pytest.raises(Exception) as ex_info:
+        fe_map = FormatExtensionMap()
+    assert "Either ff_keys or ffe_all must be specified" in str(ex_info.value)
+
 def test_parse_formatstr():
     assert parse_formatstr('bam') == 'bam'
     assert parse_formatstr('/file-formats/bai/') == 'bai'

@@ -79,35 +79,6 @@ def test_processed_file_metadata_abstract():
     assert pf.uuid == 'a'
 
 
-def test_create_ff_input_files():
-    input_file_list = [{
-          "bucket_name": "bucket1",
-          "workflow_argument_name": "input_pairs1",
-          "uuid": [['a', 'b'], ['c', 'd']],
-          "object_key": [['e', 'f'], ['g', 'h']]
-       },
-       {
-          "bucket_name": "bucket1",
-          "workflow_argument_name": "input_pairs2",
-          "uuid": ["d2c897ec-bdb2-47ce-b1b1-845daccaa571", "d2c897ec-bdb2-47ce-b1b1-845daccaa571"],
-          "object_key": ["4DNFI25JXLLI.pairs.gz", "4DNFI25JXLLI.pairs.gz"]
-       }
-    ]
-    starter = FourfrontStarterAbstract(input_files=input_file_list,
-                                       workflow_uuid='a',
-                                       config={'log_bucket': 'b'},
-                                       output_bucket='c')
-    res = starter.create_ff_input_files()
-    assert len(res) == 6
-    assert 'dimension' in res[0]
-    assert res[0]['dimension'] == '0-0'
-    assert 'dimension' in res[1]
-    assert res[1]['dimension'] == '0-1'
-    assert res[1]['ordinal'] == 2
-    assert 'dimension' in res[4]
-    assert res[4]['dimension'] == '0'
-
-
 @pytest.fixture
 def qcarginfo_fastqc():
     return {
@@ -218,7 +189,7 @@ def test_parse_custom_fields():
     custom_pf_fields = {'somearg': {'a': 'b', 'c': 'd'},
                         'arg2': {'x': 'y'},
                         'ALL': {'e': 'f'}}
-    common_fields = {'g': 'h', 'i': 'j'} 
+    common_fields = {'g': 'h', 'i': 'j'}
     res = FourfrontStarterAbstract.parse_custom_fields(custom_pf_fields, common_fields, "somearg")
     for fld in ['a', 'c', 'e', 'g', 'i']:
         assert fld in res

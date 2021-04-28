@@ -1,5 +1,4 @@
 import json
-import datetime
 import boto3
 import copy
 import random
@@ -11,13 +10,6 @@ from dcicutils.ff_utils import (
     patch_metadata,
     generate_rand_accession,
     convert_param
-)
-from tibanna.nnested_array import (
-    run_on_nested_arrays1,
-    run_on_nested_arrays2,
-    combine_two,
-    flatten,
-    create_dim
 )
 from dcicutils.s3_utils import s3Utils
 from tibanna import create_logger
@@ -48,6 +40,13 @@ from .file_format import (
     FormatExtensionMap,
     parse_formatstr
 )
+from .input_files import (
+    FFInputFiles
+)
+from .wfr import (
+    WorkflowRunMetadataAbstract,
+    WorkflowRunOutputFiles
+)
 from .exceptions import (
     TibannaStartException,
     FdnConnectionException,
@@ -69,10 +68,8 @@ class FFInputAbstract(SerializableObject):
         self.config = Config(**config)
         self.jobid = jobid
 
-        self.input_files = kwargs.get('input_files', [])
-        for infile in self.input_files:
-            if not infile or 'uuid' not in infile or 'workflow_argument_name' not in infile:
-                raise MalFormattedFFInputException("malformed input, check input_files in your input json")
+        # self.ff_input_files is a FFInputFiles class object created from the input_files field
+        self.input_files = FFInputFiles(kwargs.get('input_files', []))
 
         self.workflow_uuid = workflow_uuid
         self.output_bucket = output_bucket
@@ -108,32 +105,6 @@ class FFInputAbstract(SerializableObject):
         if not hasattr(config, 'email'):
             self.config.email = False
 
-        def get_object_key_from_uuid(uuid):
-            infile_meta = self.get_metadata(uuid)
-            return infile_meta['upload_key'].replace(uuid + '/', '')
-
-        def get_file_type_from_uuid(uuid):
-            infile_meta = self.get_metadata(uuid)
-            return(infile_meta['@type'][0])
-
-        # fill in input_files info if object_key and bucket_name is not provided
-        for infile in self.input_files:
-            if 'object_key' not in infile:
-                try:
-                    infile['object_key'] = run_on_nested_arrays1(infile['uuid'], get_object_key_from_uuid)
-                except Exception as e:
-                    raise FdnConnectionException(e)
-            if 'bucket_name' not in infile:
-                try:
-                    infile_type = flatten(run_on_nested_arrays1(infile['uuid'], get_file_type_from_uuid))
-                    if isinstance(infile_type, list):
-                        infile_type = infile_type[0]
-                except Exception as e:
-                    raise FdnConnectionException(e)
-                # assume all file types are the same for a given argument
-                infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env, infile_type)
-            logger.debug("infile = " + str(infile))
-
         # fill in output_bucket
         if not self.output_bucket:
             self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
@@ -149,7 +120,7 @@ class FFInputAbstract(SerializableObject):
 
     @property
     def input_file_uuids(self):
-        return [_['uuid'] for _ in self.input_files]
+        return [_['uuid'] for _ in self.input_files.input_files]
 
     def get_metadata(self, id):
         return get_metadata(id,
@@ -243,9 +214,10 @@ class FFInputAbstract(SerializableObject):
                     args['secondary_output_target'][arg_name].append(ext.get('upload_key'))
 
         # input files
-        for input_file in self.input_files:
-            self.process_input_file_info(input_file, args)
+        args['input_files'] = self.ff_input_files.create_unicorn_arg_input_files()
+        args['secondary_files'] = self.ff_input_files.create_unicorn_arg_secondary_files()
 
+        # custom errors
         args['custom_errors'] = self.wf_meta.get('custom_errors', [])
 
         # create Args class object
@@ -295,157 +267,6 @@ class FFInputAbstract(SerializableObject):
         else:
             raise Exception("input already has extra: 'User overwrite_input_extra': true")
 
-    def process_input_file_info(self, input_file, args):
-        if not args or 'input_files' not in args:
-            args['input_files'] = dict()
-        if not args or 'secondary_files' not in args:
-            args['secondary_files'] = dict()
-        object_key = combine_two(input_file['uuid'], input_file['object_key'])
-        args['input_files'].update({input_file['workflow_argument_name']: {
-                                    'bucket_name': input_file['bucket_name'],
-                                    'rename': input_file.get('rename', ''),
-                                    'unzip': input_file.get('unzip', ''),
-                                    'mount': input_file.get('mount', False),
-                                    'object_key': object_key}})
-        if input_file.get('format_if_extra', ''):
-            args['input_files'][input_file['workflow_argument_name']]['format_if_extra'] \
-                = input_file.get('format_if_extra')
-        else:  # do not add this if the input itself is an extra file
-            self.add_secondary_files_to_args(input_file, args)
-
-    def get_extra_file_key_given_input_uuid_and_key(self, inf_uuid, inf_key, fe_map):
-        extra_file_keys = []
-        not_ready_list = ['uploading', 'to be uploaded by workflow', 'upload failed', 'deleted']
-        infile_meta = get_metadata(inf_uuid,
-                                   key=self.tibanna_settings.ff_keys,
-                                   ff_env=self.tibanna_settings.env,
-                                   add_on='frame=object')
-        if infile_meta.get('extra_files'):
-            infile_format = parse_formatstr(infile_meta.get('file_format'))
-            for extra_file in infile_meta.get('extra_files'):
-                if 'status' not in extra_file or extra_file.get('status') not in not_ready_list:
-                    extra_file_format = parse_formatstr(extra_file.get('file_format'))
-                    extra_file_key = get_extra_file_key(infile_format, inf_key, extra_file_format, fe_map)
-                    extra_file_keys.append(extra_file_key)
-        if len(extra_file_keys) == 0:
-            extra_file_keys = None
-        return extra_file_keys
-
-    def add_secondary_files_to_args(self, input_file, args):
-        """This function adds any existing secondary files to the args field to pass to
-        run_task as part of UnicornInput. args (input) is a dictionary and must have
-        'input_files' as a key. input_file (input) is an element of input_files list
-        in the pony/zebra input json. This function connect to the portal to get metadata."""
-        if not args or 'input_files' not in args:
-            raise Exception("args must contain key 'input_files'")
-        if 'secondary_files'not in args:
-            args['secondary_files'] = dict()
-        argname = input_file['workflow_argument_name']
-        fe_map = FormatExtensionMap(self.tibanna_settings.ff_keys)
-        extra_file_keys = run_on_nested_arrays2(input_file['uuid'],
-                                                args['input_files'][argname]['object_key'],
-                                                self.get_extra_file_key_given_input_uuid_and_key,
-                                                fe_map=fe_map)
-        if 'rename' in input_file and input_file['rename']:
-            extra_file_renames = run_on_nested_arrays2(input_file['uuid'],
-                                                       args['input_files'][argname]['rename'],
-                                                       self.get_extra_file_key_given_input_uuid_and_key,
-                                                       fe_map=fe_map)
-        else:
-            extra_file_renames = ''
-        if extra_file_renames and len(extra_file_renames) > 0:
-            extra_file_renames = list(filter(lambda x: x, extra_file_renames))
-            if len(extra_file_renames) == 1:
-                extra_file_renames = extra_file_renames[0]
-        if extra_file_keys and len(extra_file_keys) > 0:
-            extra_file_keys = list(filter(lambda x: x, extra_file_keys))
-            if len(extra_file_keys) == 1:
-                extra_file_keys = extra_file_keys[0]
-            if extra_file_keys:
-                args['secondary_files'].update({input_file['workflow_argument_name']: {
-                                                'bucket_name': input_file['bucket_name'],
-                                                'rename': extra_file_renames,
-                                                'mount': input_file.get('mount', False),
-                                                'object_key': extra_file_keys}})
-
-
-class WorkflowRunMetadataAbstract(SerializableObject):
-    '''
-    fourfront metadata
-    '''
-
-    def __init__(self, workflow=None, awsem_app_name='', app_version=None, input_files=[],
-                 parameters=[], title=None, uuid=None, output_files=None,
-                 run_status='started', run_platform='AWSEM', run_url='', tag=None,
-                 aliases=None,  awsem_postrun_json=None, submitted_by=None, extra_meta=None,
-                 awsem_job_id=None, **kwargs):
-        """Class for WorkflowRun that matches the 4DN Metadata schema
-        Workflow (uuid of the workflow to run) has to be given.
-        Workflow_run uuid is auto-generated when the object is created.
-        """
-        if not workflow:
-            logger.warning("workflow is missing. %s may not behave as expected" % self.__class__.__name__)
-        if run_platform == 'AWSEM':
-            self.awsem_app_name = awsem_app_name
-            # self.app_name = app_name
-            if awsem_job_id is None:
-                self.awsem_job_id = ''
-            else:
-                self.awsem_job_id = awsem_job_id
-        else:
-            raise Exception("invalid run_platform {} - it must be AWSEM".format(run_platform))
-
-        self.run_status = run_status
-        self.uuid = uuid if uuid else str(uuid4())
-        self.workflow = workflow
-        self.run_platform = run_platform
-        if run_url:
-            self.run_url = run_url
-
-        if title is None:
-            if app_version:
-                title = awsem_app_name + ' ' + app_version
-            else:
-                title = awsem_app_name
-            if tag:
-                title = title + ' ' + tag
-            title = title + " run " + str(datetime.datetime.now())
-        self.title = title
-
-        if aliases:
-            if isinstance(aliases, basestring):  # noqa
-                aliases = [aliases, ]
-            self.aliases = aliases
-        self.input_files = input_files
-        self.output_files = output_files
-        self.parameters = parameters
-        if awsem_postrun_json:
-            self.awsem_postrun_json = awsem_postrun_json
-        if submitted_by:
-            self.submitted_by = submitted_by
-
-        if extra_meta:
-            for k, v in iter(extra_meta.items()):
-                self.__dict__[k] = v
-
-    def append_outputfile(self, outjson):
-        self.output_files.append(outjson)
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
-    def post(self, key, type_name=None):
-        if not type_name:
-            if self.run_platform == 'AWSEM':
-                type_name = 'workflow_run_awsem'
-            else:
-                raise Exception("cannot determine workflow schema type from the run platform: should be AWSEM.")
-        logger.debug("in function post: self.as_dict()= " + str(self.as_dict()))
-        return post_metadata(self.as_dict(), type_name, key=key)
-
-    def patch(self, key, type_name=None):
-        return patch_metadata(self.as_dict(), key=key)
-
 
 class ProcessedFileMetadataAbstract(SerializableObject):
 
@@ -484,44 +305,6 @@ class ProcessedFileMetadataAbstract(SerializableObject):
     def add_higlass_uid(self, higlass_uid):
         if higlass_uid:
             self.higlass_uid = higlass_uid
-
-
-class WorkflowRunOutputFiles(SerializableObject):
-    def __init__(self, workflow_argument_name, argument_type, file_format=None, secondary_file_formats=None,
-                 upload_key=None, uuid=None, extra_files=None):
-        self.workflow_argument_name = workflow_argument_name
-        self.type = argument_type
-        if file_format:
-            self.format = file_format
-        if extra_files:
-            self.extra_files = extra_files
-        if secondary_file_formats:
-            self.secondary_file_formats = secondary_file_formats
-        if uuid:
-            self.value = uuid
-        if upload_key:
-            self.upload_key = upload_key
-
-
-def create_ordinal(a):
-    if isinstance(a, list):
-        return list(range(1, len(a)+1))
-    else:
-        return 1
-
-
-class InputFileForWFRMeta(object):
-    def __init__(self, workflow_argument_name=None, value=None, ordinal=None, format_if_extra=None, dimension=None):
-        self.workflow_argument_name = workflow_argument_name
-        self.value = value
-        self.ordinal = ordinal
-        if dimension:
-            self.dimension = dimension
-        if format_if_extra:
-            self.format_if_extra = format_if_extra
-
-    def as_dict(self):
-        return self.__dict__
 
 
 def aslist(x):
@@ -724,7 +507,7 @@ class FourfrontStarterAbstract(object):
             workflow=self.inp.workflow_uuid,
             awsem_app_name=self.inp.wf_meta['app_name'],
             app_version=self.inp.wf_meta['app_version'],
-            input_files=self.create_ff_input_files(),
+            input_files=self.inp.input_files.create_input_files_for_wfrmeta(),
             tag=self.inp.tag,
             run_url=self.tbn.settings.get('url', ''),
             output_files=self.create_ff_output_files(),
@@ -763,21 +546,6 @@ class FourfrontStarterAbstract(object):
                                           arg.get('argument_type'),
                                           arg.get('argument_format', None),
                                           arg.get('secondary_file_formats', None)).as_dict()
-
-    def create_ff_input_files(self):
-        ff_infile_list = []
-        for input_file in self.inp.input_files:
-            dim = flatten(create_dim(input_file['uuid']))
-            if not dim:  # singlet
-                dim = '0'
-            uuid = flatten(input_file['uuid'])
-            ordinal = create_ordinal(uuid)
-            for d, u, o in zip(aslist(dim), aslist(uuid), aslist(ordinal)):
-                infileobj = InputFileForWFRMeta(input_file['workflow_argument_name'], u, o,
-                                                input_file.get('format_if_extra', ''), d)
-                ff_infile_list.append(infileobj.as_dict())
-        logger.debug("ff_infile_list is %s" % ff_infile_list)
-        return ff_infile_list
 
     def add_meta_to_dynamodb(self):
         dd = boto3.client('dynamodb')

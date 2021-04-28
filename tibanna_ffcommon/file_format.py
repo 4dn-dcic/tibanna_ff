@@ -9,12 +9,22 @@ logger = create_logger(__name__)
 
 
 class FormatExtensionMap(object):
-    def __init__(self, ff_keys):
-        try:
-            logger.debug("Searching in server : " + ff_keys['server'])
-            ffe_all = search_metadata("/search/?type=FileFormat&frame=object", key=ff_keys)
-        except Exception as e:
-            raise Exception("Can't get the list of FileFormat objects. %s\n" % e)
+    def __init__(self, ff_keys=None, ffe_all=None):
+        """connect to the server and get all fileformat search result if ff_keys
+        if given. If not, use user-specified ffe_all
+        """
+        if not ff_keys and not ffe_all:
+            raise Exception("Either ff_keys or ffe_all must be specified" + \
+                            "to create a FormatExtensionMap object")
+        if ff_keys and ffe_all:
+            raise Exception("Either ff_keys or ffe_all must be specified but not both" + \
+                            "to create a FormatExtensionMap object")
+        if ff_keys and not ffe_all:
+            try:
+                logger.debug("Searching in server : " + ff_keys['server'])
+                ffe_all = search_metadata("/search/?type=FileFormat&frame=object", key=ff_keys)
+            except Exception as e:
+                raise Exception("Can't get the list of FileFormat objects. %s\n" % e)
         self.fe_dict = dict()
         logger.debug("**ffe_all = " + str(ffe_all))
         for k in ffe_all:

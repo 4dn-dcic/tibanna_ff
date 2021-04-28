@@ -6,7 +6,8 @@ from tibanna.nnested_array import (
     run_on_nested_arrays1,
     run_on_nested_arrays2,
     combine_two,
-    flatten
+    flatten,
+    create_dim
 )
 from tibanna import create_logger
 from tibanna.base import (
@@ -20,6 +21,9 @@ from .exceptions import (
 from .file_format import (
     FormatExtensionMap,
     parse_formatstr
+)
+from .wfr import (
+    InputFilesForWFRMeta
 )
 
 
@@ -44,11 +48,20 @@ class FFInputFiles(object):
             inp_files.update(inpf.create_unicorn_arg_input_file())
         return inp_files
 
-    def create_unicorn_arg_secondary_input_files(self):
+    def create_unicorn_arg_secondary_files(self):
         sec_inp_files = dict()
         for inpf in self.input_files:
-            sec_inp_files.update(inpf.create_unicorn_arg_secondary_input_file())
+            sec_inp_files.update(inpf.create_unicorn_arg_secondary_file())
         return sec_inp_files
+
+    def create_input_files_for_wfrmeta(self):
+        inpfws = InputFilesForWFRMeta()
+        for inpf in self.input_files:
+            inpf.add_to_input_files_for_wfrmeta(inpfws)
+        return inpfws.as_dict()
+
+    def as_dict(self):
+        return [inpf.as_dict() for inpf in self.input_files]
 
 
 class FFInputFile(object):
@@ -75,9 +88,12 @@ class FFInputFile(object):
     _metadata = dict()
     _fe_map = None
 
-    def __init__(self, uuid, workflow_argument_name, object_key=None,
+    def __init__(self, uuid=None, workflow_argument_name=None, object_key=None,
                  bucket_name=None, rename='', unzip='', mount=False,
                  format_if_extra='', ff_key=None, ff_env=None):
+        # uuid and workflow_argument_name are required
+        if not uuid or not workflow_argument_name:
+            raise MalFormattedFFInputException("malformed input, check input_files in your input json")
         self.uuid = uuid  # either a single value or a list
         self.workflow_argument_name = workflow_argument_name
         # here objct key means <accession>.<extension>
@@ -93,14 +109,14 @@ class FFInputFile(object):
     def as_dict(self):
         return {field: getattr(self, field) for field in self.dict_fields}
 
-    def crate_unicorn_arg_input_file(self):
+    def create_unicorn_arg_input_file(self):
         """returns a dictionary in the unicorn args input file format"""
         key = self.workflow_argument_name
         value = {fld: getattr(self, fld) for fld in self.common_unicorn_fields}
         value.update({'object_key': self.s3_key})  # do not use self.object_key here.
         return {key: value}
 
-    def create_unicorn_arg_secondary_input_file(self):
+    def create_unicorn_arg_secondary_file(self):
         """returns a dictionary in the unicorn args secondary input file format
         for extra files"""
         extra_file_keys = self.extra_file_s3_keys
@@ -109,11 +125,16 @@ class FFInputFile(object):
         key = self.workflow_argument_name
         value = {'bucket_name': self.bucket_name,
                  'object_key': extra_file_keys,
-                 'mount': self.mount
+                 'mount': self.mount,
+                 'rename': self.extra_file_renames
                  }
-        if self.extra_file_renames:
-            value.update({'rename': self.extra_file_renames})
         return {key: value}
+
+    def add_to_input_files_for_wfrmeta(self, inpfws):
+        """inpfws is an existing InputFilesForWFRMeta object to add to.
+        """
+        inpfws.add_input_files(self.uuid, self.workflow_argument_name,
+                               self.format_if_extra)
 
     @property
     def bucket_name(self):
@@ -144,15 +165,17 @@ class FFInputFile(object):
         If rename is not set for the main file, None is returned.
         """
         if not self.rename:
-            return None
+            return ''
         exf_rn = run_on_nested_arrays2(self.uuid, self.rename,
                                        self.get_extra_file_renames_from_uuid)
         # a situation like [[[],[]],[],[]] --> return None instead
         if not flatten(exf_rn):
-            return None
+            return ''
         if exf_rn and len(exf_rn) > 0:
             exf_rn = list(filter(lambda x: x, exf_rn))
-        if len(exf_rn) == 1:
+        if not flatten(exf_rn):
+            return ''
+        while isinstance(exf_rn, list) and len(exf_rn) == 1:
             exf_rn = exf_rn[0]
         return exf_rn
 
@@ -164,13 +187,16 @@ class FFInputFile(object):
         None values or '' values are removed from the return list.
         If the return list has a single element, it returns the element as a string.
         """
-        exf_keys = run_on_nested_arrays1(self.uuid, self.get_extra_file_s3_key_from_uuid)
+        exf_keys = run_on_nested_arrays1(self.uuid, self.get_extra_file_s3_keys_from_uuid)
         if not flatten(exf_keys):
             return None
         if exf_keys and len(exf_keys) > 0:
             exf_keys = list(filter(lambda x: x, exf_keys))
-        if len(exf_keys) == 1:
+        if not flatten(exf_keys):
+            return None
+        while isinstance(exf_keys, list) and len(exf_keys) == 1:
             exf_keys = exf_keys[0]
+        return exf_keys
 
     @property
     def s3_key(self):
@@ -240,13 +266,17 @@ class FFInputFile(object):
         return [parse_formatstr(exf['file_format']) for exf in extra_files]
 
     def get_extra_files_from_uuid(self, uuid):
-        """returns a list of extra file dictionaries received from the server"""
+        """returns a list of extra file dictionaries received from the server.
+        Extra files not in the ready status (e.g. uploaded) are not included in the result.
+        """
         infile_meta = self.get_metadata(uuid)
         exf = infile_meta.get('extra_files')
-        if exf.get('status') not in self.not_ready_status_list:
-            return(infile_meta.get('extra_files'))
-        else:
+        if not exf:
             return None
+        ready_exf = [_ for _ in exf if _.get('status') not in self.not_ready_status_list]
+        if not ready_exf:
+            return None
+        return ready_exf
 
     def get_file_format_from_uuid(self, uuid):
         """returns parsed (cleaned) version of file format (e.g. 'bam')"""

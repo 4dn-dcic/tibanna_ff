@@ -15,13 +15,15 @@ from .vars import (
     ACCESSION_PREFIX,
     HIGLASS_BUCKETS
 )
-from tibanna_ffcommon.portal_utils import (
+from tibanna_ffcommon.wfr import (
     WorkflowRunMetadataAbstract,
+    aslist
+)
+from tibanna_ffcommon.portal_utils import (
     ProcessedFileMetadataAbstract,
     FourfrontStarterAbstract,
     FourfrontUpdaterAbstract,
     FFInputAbstract,
-    aslist
 )
 
 
