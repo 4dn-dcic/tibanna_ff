@@ -25,6 +25,9 @@ from .file_format import (
 from .wfr import (
     InputFilesForWFRMeta
 )
+from .extra_files import (
+    get_extra_file_key
+)
 
 
 logger = create_logger(__name__)
@@ -82,7 +85,7 @@ class FFInputFile(object):
     not_ready_status_list = ['uploading', 'to be uploaded by workflow',
                              'upload failed', 'deleted']
 
-    # the following two private attributes works as a cache for metadata -
+    # the following two private attributes work as a cache for metadata -
     # do not modify them or access them directly, but use self.get_metadata
     # or self.fe_map or instead
     _metadata = dict()
@@ -242,7 +245,7 @@ class FFInputFile(object):
         if not extra_file_formats:
             return None
         main_file_format = self.get_file_format_from_uuid(uuid)
-        return [self.get_extra_file_key(main_file_format, rename, exff, self.fe_map)
+        return [get_extra_file_key(main_file_format, rename, exff, self.fe_map)
                 for exff in extra_file_formats]
 
     def get_extra_file_s3_keys_from_uuid(self, uuid):
@@ -255,7 +258,7 @@ class FFInputFile(object):
             return None
         main_file_format = self.get_file_format_from_uuid(uuid)
         main_file_key = self.get_s3_key_from_uuid(uuid)
-        return [self.get_extra_file_key(main_file_format, main_file_key, exff, self.fe_map)
+        return [get_extra_file_key(main_file_format, main_file_key, exff, self.fe_map)
                 for exff in extra_file_formats]
 
     def get_extra_file_formats_from_uuid(self, uuid):
@@ -366,14 +369,3 @@ class FFInputFile(object):
         bucket = url_words[0].split('.')[0]
         key = '/'.join(url_words[1:])
         return bucket, key
-
-    @staticmethod
-    def get_extra_file_key(infile_format, infile_key, extra_file_format, fe_map):
-        infile_extension = fe_map.get_extension(infile_format)
-        extra_file_extension = fe_map.get_extension(extra_file_format)
-        if not infile_extension or not extra_file_extension:
-            errmsg = "Extension not found for infile_format %s (key=%s)" % (infile_format, infile_key)
-            errmsg += "extra_file_format %s" % extra_file_format
-            errmsg += "(infile extension %s, extra_file_extension %s)" % (infile_extension, extra_file_extension)
-            raise Exception(errmsg)
-        return infile_key.replace(infile_extension, extra_file_extension)

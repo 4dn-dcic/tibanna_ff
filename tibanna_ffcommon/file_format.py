@@ -52,3 +52,7 @@ def parse_formatstr(file_format_str):
     if not file_format_str:
         return None
     return file_format_str.replace('/file-formats/', '').replace('/', '')
+
+
+def cmp_fileformat(format1, format2):
+    return parse_formatstr(format1) == parse_formatstr(format2)

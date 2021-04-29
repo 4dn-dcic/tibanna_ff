@@ -53,12 +53,13 @@ def test_array_uuid():
                      output_bucket='c',
                      input_files=input_file_list,
                      _tibanna=_tibanna)
-    assert 'bucket_name' in inp.input_files[0]
-    assert 'object_key' in inp.input_files[0]
-    assert inp.input_files[0]['bucket_name'] == 'elasticbeanstalk-fourfront-cgapwolf-wfoutput'
-    assert len(inp.input_files[0]['object_key']) == 2
-    assert inp.input_files[0]['object_key'][0] == "GAPFIQNHLO6D.rck.gz"
-    assert inp.input_files[0]['object_key'][1] == "GAPFIZ25WPXE.rck.gz"
+    inputfiles = inp.input_files.as_dict()
+    assert 'bucket_name' in inputfiles[0]
+    assert 'object_key' in inputfiles[0]
+    assert inputfiles[0]['bucket_name'] == 'elasticbeanstalk-fourfront-cgapwolf-wfoutput'
+    assert len(inputfiles[0]['object_key']) == 2
+    assert inputfiles[0]['object_key'][0] == "GAPFIQNHLO6D.rck.gz"
+    assert inputfiles[0]['object_key'][1] == "GAPFIZ25WPXE.rck.gz"
 
 
 @valid_env
@@ -87,9 +88,8 @@ def test_extra_file_rename():
                      input_files=input_file_list,
                      _tibanna=_tibanna)
     args = dict()
-    inp.process_input_file_info(input_file_list[0], args)
-    assert 'input_files' in args
-    assert 'secondary_files' in args
+    args['input_files'] = inp.input_files.create_unicorn_arg_input_files()
+    args['secondary_files'] = inp.input_files.create_unicorn_arg_secondary_files()
     assert 'input_rcks' in args['secondary_files']
     assert 'rename' in args['secondary_files']['input_rcks']
     assert len(args['secondary_files']['input_rcks']['rename']) == 2

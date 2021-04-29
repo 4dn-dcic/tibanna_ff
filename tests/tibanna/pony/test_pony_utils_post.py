@@ -74,7 +74,6 @@ def test_fourfront_starter7b(start_run_hicprocessingbam_customfield_wALL_data):
     and without an extra file. It should not add any null secondary files."""
     data = start_run_hicprocessingbam_customfield_wALL_data
     data['input_files'][0]['uuid'] = [data['input_files'][0]['uuid'][0]]
-    data['input_files'][0]['object_key'] = [data['input_files'][0]['object_key'][0]]
     starter = FourfrontStarter(**start_run_hicprocessingbam_customfield_wALL_data)
     assert starter
     starter.run()
@@ -90,7 +89,6 @@ def test_fourfront_starter7c(start_run_hicprocessingbam_customfield_wALL_data):
     It should not add one element to the secondary files."""
     data = start_run_hicprocessingbam_customfield_wALL_data
     data['input_files'][0]['uuid'].append('8a64c5e9-b669-425c-a78a-3177abc9ebd5')
-    data['input_files'][0]['object_key'].append('4DNFI9WF1Y8W.bam')
     starter = FourfrontStarter(**start_run_hicprocessingbam_customfield_wALL_data)
     assert starter
     starter.run()

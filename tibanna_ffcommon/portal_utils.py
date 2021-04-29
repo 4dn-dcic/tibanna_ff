@@ -38,7 +38,8 @@ from .config import (
 )
 from .file_format import (
     FormatExtensionMap,
-    parse_formatstr
+    parse_formatstr,
+    cmp_fileformat
 )
 from .input_files import (
     FFInputFiles
@@ -46,6 +47,10 @@ from .input_files import (
 from .wfr import (
     WorkflowRunMetadataAbstract,
     WorkflowRunOutputFiles
+)
+from .extra_files import (
+    ExtraFiles,
+    get_extra_file_key
 )
 from .exceptions import (
     TibannaStartException,
@@ -59,17 +64,40 @@ logger = create_logger(__name__)
 
 
 class FFInputAbstract(SerializableObject):
+    # the following attribute works as a cache for metadata -
+    # do not modify or access it directly, but use self.get_metadata
+    # instead
+    _metadata = dict()
+
     def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
                  _tibanna=None, push_error_to_end=True, **kwargs):
         if not workflow_uuid:
             raise MalFormattedFFInputException("missing field in input json: workflow_uuid")
         if not config:
             raise MalFormattedFFInputException("missing field in input json: config")
+
+        # tibanna settings - these are used to connect to the portal server
+        self._tibanna = _tibanna
+        self.tibanna_settings = None
+        if _tibanna:
+            env = _tibanna.get('env', '')
+            try:
+                self.tibanna_settings = TibannaSettings(env, settings=_tibanna)
+            except Exception as e:
+                raise TibannaStartException("%s" % e)
+
         self.config = Config(**config)
         self.jobid = jobid
 
         # self.ff_input_files is a FFInputFiles class object created from the input_files field
-        self.input_files = FFInputFiles(kwargs.get('input_files', []))
+        # this object handles input file-related operations including format conversions
+        # to unicorn input files and input files for workflow run metadata.
+        if self.tibanna_settings:
+            self.input_files = FFInputFiles(kwargs.get('input_files', []),
+                                            ff_key=self.tibanna_settings.ff_keys,
+                                            ff_env=self.tibanna_settings.env)
+        else:
+            self.input_files = FFInputFiles(kwargs.get('input_files', []))
 
         self.workflow_uuid = workflow_uuid
         self.output_bucket = output_bucket
@@ -84,17 +112,7 @@ class FFInputAbstract(SerializableObject):
         self.custom_qc_fields = kwargs.get('custom_qc_fields', None)  # custom fields for QC (but not WFR_QC and QC_LIST)
         self.output_files = kwargs.get('output_files', [])  # for user-supplied output files
         self.dependency = kwargs.get('dependency', None)
-        self.wf_meta_ = None
         self.push_error_to_end = push_error_to_end
-
-        self._tibanna = _tibanna
-        self.tibanna_settings = None
-        if _tibanna:
-            env = _tibanna.get('env', '')
-            try:
-                self.tibanna_settings = TibannaSettings(env, settings=_tibanna)
-            except Exception as e:
-                raise TibannaStartException("%s" % e)
 
         if 'overwrite_input_extra' in kwargs:
             self.config.overwrite_input_extra = kwargs['overwrite_input_extra']
@@ -112,7 +130,8 @@ class FFInputAbstract(SerializableObject):
     def as_dict(self):
         d_shallow = self.__dict__.copy()
         del(d_shallow['parameters_'])
-        del(d_shallow['wf_meta_'])
+        if '_metadata' in d_shallow:
+            del(d_shallow['_metadata'])
         del(d_shallow['tibanna_settings'])
         do = SerializableObject()
         do.update(**d_shallow)
@@ -120,24 +139,34 @@ class FFInputAbstract(SerializableObject):
 
     @property
     def input_file_uuids(self):
-        return [_['uuid'] for _ in self.input_files.input_files]
+        return [_.uuid for _ in self.input_files.input_files]
 
     def get_metadata(self, id):
-        return get_metadata(id,
-                            key=self.tibanna_settings.ff_keys,
-                            ff_env=self.tibanna_settings.env,
-                            add_on='frame=object',
-                            check_queue=True)
+        if self._metadata.get(id, ''):
+            return self._metadata[id]
+        else:
+            try:
+                self._metadata[id] = get_metadata(id,
+                                                  key=self.tibanna_settings.ff_keys,
+                                                  ff_env=self.tibanna_settings.env,
+                                                  add_on='frame=object',
+                                                  check_queue=True)
+            except Exception as e:
+                raise FdnConnectionException(e)
+            return self._metadata[id]
+
+    def patch_metadata(self, data, id):
+        try:
+            res = patch_metadata(data, id,
+                                 key=self.tibanna_settings.ff_keys,
+                                 ff_env=self.tibanna_settings.env,)
+        except Exception as e:
+            raise FdnConnectionException(e)
+        return res
 
     @property
     def wf_meta(self):
-        if self.wf_meta_:
-            return self.wf_meta_
-        try:
-            self.wf_meta_ = self.get_metadata(self.workflow_uuid)
-            return self.wf_meta_
-        except Exception as e:
-            raise FdnConnectionException(e)
+        return self.get_metadata(self.workflow_uuid)
 
     def get_accessions_from_argname(self, argname, ff_meta):
         accessions = []
@@ -189,7 +218,7 @@ class FFInputAbstract(SerializableObject):
                 args['output_target'][arg_name] = of.get('upload_key')
             elif of.get('type') == 'Output to-be-extra-input file':
                 target_inf = ff_meta.input_files[0]  # assume only one input for now
-                target_key = self.output_target_for_input_extra(target_inf, of)
+                target_key = self.output_target_for_input_extra(target_inf['value'], of)
                 args['output_target'][arg_name] = target_key
             else:  # output QC or report file
                 wf_of = [_ for _ in self.wf_meta.get('arguments') if _['workflow_argument_name'] == arg_name][0]
@@ -214,8 +243,8 @@ class FFInputAbstract(SerializableObject):
                     args['secondary_output_target'][arg_name].append(ext.get('upload_key'))
 
         # input files
-        args['input_files'] = self.ff_input_files.create_unicorn_arg_input_files()
-        args['secondary_files'] = self.ff_input_files.create_unicorn_arg_secondary_files()
+        args['input_files'] = self.input_files.create_unicorn_arg_input_files()
+        args['secondary_files'] = self.input_files.create_unicorn_arg_secondary_files()
 
         # custom errors
         args['custom_errors'] = self.wf_meta.get('custom_errors', [])
@@ -223,49 +252,41 @@ class FFInputAbstract(SerializableObject):
         # create Args class object
         self.args = Args(**args)
 
-    def output_target_for_input_extra(self, target_inf, of):
+    def output_target_for_input_extra(self, target_inf_uuid, of):
         extrafileexists = False
-        logger.debug("target_inf = %s" % str(target_inf))
-        target_inf_meta = get_metadata(target_inf.get('value'),
-                                       key=self.tibanna_settings.ff_keys,
-                                       ff_env=self.tibanna_settings.env,
-                                       add_on='frame=object',
-                                       check_queue=True)
+        target_inf_meta = self.get_metadata(target_inf_uuid)
         target_format = parse_formatstr(of.get('format'))
-        if target_inf_meta.get('extra_files'):
-            for exf in target_inf_meta.get('extra_files'):
-                if parse_formatstr(exf.get('file_format')) == target_format:
-                    extrafileexists = True
-                    if self.config.overwrite_input_extra:
-                        exf['status'] = 'to be uploaded by workflow'
-                    break
-            if not extrafileexists:
-                new_extra = {'file_format': target_format, 'status': 'to be uploaded by workflow'}
-                target_inf_meta['extra_files'].append(new_extra)
+        extra_files = ExtraFiles(target_inf_meta.get('extra_files'))
+        if extra_files.n == 0:  # no existing extra file
+            extra_files.add_extra_file(file_format=target_format,
+                                       status='to be uploaded by workflow')
         else:
-            new_extra = {'file_format': target_format, 'status': 'to be uploaded by workflow'}
-            target_inf_meta['extra_files'] = [new_extra]
-        if self.config.overwrite_input_extra or not extrafileexists:
-            # first patch metadata
-            logger.debug("extra_files_to_patch: %s" % str(target_inf_meta.get('extra_files')))
-            patch_metadata({'extra_files': target_inf_meta.get('extra_files')},
-                           target_inf.get('value'),
-                           key=self.tibanna_settings.ff_keys,
-                           ff_env=self.tibanna_settings.env)
-            # target key
-            # NOTE : The target bucket is assume to be the same as output bucket
-            # i.e. the bucket for the input file should be the same as the output bucket.
-            # which is true if both input and output are processed files.
-            orgfile_key = target_inf_meta.get('upload_key')
-            orgfile_format = parse_formatstr(target_inf_meta.get('file_format'))
-            fe_map = FormatExtensionMap(self.tibanna_settings.ff_keys)
-            logger.debug("orgfile_key = %s" % orgfile_key)
-            logger.debug("orgfile_format = %s" % orgfile_format)
-            logger.debug("target_format = %s" % target_format)
-            target_key = get_extra_file_key(orgfile_format, orgfile_key, target_format, fe_map)
-            return target_key
-        else:
-            raise Exception("input already has extra: 'User overwrite_input_extra': true")
+            target_exf = extra_files.select(file_format=target_format)
+            if target_exf:
+                if self.config.overwrite_input_extra:
+                    target_exf.status = 'to be uploaded by workflow'
+                else:
+                    raise Exception("input already has extra: 'Use overwrite_input_extra': true")
+            else:
+                extra_files.add_extra_file(file_format=target_format,
+                                           status='to be uploaded by workflow')
+
+        # first patch metadata
+        logger.debug("extra_files_to_patch: %s" % str(extra_files.as_dict()))
+        self.patch_metadata({'extra_files': extra_files.as_dict()},
+                            target_inf_uuid)
+        # target key
+        # NOTE : The target bucket is assume to be the same as output bucket
+        # i.e. the bucket for the input file should be the same as the output bucket.
+        # which is true if both input and output are processed files.
+        orgfile_key = target_inf_meta.get('upload_key')
+        orgfile_format = parse_formatstr(target_inf_meta.get('file_format'))
+        fe_map = FormatExtensionMap(self.tibanna_settings.ff_keys)
+        logger.debug("orgfile_key = %s" % orgfile_key)
+        logger.debug("orgfile_format = %s" % orgfile_format)
+        logger.debug("target_format = %s" % target_format)
+        target_key = get_extra_file_key(orgfile_format, orgfile_key, target_format, fe_map)
+        return target_key
 
 
 class ProcessedFileMetadataAbstract(SerializableObject):
@@ -318,17 +339,6 @@ def ensure_list(val):
     if isinstance(val, (list, tuple)):
         return val
     return [val]
-
-
-def get_extra_file_key(infile_format, infile_key, extra_file_format, fe_map):
-    infile_extension = fe_map.get_extension(infile_format)
-    extra_file_extension = fe_map.get_extension(extra_file_format)
-    if not infile_extension or not extra_file_extension:
-        errmsg = "Extension not found for infile_format %s (key=%s)" % (infile_format, infile_key)
-        errmsg += "extra_file_format %s" % extra_file_format
-        errmsg += "(infile extension %s, extra_file_extension %s)" % (infile_extension, extra_file_extension)
-        raise Exception(errmsg)
-    return infile_key.replace(infile_extension, extra_file_extension)
 
 
 class TibannaSettings(SerializableObject):
@@ -621,6 +631,11 @@ class FourfrontUpdaterAbstract(object):
     default_email_sender = ''
     higlass_buckets = []
 
+    # the following attribute works as a cache for metadata -
+    # do not modify or access it directly, but use self.get_metadata
+    # instead
+    _metadata = dict()
+
     def __init__(self, postrunjson=None, ff_meta=None, pf_meta=None, _tibanna=None,
                  common_fields=None, custom_qc_fields=None,
                  config=None, jobid=None, metadata_only=False, strict=True, **kwargs):
@@ -793,11 +808,19 @@ class FourfrontUpdaterAbstract(object):
 
     # metadata object-related basic functionalities
     def get_metadata(self, id):
-        return get_metadata(id,
-                            key=self.tibanna_settings.ff_keys,
-                            ff_env=self.tibanna_settings.env,
-                            add_on='frame=object',
-                            check_queue=True)
+        # use cache
+        if self._metadata.get(id, ''):
+            return self._metadata[id]
+        else:
+            try:
+                self._metadata[id] = get_metadata(id,
+                                                  key=self.tibanna_settings.ff_keys,
+                                                  ff_env=self.tibanna_settings.env,
+                                                  add_on='frame=object',
+                                                  check_queue=True)
+            except Exception as e:
+                raise FdnConnectionException(e)
+            return self._metadata[id]
 
     def file_items(self, argname):
         """get the actual metadata file items for a specific argname"""
@@ -812,11 +835,7 @@ class FourfrontUpdaterAbstract(object):
 
     @property
     def workflow(self):
-        try:
-            res = self.get_metadata(self.ff_meta.workflow)
-        except Exception as e:
-            raise FdnConnectionException("Can't get metadata for workflow %s: %s" % (self.ff_meta.workflow, str(e)))
-        return res
+        return self.get_metadata(self.ff_meta.workflow)
 
     def workflow_arguments(self, argument_types=None):
         if argument_types:
@@ -1158,22 +1177,20 @@ class FourfrontUpdaterAbstract(object):
             if 'extra_files' not in ip:
                 raise Exception("inconsistency - extra file metadata deleted during workflow run?")
             for ie in ie_list:
-                matching_extra = None
                 output_extra_format = self.file_format(ie.workflow_argument_name)
-                for extra in ip['extra_files']:
-                    if cmp_fileformat(extra['file_format'], output_extra_format):
-                        matching_extra = extra
-                        break
+                extrafiles = ExtraFiles(ip['extra_files'])
+                matching_extra = extrafiles.select(file_format=output_extra_format)
                 if not matching_extra:
                     raise Exception("inconsistency - extra file metadata deleted during workflow run?")
                 if self.status(ie.workflow_argument_name) == 'COMPLETED':
-                    matching_extra['md5sum'] = self.md5sum(ie.workflow_argument_name)
-                    matching_extra['filesize'] = self.filesize(ie.workflow_argument_name)
-                    matching_extra['status'] = 'uploaded'
+                    matching_extra.md5sum = self.md5sum(ie.workflow_argument_name)
+                    matching_extra.file_size = self.filesize(ie.workflow_argument_name)
+                    matching_extra.status = 'uploaded'
                     if ie.extra_file_use_for:
-                        matching_extra['use_for'] = ie.extra_file_use_for
+                        matching_extra.use_for = ie.extra_file_use_for
                 else:
-                    matching_extra['status'] = "upload failed"
+                    matching_extra.status = "upload failed"
+                ip['extra_files'] = extrafiles.as_dict()
                 # higlass registration
                 hgcf = match_higlass_config(ip['file_format'], output_extra_format)
                 higlass_uid = None
@@ -1667,10 +1684,6 @@ class FourfrontUpdaterAbstract(object):
             return None
         logger.info("resiter_to_higlass(POST request response): " + str(res.json()))
         return res.json()['uuid']
-
-
-def cmp_fileformat(format1, format2):
-    return parse_formatstr(format1) == parse_formatstr(format2)
 
 
 def match_higlass_config(file_format, extra_format):
