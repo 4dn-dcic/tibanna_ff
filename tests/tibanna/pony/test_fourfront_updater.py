@@ -3,10 +3,11 @@ from dcicutils import ff_utils
 from tibanna_4dn.pony_utils import (
     FourfrontUpdater,
 )
-import pytest
 from tests.tibanna.pony.conftest import (
     valid_env,
 )
+import pytest
+import mock
 
 
 def test_FourfrontUpdater(update_ffmeta_event_data_fastqc2):
@@ -40,7 +41,7 @@ def test_get_postrunjson2(update_ffmeta_event_data_repliseq):
 @valid_env
 def test_post_patch(update_ffmeta_event_data_fastqc2):
     updater = FourfrontUpdater(**update_ffmeta_event_data_fastqc2)
-    item = updater.create_qc_template()
+    item = next(updater.qc_template_generator())
     item_uuid = item['uuid']
     updater.update_post_items(item_uuid, item, 'quality_metric_fastqc')
     assert 'uuid' in updater.post_items['quality_metric_fastqc'][item_uuid]
@@ -194,29 +195,23 @@ def test_pf(update_ffmeta_hicbam):
 @valid_env
 def test_fastqc(update_ffmeta_event_data_fastqc2):
     updater = FourfrontUpdater(**update_ffmeta_event_data_fastqc2)
-    assert updater.workflow
-    assert 'arguments' in updater.workflow
-    assert updater.workflow_qc_arguments
-    assert 'input_fastq' in updater.workflow_qc_arguments
-    assert updater.workflow_qc_arguments['input_fastq'][0].qc_type == 'quality_metric_fastqc'
-    updater.update_qc()
-    qc = updater.workflow_qc_arguments['input_fastq'][0]
+    # pretend that this is the content of the zipped table file.
+    fake_unzipped_data = ["Per sequence quality scores\t23.45\n" +
+                          "Per base sequence content\t12.34\n" +
+                          "Per sequence GC content\t45.67"]
+    with mock.patch("tibanna_ffcommon.qc.unzip_s3_data", return_value=fake_unzipped_data):
+        with mock.patch("tibanna_ffcommon.qc.unzip_s3_to_s3"):  # skip file copying
+            updater.update_qc()
     target_accession = updater.accessions('input_fastq')[0]
-    assert qc.workflow_argument_name == 'report_zip'
-    assert len(qc.qc_zipped_tables) == 2
     assert target_accession == '4DNFIRSRJH45'
-    data = updater.unzip_qc_data(qc, updater.file_key('report_zip'), target_accession)
-    print(data.keys())
-    assert data['fastqc_data.txt']['data'].startswith('##FastQC')
-    qc_schema = updater.qc_schema('quality_metric_fastqc')
-    assert 'Per base sequence content' in qc_schema
-    qc_json = updater.parse_qc_table([data['summary.txt']['data'], data['fastqc_data.txt']['data']], qc_schema)
-    assert 'Per base sequence content' in qc_json
     assert updater.post_items
     assert len(updater.post_items['quality_metric_fastqc']) == 1
     uuid = list(updater.post_items['quality_metric_fastqc'].keys())[0]
+    print(str(updater.post_items['quality_metric_fastqc'][uuid]))
     assert 'url' in updater.post_items['quality_metric_fastqc'][uuid]
+    assert 'Per sequence quality scores' in updater.post_items['quality_metric_fastqc'][uuid]
     assert 'Per base sequence content' in updater.post_items['quality_metric_fastqc'][uuid]
+    assert 'Per sequence GC content' in updater.post_items['quality_metric_fastqc'][uuid]
     assert 'value_qc' in updater.ff_output_file('report_zip')
     assert updater.ff_output_file('report_zip')['value_qc'] == uuid
 
@@ -224,23 +219,25 @@ def test_fastqc(update_ffmeta_event_data_fastqc2):
 @valid_env
 def test_pairsqc(update_ffmeta_event_data_pairsqc):
     updater = FourfrontUpdater(**update_ffmeta_event_data_pairsqc)
-    updater.update_qc()
-    qc = updater.workflow_qc_arguments['input_pairs'][0]
-    assert qc.workflow_argument_name == 'report'
+    fake_unzipped_data = ["Total reads\t651,962\nShort cis reads (<20kb)\t221,017\n" +
+                          "Cis reads (>20kb)\t276,411\nTrans reads\t154,534\n" +
+                          "Cis/Trans ratio\t67.89\n"]
+    with mock.patch("tibanna_ffcommon.qc.unzip_s3_data", return_value=fake_unzipped_data):
+        with mock.patch("tibanna_ffcommon.qc.unzip_s3_to_s3"):  # skip file copying
+            updater.update_qc()
     target_accession = updater.accessions('input_pairs')[0]
     assert target_accession == '4DNFI1ZLO9D7'
     assert updater.post_items
     assert len(updater.post_items['quality_metric_pairsqc']) == 1
     uuid = list(updater.post_items['quality_metric_pairsqc'].keys())[0]
+    assert 'Cis reads (>20kb)' in updater.post_items['quality_metric_pairsqc'][uuid]
+    assert 'Trans reads' in updater.post_items['quality_metric_pairsqc'][uuid]
     assert 'Cis/Trans ratio' in updater.post_items['quality_metric_pairsqc'][uuid]
-
 
 @valid_env
 def test_madqc(update_ffmeta_event_data_madqc):
     updater = FourfrontUpdater(**update_ffmeta_event_data_madqc)
     updater.update_qc()
-    qc = updater.workflow_qc_arguments['mad_qc.quantfiles'][0]
-    assert qc.workflow_argument_name in ['mad_qc.mqc.madQCmetrics', 'mad_qc.report_zip']
     target_accessions = updater.accessions('mad_qc.quantfiles')
     assert len(target_accessions) == 3
     assert target_accessions[0] == '4DNFIRV6DRTJ'
@@ -259,8 +256,6 @@ def test_repliseq(update_ffmeta_event_data_repliseq):
     updater = FourfrontUpdater(**update_ffmeta_event_data_repliseq)
     updater.update_all_pfs()
     updater.update_qc()
-    qc = updater.workflow_qc_arguments['filtered_sorted_deduped_bam'][0]
-    assert qc.workflow_argument_name == 'dedup_qc_report'
     target_accession = updater.accessions('filtered_sorted_deduped_bam')[0]
     assert target_accession == '4DNFIP2T7ANW'
     assert updater.post_items
@@ -296,8 +291,6 @@ def test_imargi(update_ffmeta_event_data_imargi):
     updater = FourfrontUpdater(**update_ffmeta_event_data_imargi)
     updater.update_all_pfs()
     updater.update_qc()
-    qc = updater.workflow_qc_arguments['out_pairs'][0]
-    assert qc.workflow_argument_name == 'out_qc'
     target_accession = updater.accessions('out_pairs')[0]
     assert target_accession == '4DNFI2H7T6NP'
     assert updater.post_items
@@ -321,12 +314,6 @@ def test_chipseq(update_ffmeta_event_data_chipseq):
     updater = FourfrontUpdater(**update_ffmeta_event_data_chipseq)
     updater.update_all_pfs()
     updater.update_qc()
-    qcs = updater.workflow_qc_arguments['chip.first_ta_ctl']
-    assert len(qcs) == 2
-    qc = qcs[0]
-    assert qc.workflow_argument_name == 'chip.report'
-    qc2 = qcs[1]
-    assert qc2.workflow_argument_name == 'chip.qc_json'
     target_accession = updater.accessions('chip.first_ta_ctl')[0]
     assert target_accession == '4DNFI8B19NWU'
     assert updater.post_items

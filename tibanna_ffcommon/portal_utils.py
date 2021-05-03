@@ -4,6 +4,7 @@ import copy
 import random
 from uuid import uuid4
 import requests
+from functools import partial
 from dcicutils.ff_utils import (
     get_metadata,
     post_metadata,
@@ -51,6 +52,9 @@ from .wfr import (
 from .extra_files import (
     ExtraFiles,
     get_extra_file_key
+)
+from .qc import (
+    QCArgumentsByTarget
 )
 from .exceptions import (
     TibannaStartException,
@@ -587,29 +591,6 @@ class FourfrontStarterAbstract(object):
             pass
 
 
-class QCArgumentInfo(SerializableObject):
-    def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type=None,
-                 qc_zipped=False, qc_html=False, qc_json=False, qc_table=False,
-                 qc_zipped_html=None, qc_zipped_tables=None, qc_acl='public-read',
-                 qc_unzip_from_ec2=False):
-        if argument_type != 'Output QC file':
-            raise Exception("QCArgument it not Output QC file: %s" % argument_type)
-        self.workflow_argument_name = workflow_argument_name
-        self.argument_to_be_attached_to = argument_to_be_attached_to
-        self.qc_type = qc_type
-        self.qc_zipped = qc_zipped
-        self.qc_html = qc_html
-        self.qc_json = qc_json
-        self.qc_table = qc_table
-        self.qc_zipped_html = qc_zipped_html
-        self.qc_zipped_tables = qc_zipped_tables
-        self.qc_acl = qc_acl
-        if self.qc_table or self.qc_zipped_tables:
-            if not self.qc_type:
-                raise Exception("qc_type is required if qc_table or qc_zipped_table")
-        self.qc_unzip_from_ec2 = qc_unzip_from_ec2
-
-
 class InputExtraArgumentInfo(SerializableObject):
     def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to,
                  extra_file_use_for=None, **kwargs):
@@ -686,7 +667,7 @@ class FourfrontUpdaterAbstract(object):
             raise Exception("Postrun json not found at %s" % postrunjson_location)
 
     def create_wfr_qc(self):
-        qc_item = self.create_qc_template()
+        qc_item = next(self.qc_template_generator())
         qc_item['url'] = METRICS_URL(self.config.log_bucket, self.jobid)
         self.update_post_items(qc_item['uuid'], qc_item, 'QualityMetricWorkflowrun')
         self.ff_meta.quality_metric = qc_item['uuid']
@@ -822,6 +803,15 @@ class FourfrontUpdaterAbstract(object):
                 raise FdnConnectionException(e)
             return self._metadata[id]
 
+    def get_schema(self, schema_name):
+        try:
+            # schema. do not need to check_queue
+            res = self.get_metadata("profiles/" + schema_name + ".json")
+            return res.get('properties')
+        except Exception as e:
+            err_msg = "Can't get profile for schema %s: %s" % (schema_name, str(e))
+            raise FdnConnectionException(err_msg)
+
     def file_items(self, argname):
         """get the actual metadata file items for a specific argname"""
         items_list = []
@@ -846,16 +836,6 @@ class FourfrontUpdaterAbstract(object):
             return res
         else:
             return self.workflow['arguments']
-
-    @property
-    def workflow_qc_arguments(self):
-        """dictionary of QCArgumentInfo object list as value and
-        argument_to_be_attached_to as key"""
-        wqcas = dict()
-        qc_args = [QCArgumentInfo(**qc) for qc in self.workflow_arguments('Output QC file')]
-        for arg in set([_.argument_to_be_attached_to for _ in qc_args]):
-            wqcas.update({arg: [_ for _ in qc_args if _.argument_to_be_attached_to == arg]})
-        return wqcas
 
     @property
     def workflow_input_extra_arguments(self):
@@ -1206,121 +1186,80 @@ class FourfrontUpdaterAbstract(object):
                     self.update_patch_items(ip['uuid'], {'higlass_uid': higlass_uid})
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
-    def _update_a_qc(self, qc, qc_target_accession, qc_schema, qc_type, qc_item_uuid):
-        """Internal update function for qc per workflow qc argument"""
-        qc_item = dict()
-        qc_bucket = self.bucket(qc.workflow_argument_name)
-        qc_key = self.file_key(qc.workflow_argument_name)
-        if qc.qc_zipped and qc.qc_unzip_from_ec2:
-            qc_url = None
-        elif qc.qc_zipped and not qc.qc_unzip_from_ec2:
-            if qc.qc_zipped_tables:
-                return_unzipped_qc_data = True
-            else:
-                return_unzipped_qc_data = False
-            unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession, return_unzipped_qc_data)
-            if qc.qc_zipped_tables:
-                qcz_datafiles = []
-                for qcz in qc.qc_zipped_tables:
-                    qcz_datafiles.extend(filter(lambda x: x.endswith(qcz), unzipped_qc_data))
-                if qcz_datafiles:
-                    data_to_parse = [unzipped_qc_data[df]['data'] for df in qcz_datafiles]
-                    qc_meta_from_zip = self.parse_qc_table(data_to_parse, qc_schema)
-                    qc_item.update(qc_meta_from_zip)
-            # if there is an html, add qc_url for the html
-            if qc.qc_zipped_html:
-                target_html = qc_target_accession + '/' + qc.qc_zipped_html
-                qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
-            else:
-                qc_url = None
-        else:
-            # if there is an html, add qc_url for the html
-            if qc.qc_html:
-                target_html = qc_target_accession + '/qc_report.html'
-                qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
-            else:
-                qc_url = None
-            data = self.read(qc.workflow_argument_name)
-            if qc.qc_html:
-                self.s3(qc.workflow_argument_name).s3_put(data.encode(),
-                                                          target_html,
-                                                          acl='public-read')
-            elif qc.qc_json:
-                qc_item.update(self.parse_qc_json([data]))
-            elif qc.qc_table:
-                qc_item.update(self.parse_qc_table([data], qc_schema))
-        if qc_url:
-            qc_item.update({'url': qc_url})
-        if self.custom_qc_fields:
-            qc_item.update(self.custom_qc_fields)
-        if qc_type:
-            self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_item_uuid
-        return qc_item
-
-    def _update_qc_per_type(self, qc_type, qc_list, qc_target_accession):
-        """Internal update function for QC for a given type
-        returns QC metadata item to post in dictionary form"""
-        qc_list_of_type = [_ for _ in qc_list if _.qc_type == qc_type]
-        if qc_type:
-            qc_schema = self.qc_schema(qc_type)
-        else:
-            qc_schema = None
-        qc_item_to_be = self.create_qc_template()
-        for qc in qc_list_of_type:
-            qc_item_to_be.update(self._update_a_qc(qc, qc_target_accession, qc_schema,
-                                                   qc_type, qc_item_to_be['uuid']))
-        return qc_item_to_be
-
     # update functions for QC
     def update_qc(self):
-        for qc_arg, qc_list in self.workflow_qc_arguments.items():
-            # qc_arg is the argument (either input or output) to attach the qc file
-            # qc_list is a list of QCArgumentInfo class objects
-            qc_target_accessions = self.accessions(qc_arg)
-            if not qc_target_accessions:
-                raise Exception("QC target %s does not exist" % qc_arg)
-            # The first target accession is use in the url for the report files
-            qc_target_accession = qc_target_accessions[0]
-            qc_types = set([_.qc_type for _ in qc_list])
-            qc_types_no_none = set([_.qc_type for _ in qc_list if _])
-            # create quality_metric_qclist if >1 qc types for a given qc_arg
-            if len(qc_types_no_none) > 1:
-                qclist_item_to_be = self.create_qc_template()
-                qclist_item_to_be['qc_list'] = []
-            else:
-                qclist_item_to_be = None
-            for qc_type in qc_types:
-                qc_item_to_be = self._update_qc_per_type(qc_type, qc_list, qc_target_accession)
-                if qc_type:
-                    self.update_post_items(qc_item_to_be['uuid'], qc_item_to_be, qc_type)
-                    if qclist_item_to_be:
-                        # the uuids and types are in the same order
-                        qclist_item_to_be['qc_list'].append({'qc_type': qc_type, 'value': qc_item_to_be['uuid']})
+        # all qc arguments in the workflow (could be more than one)
+        wf_qc_arguments = self.workflow_arguments('Output QC file')
+        # put all qc arguments into QCArgumentsByTarget class object to
+        # cluster them by target (argument_to_be_attached_to).
+        qca_by_target = QCArgumentsByTarget(wf_qc_arguments)
+        # dictionary containing s3 keys for qc args
+        qc_path_dict = {arg: self.file_key(arg) for arg in qca_by_target.qca_argname_list}
+        # add this s3 key path info to the QCArgument objects in qca_by_target
+        qca_by_target.add_paths(qc_path_dict, self.outbucket)
+        # pass ff_keys so that he QCArgument objects can find their qc schema.
+        qca_by_target.add_ff_keys(ff_key=self.tibanna_settings.ff_keys,
+                                  ff_env=self.tibanna_settings.env)
+        for target_arg, qca_per_target in qca_by_target.qca_by_target.items():
+            # target_arg is the argument (either input or output) to attach the qc to
+            # qca_per_target is a QCArgumentsPerTarget class objects which lists QCArgument
+            # objects that share the same target arg.
 
-            # add quality_metric_qclist in the post items
-            if qclist_item_to_be:
-                self.update_post_items(qclist_item_to_be['uuid'], qclist_item_to_be, 'quality_metric_qclist')
+            # The first target accession is used in the url for the report files
+            # The rest will still be linking the qc item.
+            qca_per_target.add_target_accessions(self.accessions(target_arg))
+
+            # create qc metadata items and qclist metadata item
+            # first build a qc template generator and a qclist template generator.
+            qc_template_gen = self.qc_template_generator(add_custom_qc_fields=True)
+            qclist_template_gen = self.qc_template_generator(add_custom_qc_fields=False)
+
+            qca_per_target.add_qc_template_generator(qc_template_gen)
+            qca_per_target.add_qclist_template_generator(qclist_template_gen)
+            # create qc and qclist metadata items based on the qc template functions.
+            qca_per_target.create_qc_items()
+
+            # copy relevant qc files to a designated location on s3
+            qca_per_target.copy_qc_files_to_s3()
+
+            # add new qc metadata items to post_items
+            for qc_type, qc_item in qca_per_target.qc_items_by_type.items():
+                self.update_post_items(qc_item['uuid'], qc_item, qc_type)
+
+            # add quality_metric_qclist to post_items
+            if qca_per_target.qclist_item:
+                self.update_post_items(qca_per_target.qclist_item['uuid'],
+                                       qca_per_target.qclist_item,
+                                       'quality_metric_qclist')
+
             # allowing multiple input files to point to the same qc_item_to_be.
-            for t_acc in qc_target_accessions:
-                if qc_type:
-                    if qclist_item_to_be:
-                        self.patch_qc(t_acc, qclist_item_to_be['uuid'], 'quality_metric_qclist',
-                                      qclist_array=qclist_item_to_be['qc_list'])
-                    else:
-                        self.patch_qc(t_acc, qc_item_to_be['uuid'], qc_type)
+            # (link the qc items to the target input file metadata)
+            for t_acc in qca_per_target.all_target_accessions:
+                if qca_per_target.qclist_item:
+                    self.patch_qc(t_acc, qca_per_target.qclist_item['uuid'], 'quality_metric_qclist',
+                                  qclist_array=qca_per_target.qclist_item['qc_list'])
+                else:
+                    for qc_type, qc_item in qca_per_target.qc_items_by_type.items():
+                        self.patch_qc(t_acc, qc_item['uuid'], qc_type)
+
+            # link the qc item to workflow run metadata qc argument (to be patched)
+            for qca in qca_per_target.qca_list:
+                if qca.qc_type:
+                    qc_item = qca_per_target.qc_items_by_type[qca.qc_type]
+                    self.ff_output_file(qca.workflow_argument_name)['value_qc'] = qc_item['uuid']
 
     def patch_qc(self, qc_target_accession, qc_uuid, qc_type, qclist_array=None):
-        try:
-            res = get_metadata(qc_target_accession,
-                               key=self.tibanna_settings.ff_keys,
-                               ff_env=self.tibanna_settings.env,
-                               add_on='frame=object',
-                               check_queue=True)
-        except Exception as e:
-            raise FdnConnectionException(e)
+        res = self.get_metadata(qc_target_accession)
         if 'quality_metric' not in res:  # first qc metric for this file
             self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
         else:
+            # some qc item is already linked to the target accession.
+            # If it's the same type as what we created, we need to replace it.
+            # If it is different type, we have to create a qclist item.
+            # If it's a qclist item and it contains a qc of the same type,
+            # we replace it in the existing qclist item.
+            # If it's a qclist item and it does not contains a qc of the same type,
+            # we add to the existing qclist item.
             existing_qctype = res['quality_metric'].split('/')[1].replace('-', '_'). \
                               replace('quality_metrics', 'quality_metric')
             existing_qc_uuid = res['quality_metric'].split('/')[2]
@@ -1338,11 +1277,7 @@ class FourfrontUpdaterAbstract(object):
                     # we assume that the same qc type occurs only once per qc list
                     # and so a new workflow run can update the one with the same qc type
                     self.delete_patch_items(qc_uuid)
-                    existing_qc_meta = get_metadata(existing_qc_uuid,
-                                                    key=self.tibanna_settings.ff_keys,
-                                                    ff_env=self.tibanna_settings.env,
-                                                    add_on='frame=object',
-                                                    check_queue=True)
+                    existing_qc_meta = self.get_metadata(existing_qc_uuid)
                     existing_child_qc_types = [qc['qc_type'] for qc in existing_qc_meta['qc_list']]
                     for t, u in zip(child_qc_types, child_qc_uuids):
                         if t in existing_child_qc_types:
@@ -1363,11 +1298,7 @@ class FourfrontUpdaterAbstract(object):
                 elif existing_qctype == 'quality_metric_qclist':
                     # we assume that the same qc type occurs only once per qc list
                     # and so a new workflow run can update the one with the same qc type
-                    existing_qc_meta = get_metadata(existing_qc_uuid,
-                                                    key=self.tibanna_settings.ff_keys,
-                                                    ff_env=self.tibanna_settings.env,
-                                                    add_on='frame=object',
-                                                    check_queue=True)
+                    existing_qc_meta = self.get_metadata(existing_qc_uuid)
                     if qc_type not in [qc['qc_type'] for qc in existing_qc_meta['qc_list']]:
                         existing_qc_meta['qc_list'].append({'qc_type': qc_type, 'value': qc_uuid})
                         self.update_patch_items(existing_qc_meta['uuid'], {'qc_list': existing_qc_meta['qc_list']})
@@ -1380,79 +1311,20 @@ class FourfrontUpdaterAbstract(object):
                 else:
                     # new qc type is being added - create a qc list and move the existing qc to the qc list and
                     # add the new one to the qc list
-                    new_qclist_object = self.create_qc_template()
+                    new_qclist_object = next(self.qc_template_generator())
                     new_qclist_object['qc_list'] = [{'qc_type': existing_qctype, 'value': existing_qc_uuid},
                                                     {'qc_type': qc_type, 'value': qc_uuid}]
                     self.update_post_items(new_qclist_object['uuid'], new_qclist_object, 'quality_metric_qclist')
                     self.update_patch_items(qc_target_accession, {'quality_metric': new_qclist_object['uuid']})
 
-    def qc_schema(self, qc_schema_name):
-        try:
-            # schema. do not need to check_queue
-            res = get_metadata("profiles/" + qc_schema_name + ".json",
-                               key=self.tibanna_settings.ff_keys,
-                               ff_env=self.tibanna_settings.env)
-            return res.get('properties')
-        except Exception as e:
-            err_msg = "Can't get profile for qc schema %s: %s" % (qc_schema_name, str(e))
-            raise FdnConnectionException(err_msg)
-
-    def parse_qc_table(self, data_list, qc_schema):
-        qc_json = dict()
-
-        def parse_item(name, value):
-            """Add item to qc_json if it's in the schema"""
-            qc_type = qc_schema.get(name, {}).get('type', None)
-            if qc_type == 'string':
-                qc_json.update({name: str(value)})
-            elif qc_type == 'number':
-                qc_json.update({name: number(value.replace(',', ''))})
-
-        for data in data_list:
-            for line in data.split('\n'):
-                items = line.strip().split('\t')
-                # flagstat qc handling - e.g. each line could look like "0 + 0 blah blah blah"
-                space_del = line.strip().split(' ')
-                flagstat_items = [' '.join(space_del[0:3]), ' '.join(space_del[3:])]
-                try:
-                    parse_item(items[0], items[1])
-                    parse_item(items[1], items[0])
-                    parse_item(flagstat_items[1], flagstat_items[0])
-                except IndexError:  # pragma: no cover
-                    # maybe a blank line or something
-                    pass
-        return qc_json
-
-    def parse_qc_json(self, data_list):
-        qc_json = dict()
-        for data in data_list:
-            qc_json.update(json.loads(data))
-        return qc_json
-
-    def create_qc_template(self):
-        qc_item = {'uuid': str(uuid4())}
-        if self.common_fields:
-            qc_item.update(self.common_fields)
-        return qc_item
-
-    def unzip_qc_data(self, qc, qc_key, target_accession, return_unzipped_qc_data=True):
-        """qc is a QCArgumentInfo object.
-        if qc is zipped, unzip it, put the files to destination s3,
-        and store the content and target s3 key to a dictionary and return.
-        """
-        if qc.qc_zipped:
-            unzipped_data = self.s3(qc.workflow_argument_name).unzip_s3_to_s3(qc_key,
-                                                                              target_accession,
-                                                                              acl=qc.qc_acl,
-                                                                              store_results=return_unzipped_qc_data)
-            if return_unzipped_qc_data:
-                for k, v in unzipped_data.items():
-                    v['data'] = v['data'].decode('utf-8', 'backslashreplace')
-                return unzipped_data
-            else:
-                return None
-        else:
-            return None
+    def qc_template_generator(self, add_custom_qc_fields=False):
+        while(True):
+            qc_item = {'uuid': str(uuid4())}
+            if self.common_fields:
+                qc_item.update(self.common_fields)
+            if add_custom_qc_fields and self.custom_qc_fields:
+                qc_item.update(self.custom_qc_fields)
+            yield qc_item
 
     # rna-strandedness (hardcode it for now - later we generalize along with md5)
     def update_rna_strandedness(self):
@@ -1695,16 +1567,3 @@ def match_higlass_config(file_format, extra_format):
             elif not extra_format:
                 return hc
     return None
-
-
-def number(astring):
-    """Convert a string into a float or integer
-    Returns original string if it can't convert it.
-    """
-    try:
-        num = float(astring)
-        if num % 1 == 0:
-            num = int(num)
-        return num
-    except ValueError:
-        return astring

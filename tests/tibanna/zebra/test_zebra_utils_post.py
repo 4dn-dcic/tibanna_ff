@@ -39,14 +39,8 @@ def test_qclist_handling():
             'postrunjson': minimal_postrunjson_template(),
             '_tibanna': {'env': 'fourfront-cgap', 'settings': {'1': '1'}}}
     updater = FourfrontUpdater(**data)
-    assert updater
-    assert updater.workflow_qc_arguments
-    assert updater.workflow
-    assert 'arguments' in updater.workflow
-    assert updater.workflow_qc_arguments
-    assert 'raw_bam' in updater.workflow_qc_arguments
-    assert updater.workflow_qc_arguments['raw_bam'][0].qc_type == 'quality_metric_bamcheck'
-    new_qc_object = updater.create_qc_template()
+
+    new_qc_object = next(updater.qc_template_generator())
 
     # file w/ no quality_metric object
     new_pf_uuid = post_new_processedfile(file_format='bam', key=updater.tibanna_settings.ff_keys)
@@ -125,4 +119,3 @@ def test_qclist_handling():
     ff_utils.delete_metadata(new_pf_uuid, key=updater.tibanna_settings.ff_keys)
     ff_utils.delete_metadata(existing_qclist_uuid, key=updater.tibanna_settings.ff_keys)
     ff_utils.delete_metadata(existing_qc_uuid, key=updater.tibanna_settings.ff_keys)
-
