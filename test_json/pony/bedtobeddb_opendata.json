@@ -3,7 +3,7 @@
   "app_name": "bedtobeddb",
   "_tibanna": {
     "env": "fourfront-webdev",
-    "run_type": "bedtobeddb"
+    "run_type": "bedtobeddb_opendata"
   },
   "overwrite_input_extra": true,
   "parameters": {
@@ -18,7 +18,7 @@
   "workflow_uuid": "91049eef-d434-4e16-a1ad-06de73f079dc",
   "input_files": [
     {
-      "uuid": "e22ed503-e208-4fbd-a097-06022bb7a634",
+      "uuid": "72ef6ad9-9333-4993-af44-061d76d19999",
       "workflow_argument_name": "bedfile"
     },
     {

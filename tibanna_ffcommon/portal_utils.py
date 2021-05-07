@@ -132,6 +132,7 @@ class FFInputAbstract(SerializableObject):
             self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
 
     def as_dict(self):
+        #d_shallow = super().as_dict().copy()
         d_shallow = self.__dict__.copy()
         del(d_shallow['parameters_'])
         if '_metadata' in d_shallow:

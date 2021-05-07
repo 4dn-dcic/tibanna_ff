@@ -33,7 +33,7 @@ from .extra_files import (
 logger = create_logger(__name__)
 
 
-class FFInputFiles(object):
+class FFInputFiles(SerializableObject):
     """Class representation for the input_files field in The
     pony/zebra input json (job description).
     """
@@ -67,7 +67,7 @@ class FFInputFiles(object):
         return [inpf.as_dict() for inpf in self.input_files]
 
 
-class FFInputFile(object):
+class FFInputFile(SerializableObject):
     """Class representation for each element in the input_files field in The
     pony/zebra input json (job description).
     """

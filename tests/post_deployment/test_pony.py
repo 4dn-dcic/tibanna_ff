@@ -140,7 +140,36 @@ def test_bed2beddb():
     assert res['extra_files']
     assert len(res['extra_files']) == 1
     extra = res['extra_files'][0]
-    assert extra['file_format'] == 'beddb'
-    assert extra['use_for'] == 'visualization'
+    assert extra['file_format']['display_title'] == 'beddb'
+    ff_utils.patch_metadata({'status': 'deleted'}, bed_uuid, key=key)
+    ff_utils.patch_metadata({'status': 'deleted'}, wfr_uuid, key=key)
+
+
+def test_bed2beddb_opendata():
+    key = dev_key()
+    # prep new File
+    data = get_test_json('bedtobeddb_opendata.json')
+    bed_content = b'chr1\t1000000\t2000000\tregion1'
+    gzipped_content = gzip.compress(bed_content)
+    bed_uuid = post_new_processedfile(file_format='bed', key=key, upload_content=gzipped_content, extension='bed.gz')
+    data['input_files'][0]['uuid'] = bed_uuid
+    api = API()
+    res = api.run_workflow(data, sfn=DEV_SFN)
+    assert 'jobid' in res
+    assert 'exec_arn' in res['_tibanna']
+    time.sleep(360)
+    assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
+    outjson = api.check_output(res['_tibanna']['exec_arn'])
+    postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
+    assert 'status' in postrunjson['Job']
+    assert postrunjson['Job']['status'] == '0'
+    assert 'ff_meta' in outjson
+    assert 'uuid' in outjson['ff_meta']
+    wfr_uuid = outjson['ff_meta']['uuid']
+    res = ff_utils.get_metadata(bed_uuid, key=key, ff_env=DEV_ENV, check_queue=True)
+    assert res['extra_files']
+    assert len(res['extra_files']) == 1
+    extra = res['extra_files'][0]
+    assert extra['file_format']['display_title'] == 'beddb'
     ff_utils.patch_metadata({'status': 'deleted'}, bed_uuid, key=key)
     ff_utils.patch_metadata({'status': 'deleted'}, wfr_uuid, key=key)
