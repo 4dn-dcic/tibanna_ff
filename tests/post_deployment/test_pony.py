@@ -4,6 +4,7 @@ import time
 import uuid
 import gzip
 import hashlib
+import boto3
 from tibanna_4dn.core import API
 from tibanna_4dn.vars import DEV_SFN, DEV_ENV
 from tests.tibanna.pony.conftest import (
@@ -149,10 +150,14 @@ def test_bed2beddb_opendata():
     key = dev_key()
     # prep new File
     data = get_test_json('bedtobeddb_opendata.json')
-    bed_content = b'chr1\t1000000\t2000000\tregion1'
-    gzipped_content = gzip.compress(bed_content)
-    bed_uuid = post_new_processedfile(file_format='bed', key=key, upload_content=gzipped_content, extension='bed.gz')
-    data['input_files'][0]['uuid'] = bed_uuid
+    #bed_content = b'chr1\t1000000\t2000000\tregion1'
+    #gzipped_content = gzip.compress(bed_content)
+    #bed_uuid = post_new_processedfile(file_format='bed', key=key, upload_content=gzipped_content, extension='bed.gz')
+    #data['input_files'][0]['uuid'] = bed_uuid
+    bed_uuid = data['input_files'][0]['uuid']
+    # first delete extra file from s3 so that we can check it's newly created.
+    boto3.client('s3').delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput',
+                                     Key='614d119e-9330-41a3-a7c9-d149d0456c8e/4DNFI1664939.beddb')
     api = API()
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
@@ -170,6 +175,10 @@ def test_bed2beddb_opendata():
     assert res['extra_files']
     assert len(res['extra_files']) == 1
     extra = res['extra_files'][0]
+    assert extra['upload_key'] == '614d119e-9330-41a3-a7c9-d149d0456c8e/4DNFI1664939.beddb'
+    # check the extra file is created in the right bucket.
+    head = boto3.client('s3').head_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key='614d119e-9330-41a3-a7c9-d149d0456c8e/4DNFI1664939.beddb')
+    assert head
     assert extra['file_format']['display_title'] == 'beddb'
-    ff_utils.patch_metadata({'status': 'deleted'}, bed_uuid, key=key)
+    #ff_utils.patch_metadata({'status': 'deleted'}, bed_uuid, key=key)
     ff_utils.patch_metadata({'status': 'deleted'}, wfr_uuid, key=key)

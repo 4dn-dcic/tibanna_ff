@@ -18,7 +18,7 @@
   "workflow_uuid": "91049eef-d434-4e16-a1ad-06de73f079dc",
   "input_files": [
     {
-      "uuid": "72ef6ad9-9333-4993-af44-061d76d19999",
+      "uuid": "614d119e-9330-41a3-a7c9-d149d0456c8e",
       "workflow_argument_name": "bedfile"
     },
     {
