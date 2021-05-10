@@ -20,6 +20,7 @@ HIGLASS_BUCKETS = [BUCKET_NAME('fourfront-webprod', 'FileProcessed'),
 DEV_ENV = 'fourfront-webdev'
 IAM_BUCKETS = [BUCKET_NAME(DEV_ENV, 'FileProcessed'),
                BUCKET_NAME(DEV_ENV, 'FileFastq'),
+               '4dn-open-data-public',
                'tibanna-output']
 
 DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_SUFFIX
