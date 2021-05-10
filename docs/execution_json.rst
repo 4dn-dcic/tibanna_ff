@@ -27,23 +27,17 @@ Example job description
         "parameters" :  {"nThreads": 4},
         "input_files" : [
            {
-               "object_key": "4DNFIZQZ39L9.bwaIndex.tgz",
                "workflow_argument_name": "bwa_index",
                "uuid": "1f53df95-4cf3-41cc-971d-81bb16c486dd",
-               "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
                "rename": "hg38.tar.gz"
            },
            {
                "workflow_argument_name": "fastq1",
-               "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
-               "uuid": "1150b428-272b-4a0c-b3e6-4b405c148f7c",
-               "object_key": "4DNFIVOZN511.fastq.gz"
+               "uuid": "1150b428-272b-4a0c-b3e6-4b405c148f7c"
            },
            {
                "workflow_argument_name": "fastq2",
-               "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
-               "uuid": "f4864029-a8ad-4bb8-93e7-5108f462ccaa",
-               "object_key": "4DNFIRSRJH45.fastq.gz"
+               "uuid": "f4864029-a8ad-4bb8-93e7-5108f462ccaa"
            }
       ],
       "config": {
@@ -96,7 +90,7 @@ Example job description
 - The ``input_files`` field specifies the argument names (matching the names in CWL), the input file metadata uuid and its bucket and object key name.
 
   - ``workflow_argument_name`` and ``uuid`` are required fields.
-  - ``bucket_name`` and ``object_key`` are required only if the content is a list.
+  - ``bucket_name`` and ``object_key`` are deprecated. Using these fields can cause undesired outcome, especially starting ``0.19.0`` since the user-specified values can overwrite calculated bucket name (e.g. for open data bucket)
   - ``rename`` (optional) can be used to rename a file upon download from s3 to an instance where the workflow will be executed.
 
 - The ``config`` field is directly passed on to the second step, where instance_type, ebs_size, EBS_optimized are auto-filled, if not given.
