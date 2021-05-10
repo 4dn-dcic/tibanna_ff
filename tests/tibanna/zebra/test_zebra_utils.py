@@ -12,6 +12,7 @@ from tibanna_cgap.zebra_utils import (
     ZebraInput
 )
 from tests.tibanna.zebra.conftest import valid_env, logger
+import mock
 
 
 @valid_env
@@ -53,12 +54,13 @@ def test_array_uuid():
                      output_bucket='c',
                      input_files=input_file_list,
                      _tibanna=_tibanna)
-    assert 'bucket_name' in inp.input_files[0]
-    assert 'object_key' in inp.input_files[0]
-    assert inp.input_files[0]['bucket_name'] == 'elasticbeanstalk-fourfront-cgapwolf-wfoutput'
-    assert len(inp.input_files[0]['object_key']) == 2
-    assert inp.input_files[0]['object_key'][0] == "GAPFIQNHLO6D.rck.gz"
-    assert inp.input_files[0]['object_key'][1] == "GAPFIZ25WPXE.rck.gz"
+    inputfiles = inp.input_files.as_dict()
+    assert 'bucket_name' in inputfiles[0]
+    assert 'object_key' in inputfiles[0]
+    assert inputfiles[0]['bucket_name'] == 'elasticbeanstalk-fourfront-cgapwolf-wfoutput'
+    assert len(inputfiles[0]['object_key']) == 2
+    assert inputfiles[0]['object_key'][0] == "GAPFIQNHLO6D.rck.gz"
+    assert inputfiles[0]['object_key'][1] == "GAPFIZ25WPXE.rck.gz"
 
 
 @valid_env
@@ -87,9 +89,8 @@ def test_extra_file_rename():
                      input_files=input_file_list,
                      _tibanna=_tibanna)
     args = dict()
-    inp.process_input_file_info(input_file_list[0], args)
-    assert 'input_files' in args
-    assert 'secondary_files' in args
+    args['input_files'] = inp.input_files.create_unicorn_arg_input_files()
+    args['secondary_files'] = inp.input_files.create_unicorn_arg_secondary_files()
     assert 'input_rcks' in args['secondary_files']
     assert 'rename' in args['secondary_files']['input_rcks']
     assert len(args['secondary_files']['input_rcks']['rename']) == 2
@@ -122,16 +123,8 @@ def test_fourfront_starter_custom_qc(start_run_event_vcfqc):
 @valid_env
 def test_bamcheck(update_ffmeta_event_data_bamcheck):
     updater = FourfrontUpdater(**update_ffmeta_event_data_bamcheck)
-    assert updater.workflow
-    assert 'arguments' in updater.workflow
-    assert updater.workflow_qc_arguments
-    assert 'raw_bam' in updater.workflow_qc_arguments
-    assert updater.workflow_qc_arguments['raw_bam'][0].qc_type == 'quality_metric_bamcheck'
     updater.update_qc()
-    qc = updater.workflow_qc_arguments['raw_bam'][0]
     target_accession = updater.accessions('raw_bam')[0]
-    assert qc.workflow_argument_name == 'raw_bam-check'
-    assert qc.qc_table
     assert target_accession == '4DNFIWT3X5RU'
     assert updater.post_items
     assert len(updater.post_items['quality_metric_bamcheck']) == 1
@@ -142,17 +135,13 @@ def test_bamcheck(update_ffmeta_event_data_bamcheck):
 @valid_env
 def test_cmphet(update_ffmeta_event_data_cmphet):
     updater = FourfrontUpdater(**update_ffmeta_event_data_cmphet)
-    assert updater.workflow
-    assert 'arguments' in updater.workflow
-    assert updater.workflow_qc_arguments
-    assert 'comHet_vcf' in updater.workflow_qc_arguments
-    assert updater.workflow_qc_arguments['comHet_vcf'][0].qc_type == 'quality_metric_cmphet'
-    assert updater.workflow_qc_arguments['comHet_vcf'][1].qc_type == 'quality_metric_vcfcheck'
-    updater.update_qc()
-    qc1 = updater.workflow_qc_arguments['comHet_vcf'][0]
-    assert qc1.workflow_argument_name == 'comHet_vcf-json'
-    qc2 = updater.workflow_qc_arguments['comHet_vcf'][1]
-    assert qc2.workflow_argument_name == 'comHet_vcf-check'
+    fake_parsed_qc_json = {"by_genes":[{"name": "ENSG00000007047"}]}
+    fake_parsed_qc_table = {"check": "OK"}
+    updater._metadata["GAPFI6IZ585N"] = {"accession": "GAPFI6IZ585N"}  # no quality_metric field
+    with mock.patch("tibanna_ffcommon.qc.read_s3_data"):
+        with mock.patch("tibanna_ffcommon.qc.QCDataParser.parse_qc_json", return_value=fake_parsed_qc_json):
+            with mock.patch("tibanna_ffcommon.qc.QCDataParser.parse_qc_table", return_value=fake_parsed_qc_table):
+                updater.update_qc()
     assert updater.post_items
     assert 'quality_metric_qclist' in updater.post_items
     assert 'quality_metric_cmphet' in updater.post_items
@@ -172,17 +161,13 @@ def test_cmphet_custom_qc_fields(update_ffmeta_event_data_cmphet):
         'institution': '/institutions/test/'
     }
     updater = FourfrontUpdater(**update_ffmeta_event_data_cmphet)
-    assert updater.workflow
-    assert 'arguments' in updater.workflow
-    assert updater.workflow_qc_arguments
-    assert 'comHet_vcf' in updater.workflow_qc_arguments
-    assert updater.workflow_qc_arguments['comHet_vcf'][0].qc_type == 'quality_metric_cmphet'
-    assert updater.workflow_qc_arguments['comHet_vcf'][1].qc_type == 'quality_metric_vcfcheck'
-    updater.update_qc()
-    qc1 = updater.workflow_qc_arguments['comHet_vcf'][0]
-    assert qc1.workflow_argument_name == 'comHet_vcf-json'
-    qc2 = updater.workflow_qc_arguments['comHet_vcf'][1]
-    assert qc2.workflow_argument_name == 'comHet_vcf-check'
+    fake_parsed_qc_json = {"by_genes":[{"name": "ENSG00000007047"}]}
+    fake_parsed_qc_table = {"check": "OK"}
+    updater._metadata["GAPFI6IZ585N"] = {"accession": "GAPFI6IZ585N"}  # no quality_metric field
+    with mock.patch("tibanna_ffcommon.qc.read_s3_data"):
+        with mock.patch("tibanna_ffcommon.qc.QCDataParser.parse_qc_json", return_value=fake_parsed_qc_json):
+            with mock.patch("tibanna_ffcommon.qc.QCDataParser.parse_qc_table", return_value=fake_parsed_qc_table):
+                updater.update_qc()
     assert updater.post_items
     assert 'quality_metric_qclist' in updater.post_items
     assert 'quality_metric_cmphet' in updater.post_items
@@ -209,17 +194,13 @@ def test_cmphet_common_fields(update_ffmeta_event_data_cmphet):
         'institution': '/institutions/test/'
     }
     updater = FourfrontUpdater(**update_ffmeta_event_data_cmphet)
-    assert updater.workflow
-    assert 'arguments' in updater.workflow
-    assert updater.workflow_qc_arguments
-    assert 'comHet_vcf' in updater.workflow_qc_arguments
-    assert updater.workflow_qc_arguments['comHet_vcf'][0].qc_type == 'quality_metric_cmphet'
-    assert updater.workflow_qc_arguments['comHet_vcf'][1].qc_type == 'quality_metric_vcfcheck'
-    updater.update_qc()
-    qc1 = updater.workflow_qc_arguments['comHet_vcf'][0]
-    assert qc1.workflow_argument_name == 'comHet_vcf-json'
-    qc2 = updater.workflow_qc_arguments['comHet_vcf'][1]
-    assert qc2.workflow_argument_name == 'comHet_vcf-check'
+    fake_parsed_qc_json = {"by_genes":[{"name": "ENSG00000007047"}]}
+    fake_parsed_qc_table = {"check": "OK"}
+    updater._metadata["GAPFI6IZ585N"] = {"accession": "GAPFI6IZ585N"}  # no quality_metric field
+    with mock.patch("tibanna_ffcommon.qc.read_s3_data"):
+        with mock.patch("tibanna_ffcommon.qc.QCDataParser.parse_qc_json", return_value=fake_parsed_qc_json):
+            with mock.patch("tibanna_ffcommon.qc.QCDataParser.parse_qc_table", return_value=fake_parsed_qc_table):
+                updater.update_qc()
     assert updater.post_items
     assert 'quality_metric_qclist' in updater.post_items
     assert 'quality_metric_cmphet' in updater.post_items

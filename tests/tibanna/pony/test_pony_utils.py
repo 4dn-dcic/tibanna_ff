@@ -1,7 +1,11 @@
+from tibanna_ffcommon.file_format import (
+    FormatExtensionMap,
+)
+from tibanna_ffcommon.extra_files import (
+    get_extra_file_key,
+)
 from tibanna_ffcommon.portal_utils import (
     TibannaSettings,
-    FormatExtensionMap,
-    get_extra_file_key,
 )
 from tibanna_4dn.pony_utils import (
     WorkflowRunMetadata,

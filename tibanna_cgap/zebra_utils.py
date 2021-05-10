@@ -15,13 +15,15 @@ from .vars import (
     ACCESSION_PREFIX,
     HIGLASS_BUCKETS
 )
-from tibanna_ffcommon.portal_utils import (
+from tibanna_ffcommon.wfr import (
     WorkflowRunMetadataAbstract,
+    aslist
+)
+from tibanna_ffcommon.portal_utils import (
     ProcessedFileMetadataAbstract,
     FourfrontStarterAbstract,
     FourfrontUpdaterAbstract,
     FFInputAbstract,
-    aslist
 )
 
 
@@ -117,14 +119,14 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
     default_email_sender = 'cgap.everyone@gmail.com'
     higlass_buckets = HIGLASS_BUCKETS
 
-    def create_qc_template(self):
-        res = super().create_qc_template()
-        if 'institution' not in res:
-            res.update({"institution": DEFAULT_INSTITUTION})
-        if 'project' not in res:
-            res.update({"project": DEFAULT_PROJECT})
-        return res
-
+    def qc_template_generator(self, add_custom_qc_fields=False):
+        while(True):
+            res = next(super().qc_template_generator(add_custom_qc_fields=add_custom_qc_fields))
+            if 'institution' not in res:
+                res.update({"institution": DEFAULT_INSTITUTION})
+            if 'project' not in res:
+                res.update({"project": DEFAULT_PROJECT})
+            yield res
 
 def post_random_file(bucket, ff_key,
                      file_format='pairs', extra_file_format='pairs_px2',

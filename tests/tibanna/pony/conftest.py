@@ -78,6 +78,11 @@ def start_run_md5_data(ff_keys):
 
 
 @pytest.fixture
+def start_run_md5_comprehensive_data(ff_keys):
+    return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_md5_comprehensive.json')
+
+
+@pytest.fixture
 def start_run_md5_mount_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_md5-mount.json')
 

@@ -1,24 +1,16 @@
 import json
-import datetime
 import boto3
 import copy
 import random
 from uuid import uuid4
 import requests
+from functools import partial
 from dcicutils.ff_utils import (
     get_metadata,
     post_metadata,
     patch_metadata,
-    search_metadata,
     generate_rand_accession,
     convert_param
-)
-from tibanna.nnested_array import (
-    run_on_nested_arrays1,
-    run_on_nested_arrays2,
-    combine_two,
-    flatten,
-    create_dim
 )
 from dcicutils.s3_utils import s3Utils
 from tibanna import create_logger
@@ -45,6 +37,25 @@ from .vars import BUCKET_NAME
 from .config import (
     higlass_config
 )
+from .file_format import (
+    FormatExtensionMap,
+    parse_formatstr,
+    cmp_fileformat
+)
+from .input_files import (
+    FFInputFiles
+)
+from .wfr import (
+    WorkflowRunMetadataAbstract,
+    WorkflowRunOutputFiles
+)
+from .extra_files import (
+    ExtraFiles,
+    get_extra_file_key
+)
+from .qc import (
+    QCArgumentsByTarget
+)
 from .exceptions import (
     TibannaStartException,
     FdnConnectionException,
@@ -57,19 +68,40 @@ logger = create_logger(__name__)
 
 
 class FFInputAbstract(SerializableObject):
+    # the following attribute works as a cache for metadata -
+    # do not modify or access it directly, but use self.get_metadata
+    # instead
+    _metadata = dict()
+
     def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
                  _tibanna=None, push_error_to_end=True, **kwargs):
         if not workflow_uuid:
             raise MalFormattedFFInputException("missing field in input json: workflow_uuid")
         if not config:
             raise MalFormattedFFInputException("missing field in input json: config")
+
+        # tibanna settings - these are used to connect to the portal server
+        self._tibanna = _tibanna
+        self.tibanna_settings = None
+        if _tibanna:
+            env = _tibanna.get('env', '')
+            try:
+                self.tibanna_settings = TibannaSettings(env, settings=_tibanna)
+            except Exception as e:
+                raise TibannaStartException("%s" % e)
+
         self.config = Config(**config)
         self.jobid = jobid
 
-        self.input_files = kwargs.get('input_files', [])
-        for infile in self.input_files:
-            if not infile or 'uuid' not in infile or 'workflow_argument_name' not in infile:
-                raise MalFormattedFFInputException("malformed input, check input_files in your input json")
+        # self.ff_input_files is a FFInputFiles class object created from the input_files field
+        # this object handles input file-related operations including format conversions
+        # to unicorn input files and input files for workflow run metadata.
+        if self.tibanna_settings:
+            self.input_files = FFInputFiles(kwargs.get('input_files', []),
+                                            ff_key=self.tibanna_settings.ff_keys,
+                                            ff_env=self.tibanna_settings.env)
+        else:
+            self.input_files = FFInputFiles(kwargs.get('input_files', []))
 
         self.workflow_uuid = workflow_uuid
         self.output_bucket = output_bucket
@@ -84,17 +116,7 @@ class FFInputAbstract(SerializableObject):
         self.custom_qc_fields = kwargs.get('custom_qc_fields', None)  # custom fields for QC (but not WFR_QC and QC_LIST)
         self.output_files = kwargs.get('output_files', [])  # for user-supplied output files
         self.dependency = kwargs.get('dependency', None)
-        self.wf_meta_ = None
         self.push_error_to_end = push_error_to_end
-
-        self._tibanna = _tibanna
-        self.tibanna_settings = None
-        if _tibanna:
-            env = _tibanna.get('env', '')
-            try:
-                self.tibanna_settings = TibannaSettings(env, settings=_tibanna)
-            except Exception as e:
-                raise TibannaStartException("%s" % e)
 
         if 'overwrite_input_extra' in kwargs:
             self.config.overwrite_input_extra = kwargs['overwrite_input_extra']
@@ -105,40 +127,16 @@ class FFInputAbstract(SerializableObject):
         if not hasattr(config, 'email'):
             self.config.email = False
 
-        def get_object_key_from_uuid(uuid):
-            infile_meta = self.get_metadata(uuid)
-            return infile_meta['upload_key'].replace(uuid + '/', '')
-
-        def get_file_type_from_uuid(uuid):
-            infile_meta = self.get_metadata(uuid)
-            return(infile_meta['@type'][0])
-
-        # fill in input_files info if object_key and bucket_name is not provided
-        for infile in self.input_files:
-            if 'object_key' not in infile:
-                try:
-                    infile['object_key'] = run_on_nested_arrays1(infile['uuid'], get_object_key_from_uuid)
-                except Exception as e:
-                    raise FdnConnectionException(e)
-            if 'bucket_name' not in infile:
-                try:
-                    infile_type = flatten(run_on_nested_arrays1(infile['uuid'], get_file_type_from_uuid))
-                    if isinstance(infile_type, list):
-                        infile_type = infile_type[0]
-                except Exception as e:
-                    raise FdnConnectionException(e)
-                # assume all file types are the same for a given argument
-                infile['bucket_name'] = BUCKET_NAME(self.tibanna_settings.env, infile_type)
-            logger.debug("infile = " + str(infile))
-
         # fill in output_bucket
         if not self.output_bucket:
             self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
 
     def as_dict(self):
+        #d_shallow = super().as_dict().copy()
         d_shallow = self.__dict__.copy()
         del(d_shallow['parameters_'])
-        del(d_shallow['wf_meta_'])
+        if '_metadata' in d_shallow:
+            del(d_shallow['_metadata'])
         del(d_shallow['tibanna_settings'])
         do = SerializableObject()
         do.update(**d_shallow)
@@ -146,24 +144,34 @@ class FFInputAbstract(SerializableObject):
 
     @property
     def input_file_uuids(self):
-        return [_['uuid'] for _ in self.input_files]
+        return [_.uuid for _ in self.input_files.input_files]
 
     def get_metadata(self, id):
-        return get_metadata(id,
-                            key=self.tibanna_settings.ff_keys,
-                            ff_env=self.tibanna_settings.env,
-                            add_on='frame=object',
-                            check_queue=True)
+        if self._metadata.get(id, ''):
+            return self._metadata[id]
+        else:
+            try:
+                self._metadata[id] = get_metadata(id,
+                                                  key=self.tibanna_settings.ff_keys,
+                                                  ff_env=self.tibanna_settings.env,
+                                                  add_on='frame=object',
+                                                  check_queue=True)
+            except Exception as e:
+                raise FdnConnectionException(e)
+            return self._metadata[id]
+
+    def patch_metadata(self, data, id):
+        try:
+            res = patch_metadata(data, id,
+                                 key=self.tibanna_settings.ff_keys,
+                                 ff_env=self.tibanna_settings.env,)
+        except Exception as e:
+            raise FdnConnectionException(e)
+        return res
 
     @property
     def wf_meta(self):
-        if self.wf_meta_:
-            return self.wf_meta_
-        try:
-            self.wf_meta_ = self.get_metadata(self.workflow_uuid)
-            return self.wf_meta_
-        except Exception as e:
-            raise FdnConnectionException(e)
+        return self.get_metadata(self.workflow_uuid)
 
     def get_accessions_from_argname(self, argname, ff_meta):
         accessions = []
@@ -181,7 +189,7 @@ class FFInputAbstract(SerializableObject):
                     res = self.get_metadata(inf['value'])
                     accessions.append(res['accession'])
         return accessions
- 
+
     def add_args(self, ff_meta):
         # create args
         args = dict()
@@ -215,7 +223,7 @@ class FFInputAbstract(SerializableObject):
                 args['output_target'][arg_name] = of.get('upload_key')
             elif of.get('type') == 'Output to-be-extra-input file':
                 target_inf = ff_meta.input_files[0]  # assume only one input for now
-                target_key = self.output_target_for_input_extra(target_inf, of)
+                target_key = self.output_target_for_input_extra(target_inf['value'], of)
                 args['output_target'][arg_name] = target_key
             else:  # output QC or report file
                 wf_of = [_ for _ in self.wf_meta.get('arguments') if _['workflow_argument_name'] == arg_name][0]
@@ -240,208 +248,50 @@ class FFInputAbstract(SerializableObject):
                     args['secondary_output_target'][arg_name].append(ext.get('upload_key'))
 
         # input files
-        for input_file in self.input_files:
-            self.process_input_file_info(input_file, args)
+        args['input_files'] = self.input_files.create_unicorn_arg_input_files()
+        args['secondary_files'] = self.input_files.create_unicorn_arg_secondary_files()
 
+        # custom errors
         args['custom_errors'] = self.wf_meta.get('custom_errors', [])
 
         # create Args class object
         self.args = Args(**args)
 
-    def output_target_for_input_extra(self, target_inf, of):
+    def output_target_for_input_extra(self, target_inf_uuid, of):
         extrafileexists = False
-        logger.debug("target_inf = %s" % str(target_inf))
-        target_inf_meta = get_metadata(target_inf.get('value'),
-                                       key=self.tibanna_settings.ff_keys,
-                                       ff_env=self.tibanna_settings.env,
-                                       add_on='frame=object',
-                                       check_queue=True)
+        target_inf_meta = self.get_metadata(target_inf_uuid)
         target_format = parse_formatstr(of.get('format'))
-        if target_inf_meta.get('extra_files'):
-            for exf in target_inf_meta.get('extra_files'):
-                if parse_formatstr(exf.get('file_format')) == target_format:
-                    extrafileexists = True
-                    if self.config.overwrite_input_extra:
-                        exf['status'] = 'to be uploaded by workflow'
-                    break
-            if not extrafileexists:
-                new_extra = {'file_format': target_format, 'status': 'to be uploaded by workflow'}
-                target_inf_meta['extra_files'].append(new_extra)
+        extra_files = ExtraFiles(target_inf_meta.get('extra_files'))
+        if extra_files.n == 0:  # no existing extra file
+            extra_files.add_extra_file(file_format=target_format,
+                                       status='to be uploaded by workflow')
         else:
-            new_extra = {'file_format': target_format, 'status': 'to be uploaded by workflow'}
-            target_inf_meta['extra_files'] = [new_extra]
-        if self.config.overwrite_input_extra or not extrafileexists:
-            # first patch metadata
-            logger.debug("extra_files_to_patch: %s" % str(target_inf_meta.get('extra_files')))
-            patch_metadata({'extra_files': target_inf_meta.get('extra_files')},
-                           target_inf.get('value'),
-                           key=self.tibanna_settings.ff_keys,
-                           ff_env=self.tibanna_settings.env)
-            # target key
-            # NOTE : The target bucket is assume to be the same as output bucket
-            # i.e. the bucket for the input file should be the same as the output bucket.
-            # which is true if both input and output are processed files.
-            orgfile_key = target_inf_meta.get('upload_key')
-            orgfile_format = parse_formatstr(target_inf_meta.get('file_format'))
-            fe_map = FormatExtensionMap(self.tibanna_settings.ff_keys)
-            logger.debug("orgfile_key = %s" % orgfile_key)
-            logger.debug("orgfile_format = %s" % orgfile_format)
-            logger.debug("target_format = %s" % target_format)
-            target_key = get_extra_file_key(orgfile_format, orgfile_key, target_format, fe_map)
-            return target_key
-        else:
-            raise Exception("input already has extra: 'User overwrite_input_extra': true")
+            target_exf = extra_files.select(file_format=target_format)
+            if target_exf:
+                if self.config.overwrite_input_extra:
+                    target_exf.status = 'to be uploaded by workflow'
+                else:
+                    raise Exception("input already has extra: 'Use overwrite_input_extra': true")
+            else:
+                extra_files.add_extra_file(file_format=target_format,
+                                           status='to be uploaded by workflow')
 
-    def process_input_file_info(self, input_file, args):
-        if not args or 'input_files' not in args:
-            args['input_files'] = dict()
-        if not args or 'secondary_files' not in args:
-            args['secondary_files'] = dict()
-        object_key = combine_two(input_file['uuid'], input_file['object_key'])
-        args['input_files'].update({input_file['workflow_argument_name']: {
-                                    'bucket_name': input_file['bucket_name'],
-                                    'rename': input_file.get('rename', ''),
-                                    'unzip': input_file.get('unzip', ''),
-                                    'mount': input_file.get('mount', False),
-                                    'object_key': object_key}})
-        if input_file.get('format_if_extra', ''):
-            args['input_files'][input_file['workflow_argument_name']]['format_if_extra'] \
-                = input_file.get('format_if_extra')
-        else:  # do not add this if the input itself is an extra file
-            self.add_secondary_files_to_args(input_file, args)
-
-    def get_extra_file_key_given_input_uuid_and_key(self, inf_uuid, inf_key, fe_map):
-        extra_file_keys = []
-        not_ready_list = ['uploading', 'to be uploaded by workflow', 'upload failed', 'deleted']
-        infile_meta = get_metadata(inf_uuid,
-                                   key=self.tibanna_settings.ff_keys,
-                                   ff_env=self.tibanna_settings.env,
-                                   add_on='frame=object')
-        if infile_meta.get('extra_files'):
-            infile_format = parse_formatstr(infile_meta.get('file_format'))
-            for extra_file in infile_meta.get('extra_files'):
-                if 'status' not in extra_file or extra_file.get('status') not in not_ready_list:
-                    extra_file_format = parse_formatstr(extra_file.get('file_format'))
-                    extra_file_key = get_extra_file_key(infile_format, inf_key, extra_file_format, fe_map)
-                    extra_file_keys.append(extra_file_key)
-        if len(extra_file_keys) == 0:
-            extra_file_keys = None
-        return extra_file_keys
-
-    def add_secondary_files_to_args(self, input_file, args):
-        """This function adds any existing secondary files to the args field to pass to
-        run_task as part of UnicornInput. args (input) is a dictionary and must have
-        'input_files' as a key. input_file (input) is an element of input_files list
-        in the pony/zebra input json. This function connect to the portal to get metadata."""
-        if not args or 'input_files' not in args:
-            raise Exception("args must contain key 'input_files'")
-        if 'secondary_files'not in args:
-            args['secondary_files'] = dict()
-        argname = input_file['workflow_argument_name']
+        # first patch metadata
+        logger.debug("extra_files_to_patch: %s" % str(extra_files.as_dict()))
+        self.patch_metadata({'extra_files': extra_files.as_dict()},
+                            target_inf_uuid)
+        # target key
+        # NOTE : The target bucket is assume to be the same as output bucket
+        # i.e. the bucket for the input file should be the same as the output bucket.
+        # which is true if both input and output are processed files.
+        orgfile_key = target_inf_meta.get('upload_key')
+        orgfile_format = parse_formatstr(target_inf_meta.get('file_format'))
         fe_map = FormatExtensionMap(self.tibanna_settings.ff_keys)
-        extra_file_keys = run_on_nested_arrays2(input_file['uuid'],
-                                                args['input_files'][argname]['object_key'],
-                                                self.get_extra_file_key_given_input_uuid_and_key,
-                                                fe_map=fe_map)
-        if 'rename' in input_file and input_file['rename']:
-            extra_file_renames = run_on_nested_arrays2(input_file['uuid'],
-                                                       args['input_files'][argname]['rename'],
-                                                       self.get_extra_file_key_given_input_uuid_and_key,
-                                                       fe_map=fe_map)
-        else:
-            extra_file_renames = ''
-        if extra_file_renames and len(extra_file_renames) > 0:
-            extra_file_renames = list(filter(lambda x: x, extra_file_renames))
-            if len(extra_file_renames) == 1:
-                extra_file_renames = extra_file_renames[0]
-        if extra_file_keys and len(extra_file_keys) > 0:
-            extra_file_keys = list(filter(lambda x: x, extra_file_keys))
-            if len(extra_file_keys) == 1:
-                extra_file_keys = extra_file_keys[0]
-            if extra_file_keys:
-                args['secondary_files'].update({input_file['workflow_argument_name']: {
-                                                'bucket_name': input_file['bucket_name'],
-                                                'rename': extra_file_renames,
-                                                'mount': input_file.get('mount', False),
-                                                'object_key': extra_file_keys}})
-
-
-class WorkflowRunMetadataAbstract(SerializableObject):
-    '''
-    fourfront metadata
-    '''
-
-    def __init__(self, workflow=None, awsem_app_name='', app_version=None, input_files=[],
-                 parameters=[], title=None, uuid=None, output_files=None,
-                 run_status='started', run_platform='AWSEM', run_url='', tag=None,
-                 aliases=None,  awsem_postrun_json=None, submitted_by=None, extra_meta=None,
-                 awsem_job_id=None, **kwargs):
-        """Class for WorkflowRun that matches the 4DN Metadata schema
-        Workflow (uuid of the workflow to run) has to be given.
-        Workflow_run uuid is auto-generated when the object is created.
-        """
-        if not workflow:
-            logger.warning("workflow is missing. %s may not behave as expected" % self.__class__.__name__)
-        if run_platform == 'AWSEM':
-            self.awsem_app_name = awsem_app_name
-            # self.app_name = app_name
-            if awsem_job_id is None:
-                self.awsem_job_id = ''
-            else:
-                self.awsem_job_id = awsem_job_id
-        else:
-            raise Exception("invalid run_platform {} - it must be AWSEM".format(run_platform))
-
-        self.run_status = run_status
-        self.uuid = uuid if uuid else str(uuid4())
-        self.workflow = workflow
-        self.run_platform = run_platform
-        if run_url:
-            self.run_url = run_url
-
-        if title is None:
-            if app_version:
-                title = awsem_app_name + ' ' + app_version
-            else:
-                title = awsem_app_name
-            if tag:
-                title = title + ' ' + tag
-            title = title + " run " + str(datetime.datetime.now())
-        self.title = title
-
-        if aliases:
-            if isinstance(aliases, basestring):  # noqa
-                aliases = [aliases, ]
-            self.aliases = aliases
-        self.input_files = input_files
-        self.output_files = output_files
-        self.parameters = parameters
-        if awsem_postrun_json:
-            self.awsem_postrun_json = awsem_postrun_json
-        if submitted_by:
-            self.submitted_by = submitted_by
-
-        if extra_meta:
-            for k, v in iter(extra_meta.items()):
-                self.__dict__[k] = v
-
-    def append_outputfile(self, outjson):
-        self.output_files.append(outjson)
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
-    def post(self, key, type_name=None):
-        if not type_name:
-            if self.run_platform == 'AWSEM':
-                type_name = 'workflow_run_awsem'
-            else:
-                raise Exception("cannot determine workflow schema type from the run platform: should be AWSEM.")
-        logger.debug("in function post: self.as_dict()= " + str(self.as_dict()))
-        return post_metadata(self.as_dict(), type_name, key=key)
-
-    def patch(self, key, type_name=None):
-        return patch_metadata(self.as_dict(), key=key)
+        logger.debug("orgfile_key = %s" % orgfile_key)
+        logger.debug("orgfile_format = %s" % orgfile_format)
+        logger.debug("target_format = %s" % target_format)
+        target_key = get_extra_file_key(orgfile_format, orgfile_key, target_format, fe_map)
+        return target_key
 
 
 class ProcessedFileMetadataAbstract(SerializableObject):
@@ -483,50 +333,6 @@ class ProcessedFileMetadataAbstract(SerializableObject):
             self.higlass_uid = higlass_uid
 
 
-class WorkflowRunOutputFiles(SerializableObject):
-    def __init__(self, workflow_argument_name, argument_type, file_format=None, secondary_file_formats=None,
-                 upload_key=None, uuid=None, extra_files=None):
-        self.workflow_argument_name = workflow_argument_name
-        self.type = argument_type
-        if file_format:
-            self.format = file_format
-        if extra_files:
-            self.extra_files = extra_files
-        if secondary_file_formats:
-            self.secondary_file_formats = secondary_file_formats
-        if uuid:
-            self.value = uuid
-        if upload_key:
-            self.upload_key = upload_key
-
-
-def parse_formatstr(file_format_str):
-    if not file_format_str:
-        return None
-    return file_format_str.replace('/file-formats/', '').replace('/', '')
-
-
-def create_ordinal(a):
-    if isinstance(a, list):
-        return list(range(1, len(a)+1))
-    else:
-        return 1
-
-
-class InputFileForWFRMeta(object):
-    def __init__(self, workflow_argument_name=None, value=None, ordinal=None, format_if_extra=None, dimension=None):
-        self.workflow_argument_name = workflow_argument_name
-        self.value = value
-        self.ordinal = ordinal
-        if dimension:
-            self.dimension = dimension
-        if format_if_extra:
-            self.format_if_extra = format_if_extra
-
-    def as_dict(self):
-        return self.__dict__
-
-
 def aslist(x):
     if isinstance(x, list):
         return x
@@ -538,47 +344,6 @@ def ensure_list(val):
     if isinstance(val, (list, tuple)):
         return val
     return [val]
-
-
-def get_extra_file_key(infile_format, infile_key, extra_file_format, fe_map):
-    infile_extension = fe_map.get_extension(infile_format)
-    extra_file_extension = fe_map.get_extension(extra_file_format)
-    if not infile_extension or not extra_file_extension:
-        errmsg = "Extension not found for infile_format %s (key=%s)" % (infile_format, infile_key)
-        errmsg += "extra_file_format %s" % extra_file_format
-        errmsg += "(infile extension %s, extra_file_extension %s)" % (infile_extension, extra_file_extension)
-        raise Exception(errmsg)
-    return infile_key.replace(infile_extension, extra_file_extension)
-
-
-class FormatExtensionMap(object):
-    def __init__(self, ff_keys):
-        try:
-            logger.debug("Searching in server : " + ff_keys['server'])
-            ffe_all = search_metadata("/search/?type=FileFormat&frame=object", key=ff_keys)
-        except Exception as e:
-            raise Exception("Can't get the list of FileFormat objects. %s\n" % e)
-        self.fe_dict = dict()
-        logger.debug("**ffe_all = " + str(ffe_all))
-        for k in ffe_all:
-            file_format = k['file_format']
-            self.fe_dict[file_format] = \
-                {'standard_extension': k['standard_file_extension'],
-                 'other_allowed_extensions': k.get('other_allowed_extensions', []),
-                 'extrafile_formats': k.get('extrafile_formats', [])
-                 }
-
-    def get_extension(self, file_format):
-        if file_format in self.fe_dict:
-            return self.fe_dict[file_format]['standard_extension']
-        else:
-            return None
-
-    def get_other_extensions(self, file_format):
-        if file_format in self.fe_dict:
-            return self.fe_dict[file_format]['other_allowed_extensions']
-        else:
-            return []
 
 
 class TibannaSettings(SerializableObject):
@@ -757,7 +522,7 @@ class FourfrontStarterAbstract(object):
             workflow=self.inp.workflow_uuid,
             awsem_app_name=self.inp.wf_meta['app_name'],
             app_version=self.inp.wf_meta['app_version'],
-            input_files=self.create_ff_input_files(),
+            input_files=self.inp.input_files.create_input_files_for_wfrmeta(),
             tag=self.inp.tag,
             run_url=self.tbn.settings.get('url', ''),
             output_files=self.create_ff_output_files(),
@@ -797,21 +562,6 @@ class FourfrontStarterAbstract(object):
                                           arg.get('argument_format', None),
                                           arg.get('secondary_file_formats', None)).as_dict()
 
-    def create_ff_input_files(self):
-        ff_infile_list = []
-        for input_file in self.inp.input_files:
-            dim = flatten(create_dim(input_file['uuid']))
-            if not dim:  # singlet
-                dim = '0'
-            uuid = flatten(input_file['uuid'])
-            ordinal = create_ordinal(uuid)
-            for d, u, o in zip(aslist(dim), aslist(uuid), aslist(ordinal)):
-                infileobj = InputFileForWFRMeta(input_file['workflow_argument_name'], u, o,
-                                                input_file.get('format_if_extra', ''), d)
-                ff_infile_list.append(infileobj.as_dict())
-        logger.debug("ff_infile_list is %s" % ff_infile_list)
-        return ff_infile_list
-
     def add_meta_to_dynamodb(self):
         dd = boto3.client('dynamodb')
         try:
@@ -842,29 +592,6 @@ class FourfrontStarterAbstract(object):
             pass
 
 
-class QCArgumentInfo(SerializableObject):
-    def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type=None,
-                 qc_zipped=False, qc_html=False, qc_json=False, qc_table=False,
-                 qc_zipped_html=None, qc_zipped_tables=None, qc_acl='public-read',
-                 qc_unzip_from_ec2=False):
-        if argument_type != 'Output QC file':
-            raise Exception("QCArgument it not Output QC file: %s" % argument_type)
-        self.workflow_argument_name = workflow_argument_name
-        self.argument_to_be_attached_to = argument_to_be_attached_to
-        self.qc_type = qc_type
-        self.qc_zipped = qc_zipped
-        self.qc_html = qc_html
-        self.qc_json = qc_json
-        self.qc_table = qc_table
-        self.qc_zipped_html = qc_zipped_html
-        self.qc_zipped_tables = qc_zipped_tables
-        self.qc_acl = qc_acl
-        if self.qc_table or self.qc_zipped_tables:
-            if not self.qc_type:
-                raise Exception("qc_type is required if qc_table or qc_zipped_table")
-        self.qc_unzip_from_ec2 = qc_unzip_from_ec2
-
-
 class InputExtraArgumentInfo(SerializableObject):
     def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to,
                  extra_file_use_for=None, **kwargs):
@@ -885,6 +612,11 @@ class FourfrontUpdaterAbstract(object):
     ProcessedFileMetadata = ProcessedFileMetadataAbstract
     default_email_sender = ''
     higlass_buckets = []
+
+    # the following attribute works as a cache for metadata -
+    # do not modify or access it directly, but use self.get_metadata
+    # instead
+    _metadata = dict()
 
     def __init__(self, postrunjson=None, ff_meta=None, pf_meta=None, _tibanna=None,
                  common_fields=None, custom_qc_fields=None,
@@ -936,7 +668,7 @@ class FourfrontUpdaterAbstract(object):
             raise Exception("Postrun json not found at %s" % postrunjson_location)
 
     def create_wfr_qc(self):
-        qc_item = self.create_qc_template()
+        qc_item = next(self.qc_template_generator())
         qc_item['url'] = METRICS_URL(self.config.log_bucket, self.jobid)
         self.update_post_items(qc_item['uuid'], qc_item, 'QualityMetricWorkflowrun')
         self.ff_meta.quality_metric = qc_item['uuid']
@@ -1058,11 +790,28 @@ class FourfrontUpdaterAbstract(object):
 
     # metadata object-related basic functionalities
     def get_metadata(self, id):
-        return get_metadata(id,
-                            key=self.tibanna_settings.ff_keys,
-                            ff_env=self.tibanna_settings.env,
-                            add_on='frame=object',
-                            check_queue=True)
+        # use cache
+        if self._metadata.get(id, ''):
+            return self._metadata[id]
+        else:
+            try:
+                self._metadata[id] = get_metadata(id,
+                                                  key=self.tibanna_settings.ff_keys,
+                                                  ff_env=self.tibanna_settings.env,
+                                                  add_on='frame=object',
+                                                  check_queue=True)
+            except Exception as e:
+                raise FdnConnectionException(e)
+            return self._metadata[id]
+
+    def get_schema(self, schema_name):
+        try:
+            # schema. do not need to check_queue
+            res = self.get_metadata("profiles/" + schema_name + ".json")
+            return res.get('properties')
+        except Exception as e:
+            err_msg = "Can't get profile for schema %s: %s" % (schema_name, str(e))
+            raise FdnConnectionException(err_msg)
 
     def file_items(self, argname):
         """get the actual metadata file items for a specific argname"""
@@ -1077,11 +826,7 @@ class FourfrontUpdaterAbstract(object):
 
     @property
     def workflow(self):
-        try:
-            res = self.get_metadata(self.ff_meta.workflow)
-        except Exception as e:
-            raise FdnConnectionException("Can't get metadata for workflow %s: %s" % (self.ff_meta.workflow, str(e)))
-        return res
+        return self.get_metadata(self.ff_meta.workflow)
 
     def workflow_arguments(self, argument_types=None):
         if argument_types:
@@ -1092,16 +837,6 @@ class FourfrontUpdaterAbstract(object):
             return res
         else:
             return self.workflow['arguments']
-
-    @property
-    def workflow_qc_arguments(self):
-        """dictionary of QCArgumentInfo object list as value and
-        argument_to_be_attached_to as key"""
-        wqcas = dict()
-        qc_args = [QCArgumentInfo(**qc) for qc in self.workflow_arguments('Output QC file')]
-        for arg in set([_.argument_to_be_attached_to for _ in qc_args]):
-            wqcas.update({arg: [_ for _ in qc_args if _.argument_to_be_attached_to == arg]})
-        return wqcas
 
     @property
     def workflow_input_extra_arguments(self):
@@ -1423,22 +1158,20 @@ class FourfrontUpdaterAbstract(object):
             if 'extra_files' not in ip:
                 raise Exception("inconsistency - extra file metadata deleted during workflow run?")
             for ie in ie_list:
-                matching_extra = None
                 output_extra_format = self.file_format(ie.workflow_argument_name)
-                for extra in ip['extra_files']:
-                    if cmp_fileformat(extra['file_format'], output_extra_format):
-                        matching_extra = extra
-                        break
+                extrafiles = ExtraFiles(ip['extra_files'])
+                matching_extra = extrafiles.select(file_format=output_extra_format)
                 if not matching_extra:
                     raise Exception("inconsistency - extra file metadata deleted during workflow run?")
                 if self.status(ie.workflow_argument_name) == 'COMPLETED':
-                    matching_extra['md5sum'] = self.md5sum(ie.workflow_argument_name)
-                    matching_extra['filesize'] = self.filesize(ie.workflow_argument_name)
-                    matching_extra['status'] = 'uploaded'
+                    matching_extra.md5sum = self.md5sum(ie.workflow_argument_name)
+                    matching_extra.file_size = self.filesize(ie.workflow_argument_name)
+                    matching_extra.status = 'uploaded'
                     if ie.extra_file_use_for:
-                        matching_extra['use_for'] = ie.extra_file_use_for
+                        matching_extra.use_for = ie.extra_file_use_for
                 else:
-                    matching_extra['status'] = "upload failed"
+                    matching_extra.status = "upload failed"
+                ip['extra_files'] = extrafiles.as_dict()
                 # higlass registration
                 hgcf = match_higlass_config(ip['file_format'], output_extra_format)
                 higlass_uid = None
@@ -1454,121 +1187,80 @@ class FourfrontUpdaterAbstract(object):
                     self.update_patch_items(ip['uuid'], {'higlass_uid': higlass_uid})
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
-    def _update_a_qc(self, qc, qc_target_accession, qc_schema, qc_type, qc_item_uuid):
-        """Internal update function for qc per workflow qc argument"""
-        qc_item = dict()
-        qc_bucket = self.bucket(qc.workflow_argument_name)
-        qc_key = self.file_key(qc.workflow_argument_name)
-        if qc.qc_zipped and qc.qc_unzip_from_ec2:
-            qc_url = None
-        elif qc.qc_zipped and not qc.qc_unzip_from_ec2:
-            if qc.qc_zipped_tables:
-                return_unzipped_qc_data = True
-            else:
-                return_unzipped_qc_data = False
-            unzipped_qc_data = self.unzip_qc_data(qc, qc_key, qc_target_accession, return_unzipped_qc_data)
-            if qc.qc_zipped_tables:
-                qcz_datafiles = []
-                for qcz in qc.qc_zipped_tables:
-                    qcz_datafiles.extend(filter(lambda x: x.endswith(qcz), unzipped_qc_data))
-                if qcz_datafiles:
-                    data_to_parse = [unzipped_qc_data[df]['data'] for df in qcz_datafiles]
-                    qc_meta_from_zip = self.parse_qc_table(data_to_parse, qc_schema)
-                    qc_item.update(qc_meta_from_zip)
-            # if there is an html, add qc_url for the html
-            if qc.qc_zipped_html:
-                target_html = qc_target_accession + '/' + qc.qc_zipped_html
-                qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
-            else:
-                qc_url = None
-        else:
-            # if there is an html, add qc_url for the html
-            if qc.qc_html:
-                target_html = qc_target_accession + '/qc_report.html'
-                qc_url = 'https://s3.amazonaws.com/' + qc_bucket + '/' + target_html
-            else:
-                qc_url = None
-            data = self.read(qc.workflow_argument_name)
-            if qc.qc_html:
-                self.s3(qc.workflow_argument_name).s3_put(data.encode(),
-                                                          target_html,
-                                                          acl='public-read')
-            elif qc.qc_json:
-                qc_item.update(self.parse_qc_json([data]))
-            elif qc.qc_table:
-                qc_item.update(self.parse_qc_table([data], qc_schema))
-        if qc_url:
-            qc_item.update({'url': qc_url})
-        if self.custom_qc_fields:
-            qc_item.update(self.custom_qc_fields)
-        if qc_type:
-            self.ff_output_file(qc.workflow_argument_name)['value_qc'] = qc_item_uuid
-        return qc_item
-
-    def _update_qc_per_type(self, qc_type, qc_list, qc_target_accession):
-        """Internal update function for QC for a given type
-        returns QC metadata item to post in dictionary form"""
-        qc_list_of_type = [_ for _ in qc_list if _.qc_type == qc_type]
-        if qc_type:
-            qc_schema = self.qc_schema(qc_type)
-        else:
-            qc_schema = None
-        qc_item_to_be = self.create_qc_template()
-        for qc in qc_list_of_type:
-            qc_item_to_be.update(self._update_a_qc(qc, qc_target_accession, qc_schema,
-                                                   qc_type, qc_item_to_be['uuid']))
-        return qc_item_to_be
-
     # update functions for QC
     def update_qc(self):
-        for qc_arg, qc_list in self.workflow_qc_arguments.items():
-            # qc_arg is the argument (either input or output) to attach the qc file
-            # qc_list is a list of QCArgumentInfo class objects
-            qc_target_accessions = self.accessions(qc_arg)
-            if not qc_target_accessions:
-                raise Exception("QC target %s does not exist" % qc_arg)
-            # The first target accession is use in the url for the report files
-            qc_target_accession = qc_target_accessions[0]
-            qc_types = set([_.qc_type for _ in qc_list])
-            qc_types_no_none = set([_.qc_type for _ in qc_list if _])
-            # create quality_metric_qclist if >1 qc types for a given qc_arg
-            if len(qc_types_no_none) > 1:
-                qclist_item_to_be = self.create_qc_template()
-                qclist_item_to_be['qc_list'] = []
-            else:
-                qclist_item_to_be = None
-            for qc_type in qc_types:
-                qc_item_to_be = self._update_qc_per_type(qc_type, qc_list, qc_target_accession)
-                if qc_type:
-                    self.update_post_items(qc_item_to_be['uuid'], qc_item_to_be, qc_type)
-                    if qclist_item_to_be:
-                        # the uuids and types are in the same order
-                        qclist_item_to_be['qc_list'].append({'qc_type': qc_type, 'value': qc_item_to_be['uuid']})
+        # all qc arguments in the workflow (could be more than one)
+        wf_qc_arguments = self.workflow_arguments('Output QC file')
+        # put all qc arguments into QCArgumentsByTarget class object to
+        # cluster them by target (argument_to_be_attached_to).
+        qca_by_target = QCArgumentsByTarget(wf_qc_arguments)
+        # dictionary containing s3 keys for qc args
+        qc_path_dict = {arg: self.file_key(arg) for arg in qca_by_target.qca_argname_list}
+        # add this s3 key path info to the QCArgument objects in qca_by_target
+        qca_by_target.add_paths(qc_path_dict, self.outbucket)
+        # pass ff_keys so that he QCArgument objects can find their qc schema.
+        qca_by_target.add_ff_keys(ff_key=self.tibanna_settings.ff_keys,
+                                  ff_env=self.tibanna_settings.env)
+        for target_arg, qca_per_target in qca_by_target.qca_by_target.items():
+            # target_arg is the argument (either input or output) to attach the qc to
+            # qca_per_target is a QCArgumentsPerTarget class objects which lists QCArgument
+            # objects that share the same target arg.
 
-            # add quality_metric_qclist in the post items
-            if qclist_item_to_be:
-                self.update_post_items(qclist_item_to_be['uuid'], qclist_item_to_be, 'quality_metric_qclist')
+            # The first target accession is used in the url for the report files
+            # The rest will still be linking the qc item.
+            qca_per_target.add_target_accessions(self.accessions(target_arg))
+
+            # create qc metadata items and qclist metadata item
+            # first build a qc template generator and a qclist template generator.
+            qc_template_gen = self.qc_template_generator(add_custom_qc_fields=True)
+            qclist_template_gen = self.qc_template_generator(add_custom_qc_fields=False)
+
+            qca_per_target.add_qc_template_generator(qc_template_gen)
+            qca_per_target.add_qclist_template_generator(qclist_template_gen)
+            # create qc and qclist metadata items based on the qc template functions.
+            qca_per_target.create_qc_items()
+
+            # copy relevant qc files to a designated location on s3
+            qca_per_target.copy_qc_files_to_s3()
+
+            # add new qc metadata items to post_items
+            for qc_type, qc_item in qca_per_target.qc_items_by_type.items():
+                self.update_post_items(qc_item['uuid'], qc_item, qc_type)
+
+            # add quality_metric_qclist to post_items
+            if qca_per_target.qclist_item:
+                self.update_post_items(qca_per_target.qclist_item['uuid'],
+                                       qca_per_target.qclist_item,
+                                       'quality_metric_qclist')
+
             # allowing multiple input files to point to the same qc_item_to_be.
-            for t_acc in qc_target_accessions:
-                if qc_type:
-                    if qclist_item_to_be:
-                        self.patch_qc(t_acc, qclist_item_to_be['uuid'], 'quality_metric_qclist',
-                                      qclist_array=qclist_item_to_be['qc_list'])
-                    else:
-                        self.patch_qc(t_acc, qc_item_to_be['uuid'], qc_type)
+            # (link the qc items to the target input file metadata)
+            for t_acc in qca_per_target.all_target_accessions:
+                if qca_per_target.qclist_item:
+                    self.patch_qc(t_acc, qca_per_target.qclist_item['uuid'], 'quality_metric_qclist',
+                                  qclist_array=qca_per_target.qclist_item['qc_list'])
+                else:
+                    for qc_type, qc_item in qca_per_target.qc_items_by_type.items():
+                        self.patch_qc(t_acc, qc_item['uuid'], qc_type)
+
+            # link the qc item to workflow run metadata qc argument (to be patched)
+            for qca in qca_per_target.qca_list:
+                if qca.qc_type:
+                    qc_item = qca_per_target.qc_items_by_type[qca.qc_type]
+                    self.ff_output_file(qca.workflow_argument_name)['value_qc'] = qc_item['uuid']
 
     def patch_qc(self, qc_target_accession, qc_uuid, qc_type, qclist_array=None):
-        try:
-            res = get_metadata(qc_target_accession,
-                               key=self.tibanna_settings.ff_keys,
-                               ff_env=self.tibanna_settings.env,
-                               add_on='frame=object',
-                               check_queue=True)
-        except Exception as e:
-            raise FdnConnectionException(e)
+        res = self.get_metadata(qc_target_accession)
         if 'quality_metric' not in res:  # first qc metric for this file
             self.update_patch_items(qc_target_accession, {'quality_metric': qc_uuid})
         else:
+            # some qc item is already linked to the target accession.
+            # If it's the same type as what we created, we need to replace it.
+            # If it is different type, we have to create a qclist item.
+            # If it's a qclist item and it contains a qc of the same type,
+            # we replace it in the existing qclist item.
+            # If it's a qclist item and it does not contains a qc of the same type,
+            # we add to the existing qclist item.
             existing_qctype = res['quality_metric'].split('/')[1].replace('-', '_'). \
                               replace('quality_metrics', 'quality_metric')
             existing_qc_uuid = res['quality_metric'].split('/')[2]
@@ -1586,11 +1278,7 @@ class FourfrontUpdaterAbstract(object):
                     # we assume that the same qc type occurs only once per qc list
                     # and so a new workflow run can update the one with the same qc type
                     self.delete_patch_items(qc_uuid)
-                    existing_qc_meta = get_metadata(existing_qc_uuid,
-                                                    key=self.tibanna_settings.ff_keys,
-                                                    ff_env=self.tibanna_settings.env,
-                                                    add_on='frame=object',
-                                                    check_queue=True)
+                    existing_qc_meta = self.get_metadata(existing_qc_uuid)
                     existing_child_qc_types = [qc['qc_type'] for qc in existing_qc_meta['qc_list']]
                     for t, u in zip(child_qc_types, child_qc_uuids):
                         if t in existing_child_qc_types:
@@ -1611,11 +1299,7 @@ class FourfrontUpdaterAbstract(object):
                 elif existing_qctype == 'quality_metric_qclist':
                     # we assume that the same qc type occurs only once per qc list
                     # and so a new workflow run can update the one with the same qc type
-                    existing_qc_meta = get_metadata(existing_qc_uuid,
-                                                    key=self.tibanna_settings.ff_keys,
-                                                    ff_env=self.tibanna_settings.env,
-                                                    add_on='frame=object',
-                                                    check_queue=True)
+                    existing_qc_meta = self.get_metadata(existing_qc_uuid)
                     if qc_type not in [qc['qc_type'] for qc in existing_qc_meta['qc_list']]:
                         existing_qc_meta['qc_list'].append({'qc_type': qc_type, 'value': qc_uuid})
                         self.update_patch_items(existing_qc_meta['uuid'], {'qc_list': existing_qc_meta['qc_list']})
@@ -1628,79 +1312,20 @@ class FourfrontUpdaterAbstract(object):
                 else:
                     # new qc type is being added - create a qc list and move the existing qc to the qc list and
                     # add the new one to the qc list
-                    new_qclist_object = self.create_qc_template()
+                    new_qclist_object = next(self.qc_template_generator())
                     new_qclist_object['qc_list'] = [{'qc_type': existing_qctype, 'value': existing_qc_uuid},
                                                     {'qc_type': qc_type, 'value': qc_uuid}]
                     self.update_post_items(new_qclist_object['uuid'], new_qclist_object, 'quality_metric_qclist')
                     self.update_patch_items(qc_target_accession, {'quality_metric': new_qclist_object['uuid']})
 
-    def qc_schema(self, qc_schema_name):
-        try:
-            # schema. do not need to check_queue
-            res = get_metadata("profiles/" + qc_schema_name + ".json",
-                               key=self.tibanna_settings.ff_keys,
-                               ff_env=self.tibanna_settings.env)
-            return res.get('properties')
-        except Exception as e:
-            err_msg = "Can't get profile for qc schema %s: %s" % (qc_schema_name, str(e))
-            raise FdnConnectionException(err_msg)
-
-    def parse_qc_table(self, data_list, qc_schema):
-        qc_json = dict()
-
-        def parse_item(name, value):
-            """Add item to qc_json if it's in the schema"""
-            qc_type = qc_schema.get(name, {}).get('type', None)
-            if qc_type == 'string':
-                qc_json.update({name: str(value)})
-            elif qc_type == 'number':
-                qc_json.update({name: number(value.replace(',', ''))})
-
-        for data in data_list:
-            for line in data.split('\n'):
-                items = line.strip().split('\t')
-                # flagstat qc handling - e.g. each line could look like "0 + 0 blah blah blah"
-                space_del = line.strip().split(' ')
-                flagstat_items = [' '.join(space_del[0:3]), ' '.join(space_del[3:])]
-                try:
-                    parse_item(items[0], items[1])
-                    parse_item(items[1], items[0])
-                    parse_item(flagstat_items[1], flagstat_items[0])
-                except IndexError:  # pragma: no cover
-                    # maybe a blank line or something
-                    pass
-        return qc_json
-
-    def parse_qc_json(self, data_list):
-        qc_json = dict()
-        for data in data_list:
-            qc_json.update(json.loads(data))
-        return qc_json
-
-    def create_qc_template(self):
-        qc_item = {'uuid': str(uuid4())}
-        if self.common_fields:
-            qc_item.update(self.common_fields)
-        return qc_item
-
-    def unzip_qc_data(self, qc, qc_key, target_accession, return_unzipped_qc_data=True):
-        """qc is a QCArgumentInfo object.
-        if qc is zipped, unzip it, put the files to destination s3,
-        and store the content and target s3 key to a dictionary and return.
-        """
-        if qc.qc_zipped:
-            unzipped_data = self.s3(qc.workflow_argument_name).unzip_s3_to_s3(qc_key,
-                                                                              target_accession,
-                                                                              acl=qc.qc_acl,
-                                                                              store_results=return_unzipped_qc_data)
-            if return_unzipped_qc_data:
-                for k, v in unzipped_data.items():
-                    v['data'] = v['data'].decode('utf-8', 'backslashreplace')
-                return unzipped_data
-            else:
-                return None
-        else:
-            return None
+    def qc_template_generator(self, add_custom_qc_fields=False):
+        while(True):
+            qc_item = {'uuid': str(uuid4())}
+            if self.common_fields:
+                qc_item.update(self.common_fields)
+            if add_custom_qc_fields and self.custom_qc_fields:
+                qc_item.update(self.custom_qc_fields)
+            yield qc_item
 
     # rna-strandedness (hardcode it for now - later we generalize along with md5)
     def update_rna_strandedness(self):
@@ -1927,15 +1552,11 @@ class FourfrontUpdaterAbstract(object):
         try:
             res = requests.post(higlass_keys['server'] + '/api/v1/link_tile/',
                                 data=json.dumps(payload), auth=auth, headers=headers)
-        except:
+        except Exception:
             # do not raise error (do not fail the wrf) - will be taken care of by foursight later
             return None
         logger.info("resiter_to_higlass(POST request response): " + str(res.json()))
         return res.json()['uuid']
-
-
-def cmp_fileformat(format1, format2):
-    return parse_formatstr(format1) == parse_formatstr(format2)
 
 
 def match_higlass_config(file_format, extra_format):
@@ -1947,16 +1568,3 @@ def match_higlass_config(file_format, extra_format):
             elif not extra_format:
                 return hc
     return None
-
-
-def number(astring):
-    """Convert a string into a float or integer
-    Returns original string if it can't convert it.
-    """
-    try:
-        num = float(astring)
-        if num % 1 == 0:
-            num = int(num)
-        return num
-    except ValueError:
-        return astring
