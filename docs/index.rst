@@ -10,7 +10,7 @@ The generic Tibanna is called Unicorn, whereas the Tibanna_ff components that ar
 .. _Tibanna: https://github.com/4dn-dcic/tibanna
 .. _Tibanna_ff: https://github.com/4dn-dcic/tibanna_ff
 
-This documentation is written mostly for developers who want to understand the structure of the code arragements and details of the features and behaviors that are intended for Tibanna Unicorn, Pony and Zebra.
+This documentation is written mostly for developers who want to understand the structure of the code arrangements and details of the features and behaviors that are intended for Tibanna Unicorn, Pony and Zebra.
 
 
 =================  ==============  ===============

@@ -5,27 +5,6 @@ Installation and dependencies
 Installation
 ++++++++++++
 
-To install ``tibanna``,
-
-::
-
-    pip install tibanna
-
-
-If ``tibanna`` is installed correctly, you can do the following.
-
-::
-
-    > import tibanna
-
-
-::
-
-    # this requires AWS credential set up as well
-    tibanna -h
-
-
-
 To install ``tibanna_4dn`` and ``tibanna_cgap``,
 
 ::
@@ -87,5 +66,4 @@ For example,
 
 ::
 
-    export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=tibanna_unicorn_monty
-
+    export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=tibanna_zebra_monty

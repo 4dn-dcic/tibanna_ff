@@ -44,7 +44,7 @@ Example job description
         "instance_type": "t3.large",
         "EBS_optimized": true,
         "ebs_size": 30,
-        "ebs_type": "gp2",
+        "ebs_type": "gp3",
         "shutdown_min": 30,
         "password": "",
         "log_bucket": "tibanna-output",
@@ -90,8 +90,11 @@ Example job description
 - The ``input_files`` field specifies the argument names (matching the names in CWL), the input file metadata uuid and its bucket and object key name.
 
   - ``workflow_argument_name`` and ``uuid`` are required fields.
-  - ``bucket_name`` and ``object_key`` are deprecated. Using these fields can cause undesired outcome, especially starting ``0.19.0`` since the user-specified values can overwrite calculated bucket name (e.g. for open data bucket)
-  - ``rename`` (optional) can be used to rename a file upon download from s3 to an instance where the workflow will be executed.
+  - ``bucket_name`` and ``object_key`` are deprecated. Using these fields can cause undesired outcome, especially starting ``0.19.0`` since the user-specified values can overwrite calculated bucket name (e.g. for open data bucket).
+  - ``mount`` (optional) can be set ``true`` to indicate that the input file is mounted instead of downloaded to EC2 (default ``false``).
+  - ``rename`` (optional) can be used to rename a file upon download from s3 to an instance where the workflow will be executed. This option cannot be used in combination with ``mount``.
+  - ``unzip`` (optional) can be set to ``gz`` or ``bz2`` to indicate that the input file must be unzipped after being downloaded to EC2 (default not set). This option cannot be used in combination with ``mount``.
+  - ``format_if_extra`` (optional) can be set to the file format of an input extra file (e.g. ``bai``), if the input file is an extra file and not a main file. This way only the extra file of a given file item that matches the format will be passed to EC2 and used as input for the workflow run.
 
 - The ``config`` field is directly passed on to the second step, where instance_type, ebs_size, EBS_optimized are auto-filled, if not given.
 
@@ -110,4 +113,3 @@ Example job description
 - The ``wfr_meta`` field (optional) contains a dictionary that can be directly passed to the workflow run metadata. This can overwrite ``common_fields``.
 - The ``custom_qc_fields`` field (optional) contains a dictionary that can be directly passed to an associated Quality Metric object. This field does not apply to QualityMetricWorkflowrun and QualityMetricQclist. This field can overwrite ``common_fields``.
 - The ``dependency`` field (optional) sets dependent jobs. The job will not start until the dependencies successfully finish. If dependency fails, the current job will also fail. The ``exec_arn`` is the list of step function execution arns. The job will wait at the run_task step, not at the start_task step (for consistenty with unicorn). This field will be passed to run_task as ``dependency`` inside the ``args`` field.
-

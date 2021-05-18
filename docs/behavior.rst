@@ -33,7 +33,7 @@ If you rerun the same workflow run, it will not overwrite the existing ``Workflo
 
 The metadata are created at the beginning of a workflow run except ``QualityMetric`` objects. At the end of a run, they are patched with the status. If the run is successful, the ``WorkflowRun`` object is patched a status ``complete``. If there was an error, it is patched a status ``error``.
 
-A resource metric report is linked from ``WorkflowRun`` at the end of each run as a ``QualityMetricWorkflowrun`` object. 
+A resource metric report is linked from ``WorkflowRun`` at the end of each run as a ``QualityMetricWorkflowrun`` object.
 
 
 Workflow Run Identifier
@@ -143,7 +143,7 @@ To allow flexibility in the format of QC type output, certain qc flags are speci
 - ``"qc_zipped_tables": <array_of_name(or_suffix)_of_table_files>`` : the name of the table files in case the output zipped file contains table files.
 - ``"qc_type": <name_of_quality_metric_type>`` : name of the ``QualityMetric`` item type (e.g. ``quality_metric_fastqc``, ``quality_metric_bamcheck``). This field can be skipped which means that no ``QualityMetric`` item will be created even though the other QC processings (e.g. unzipping the contents, moving the file to a specific location and creating an html, etc) may still happen. This None option was added originally to be able to handle bamsnap output files as QC files without generating a ``QualityMetric`` item. However, we ended up moving the bamsnap handling to EC2 since it frequently hit lambda memory and runtime limit while unzipping the output (see ``qc_unzip_from_ec2``)
 - ``"argument_to_be_attached_to": <argument>`` : the workflow argument name of the file (either input or output) from which the ``QualityMetric`` object should be linked. (e.g. if the QualityMetric object will be link to the processed bam file whose argument name is ``raw_bam``, this field can be set to ``raw_bam``.)  This is a required parameter.
-- ``"qc_unzip_from_ec2": true|false`` : whether the output zip file should be unzipped to s3 directly from ec2 (default false). This is relevant only if the qc output is zipped and we want the contents of the zip file to be extracted to a folder in S3. 
+- ``"qc_unzip_from_ec2": true|false`` : whether the output zip file should be unzipped to s3 directly from ec2 (default false). This is relevant only if the qc output is zipped and we want the contents of the zip file to be extracted to a folder in S3.
 
 As you can see above, a text-style QC output can either be a JSON or a TSV format. The main difference is that if the output is a TSV format, the corresponding fields must exist and be specified in the schema of the QualityMetric item. A JSON-format output goes directly to the QualityMetric item, and to allow this, the schema must have ``additional_properties`` to be set ``true``.
 
@@ -161,7 +161,7 @@ The first row is a typical case scenario in which one QC argument to be attached
 
 |qc_table1|
 
-The second and third rows show two different QC arguments to be attached to the same file and each has its own ``qc_type``. In this case, a ``QualityMetric`` item will be created for each QC argument and a ``QualityMetricQclist`` item will also be created to link two ``QualityMetric`` items to a single file item. An example could be a BAM file linked to both ``bamcheck`` and ``bamqc`` outputs, the former about the sanity check of the output file integrity and the latter about the statistics on the contents of the file including the number of reads, coverages, etc. 
+The second and third rows show two different QC arguments to be attached to the same file and each has its own ``qc_type``. In this case, a ``QualityMetric`` item will be created for each QC argument and a ``QualityMetricQclist`` item will also be created to link two ``QualityMetric`` items to a single file item. An example could be a BAM file linked to both ``bamcheck`` and ``bamqc`` outputs, the former about the sanity check of the output file integrity and the latter about the statistics on the contents of the file including the number of reads, coverages, etc.
 
 |qc_table2|
 
@@ -190,8 +190,6 @@ Note that QC arguments with the same ``qc_type`` do not lead to a merge if their
 
 
 
-
-
 Multiple QC metrics
 -------------------
 
@@ -207,7 +205,7 @@ Tibanna checks if the ``File`` item to associate a new ``QualityMetric`` object 
 2. If the existing ``QualityMetric`` object is of a different type from the new ``QualityMetric`` object, create a new ``QualityMetricQclist`` object and link it to the corresponding ``File`` object, move the old ``QualityMetric`` object to the ``QualityMetricQclist`` object, and add a new ``QualityMetric`` object to the ``QualityMetricQclist`` object.
 3. If the existing ``QualityMetric`` object is of type ``QualityMetricQclist``, check the types of ``QualityMetric`` objects inthe ``QualityMetricQclist`` object, and if there exists a ``QualityMetric`` object of the same type as the new ``QualityMetric`` object, replace this one with the new one. If not, add the new ``QualityMetric`` object to the existing ``QualityMetricQclist`` object.
 
-In theory, a single workflow run could create multiple ``QualityMetric`` types by creating a new ``QualityMetricQclist`` and adding all of the ``QualityMetric`` objects to it, but currently Tibanna does not support it. It may be implemented if we have a case where multiple types of QC is generated by a single workflow for a single file item. 
+In theory, a single workflow run could create multiple ``QualityMetric`` types by creating a new ``QualityMetricQclist`` and adding all of the ``QualityMetric`` objects to it, but currently Tibanna does not support it. It may be implemented if we have a case where multiple types of QC is generated by a single workflow for a single file item.
 
 
 Report-type output handling
@@ -261,7 +259,7 @@ The ``custom_pf_fields`` field specifies custom fields to be passed to a ``FileP
         "ALL": { "key1": "value1", "key2": "value2" },
         "out_bam": {"key3": "value3" }
     }
-    
+
 In the above example, if we have two output files with argument names ``out_bam`` and ``out_bw``, the processed file(s) associated with both ``out_bam`` and ``out_bw`` will have field ``key1`` with value ``value1`` and field ``key2`` with value ``value2``, but only the processed file(s) associated with ``out_bam`` will have field ``key3`` with value ``value3``.
 
 
@@ -277,4 +275,3 @@ The ``custom_qc_fields`` field specifies custom fields to be passed to all ``Qua
 
 
 In the above example, the ``QualityMetric`` items will have field ``key1`` with value ``value1`` and field ``key2`` with value ``value2``.
-
