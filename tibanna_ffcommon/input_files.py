@@ -231,9 +231,19 @@ class FFInputFile(SerializableObject):
         on the S3 bucket (e.g. in case of 4DN Open Data)
         """
         try:
-            return run_on_nested_arrays1(self.uuid, self.get_upload_key_from_uuid)
+            main_file_keys = run_on_nested_arrays1(self.uuid, self.get_upload_key_from_uuid)
+            if self.format_if_extra:
+                 main_file_formats = run_on_nested_arrays1(self.uuid, self.get_file_format_from_uuid)
+                 extra_file_keys = run_on_nested_arrays2(main_file_formats,
+                                                         main_file_keys,
+                                                         get_extra_file_key,
+                                                         extra_file_format=self.format_if_extra,
+                                                         fe_map=self.fe_map)
+                 return extra_file_keys
+            else:
+                 return main_file_keys
         except Exception:
-            return combine_two(self.uuid, self.object_key)
+            return combine_two(self.uuid, self.object_key)  # deprecated
 
     @property
     def object_key(self):

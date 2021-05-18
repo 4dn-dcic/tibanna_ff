@@ -216,6 +216,7 @@ def test_FFInputFile_format_if_extra(minimal_file_metadata_w_extrafile,
     ffinpf._fe_map = FormatExtensionMap(ffe_all=fake_format_search_result)
     assert ffinpf.bucket_name == 'elasticbeanstalk-fourfront-webprod-files'
     assert ffinpf.s3_key == 'someuuid/someacc.ann'
+    assert ffinpf.upload_key == 'someuuid/someacc.ann'
     assert not ffinpf.extra_file_s3_keys
 
 def test_FFInputFile_format_if_extra_not_ready(minimal_file_metadata_w_extrafile_not_ready,
@@ -229,6 +230,7 @@ def test_FFInputFile_format_if_extra_not_ready(minimal_file_metadata_w_extrafile
     ffinpf._fe_map = FormatExtensionMap(ffe_all=fake_format_search_result)
     assert ffinpf.bucket_name == 'elasticbeanstalk-fourfront-webprod-files'
     assert ffinpf.s3_key == 'someuuid/someacc.sa'
+    assert ffinpf.upload_key == 'someuuid/someacc.sa'
     assert not ffinpf.extra_file_s3_keys
 
 def test_FFInputFile_4dn_opendata(minimal_file_metadata_4dn_opendata):
