@@ -78,8 +78,7 @@ class FFInputFile(SerializableObject):
     # these fields are exactly the same between pony/zebra and unicorn
     # and can be passed directly. The field object_key exists in both
     # but the meanings are different.
-    common_unicorn_fields = ['bucket_name', 'rename', 'unzip', 'mount',
-                             'format_if_extra']
+    common_unicorn_fields = ['bucket_name', 'rename', 'unzip', 'mount']
 
     # for status check - these statuses indicate the file is not ready
     not_ready_status_list = ['uploading', 'to be uploaded by workflow',
@@ -167,6 +166,9 @@ class FFInputFile(SerializableObject):
         In a situation like [[[],[]],[],[]], None is returned instead.
         If rename is not set for the main file, None is returned.
         """
+        # if main input is extra file, do not include extra files as secondary files
+        if self.format_if_extra:
+            return None
         if not self.rename:
             return ''
         exf_rn = run_on_nested_arrays2(self.uuid, self.rename,
@@ -190,6 +192,9 @@ class FFInputFile(SerializableObject):
         None values or '' values are removed from the return list.
         If the return list has a single element, it returns the element as a string.
         """
+        # if main input is extra file, do not include extra files as secondary files
+        if self.format_if_extra:
+            return None
         exf_keys = run_on_nested_arrays1(self.uuid, self.get_extra_file_s3_keys_from_uuid)
         if not flatten(exf_keys):
             return None
@@ -207,7 +212,18 @@ class FFInputFile(SerializableObject):
         this is the same as upload_key(s) but in special cases,
         this could include prefixes (e.g in case of 4DN Open Data)
         """
-        return run_on_nested_arrays1(self.uuid, self.get_s3_key_from_uuid)
+        main_file_keys = run_on_nested_arrays1(self.uuid, self.get_s3_key_from_uuid)
+        # if format_if_extra is set, the input file is an extra file not the main file.
+        if self.format_if_extra:
+             main_file_formats = run_on_nested_arrays1(self.uuid, self.get_file_format_from_uuid)
+             extra_file_keys = run_on_nested_arrays2(main_file_formats,
+                                                     main_file_keys,
+                                                     get_extra_file_key,
+                                                     extra_file_format=self.format_if_extra,
+                                                     fe_map=self.fe_map)
+             return extra_file_keys
+        else:
+            return main_file_keys
 
     @property
     def upload_key(self):

@@ -205,6 +205,32 @@ def test_FFInputFile_w_extrafile_not_ready2(minimal_file_metadata_w_extrafile_no
     assert ffinpf.bucket_name == 'elasticbeanstalk-fourfront-webprod-files'
     assert ffinpf.extra_file_s3_keys == 'someuuid2/someacc2.ann'
 
+def test_FFInputFile_format_if_extra(minimal_file_metadata_w_extrafile,
+                                     fake_format_search_result):
+    ffinpf = FFInputFile(uuid='someuuid', workflow_argument_name='somearg',
+                         format_if_extra='ann')
+    # cache a fake metadata for data without 4dn open data url
+    ffinpf._metadata['someuuid'] = minimal_file_metadata_w_extrafile
+    # bucket & object_key fill_in test for our 4dn bucket
+    ffinpf.ff_env = 'data'
+    ffinpf._fe_map = FormatExtensionMap(ffe_all=fake_format_search_result)
+    assert ffinpf.bucket_name == 'elasticbeanstalk-fourfront-webprod-files'
+    assert ffinpf.s3_key == 'someuuid/someacc.ann'
+    assert not ffinpf.extra_file_s3_keys
+
+def test_FFInputFile_format_if_extra_not_ready(minimal_file_metadata_w_extrafile_not_ready,
+                                               fake_format_search_result):
+    ffinpf = FFInputFile(uuid='someuuid', workflow_argument_name='somearg',
+                         format_if_extra='sa')  # 'uploading'
+    # cache a fake metadata for data without 4dn open data url
+    ffinpf._metadata['someuuid'] = minimal_file_metadata_w_extrafile_not_ready
+    # bucket & object_key fill_in test for our 4dn bucket
+    ffinpf.ff_env = 'data'
+    ffinpf._fe_map = FormatExtensionMap(ffe_all=fake_format_search_result)
+    assert ffinpf.bucket_name == 'elasticbeanstalk-fourfront-webprod-files'
+    assert ffinpf.s3_key == 'someuuid/someacc.sa'
+    assert not ffinpf.extra_file_s3_keys
+
 def test_FFInputFile_4dn_opendata(minimal_file_metadata_4dn_opendata):
     ffinpf = FFInputFile(uuid='someuuid', workflow_argument_name='somearg')
     # cache a fake metadata for data with 4dn open data url
@@ -333,8 +359,7 @@ def test_FFInputFile_create_unicorn_arg_input_file(minimal_file_metadata1):
                                'object_key': 'someuuid/someacc.vcf.gz',  # actual s3 key
                                'unzip': '',
                                'mount': False,
-                               'rename': '',
-                               'format_if_extra': ''}}
+                               'rename': ''}}
 
 def test_FFInputFile_create_unicorn_arg_secondary_file(minimal_file_metadata_w_extrafile,
                                                        fake_format_search_result):
@@ -348,6 +373,29 @@ def test_FFInputFile_create_unicorn_arg_secondary_file(minimal_file_metadata_w_e
                                'mount': False,
                                'rename': ''}}
 
+def test_FFInputFile_create_unicorn_arg_input_file_format_if_extra(minimal_file_metadata_w_extrafile,
+                                                                   fake_format_search_result):
+    ffinpf = FFInputFile(uuid='someuuid', workflow_argument_name='somearg', ff_env='data',
+                         format_if_extra='ann')
+    # cache a fake metadata for data without 4dn open data url
+    ffinpf._metadata['someuuid'] = minimal_file_metadata_w_extrafile
+    ffinpf._fe_map = FormatExtensionMap(ffe_all=fake_format_search_result)
+    res = ffinpf.create_unicorn_arg_input_file()
+    assert res == {'somearg': {'bucket_name': 'elasticbeanstalk-fourfront-webprod-files',
+                               'object_key': 'someuuid/someacc.ann',  # actual s3 key
+                               'unzip': '',
+                               'mount': False,
+                               'rename': ''}}
+
+def test_FFInputFile_create_unicorn_arg_secondary_file_format_if_extra(minimal_file_metadata_w_extrafile,
+                                                                       fake_format_search_result):
+    ffinpf = FFInputFile(uuid='someuuid', workflow_argument_name='somearg', ff_env='data',
+                         format_if_extra='ann')
+    # cache a fake metadata for data without 4dn open data url
+    ffinpf._metadata['someuuid'] = minimal_file_metadata_w_extrafile
+    ffinpf._fe_map = FormatExtensionMap(ffe_all=fake_format_search_result)
+    assert not ffinpf.create_unicorn_arg_secondary_file()
+
 def test_FFInputFile_create_unicorn_arg_input_file_list(minimal_file_metadata1, minimal_file_metadata2):
     ffinpf = FFInputFile(uuid=['someuuid', 'someuuid2'],
                          workflow_argument_name='somearg',
@@ -360,8 +408,7 @@ def test_FFInputFile_create_unicorn_arg_input_file_list(minimal_file_metadata1, 
                                'object_key': ['someuuid/someacc.vcf.gz', 'someuuid2/someacc2.vcf.gz'],
                                'unzip': '',
                                'mount': False,
-                               'rename': '',
-                               'format_if_extra': ''}}
+                               'rename': ''}}
 
 def test_FFInputFile_create_unicorn_arg_secondary_file_list(minimal_file_metadata_w_extrafile,
                                                             minimal_file_metadata_w_extrafile_not_ready2,
