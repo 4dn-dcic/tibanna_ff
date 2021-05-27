@@ -45,6 +45,19 @@ class Subcommands(_Subcommands):
              {'flag': ["-S", "--setup"],
               'action': 'store_true',
               'help': "Setup IAM permission again"}]
+
+        _args['kill'] = \
+            [{'flag': ["-e", "--exec-arn"],
+              'help': "execution arn of the specific job to kill"},
+             {'flag': ["-j", "--job-id"],
+              'help': "job id of the specific job to kill (alternative to --exec-arn/-e)"}]
+
+        _args['kill_all'] = \
+            [{'flag': ["-s", "--sfn"],
+              'help': "tibanna step function name (e.g. 'tibanna_unicorn_monty'); " +
+                      "your current default is %s)" % TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
+              'default': TIBANNA_DEFAULT_STEP_FUNCTION_NAME}]
+
         return _args
 
 
@@ -81,9 +94,9 @@ def kill_all(sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME):
     API().kill_all(sfn)
 
 
-def kill(exec_arn=None, job_id=None, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME):
+def kill(exec_arn=None, job_id=None):
     """kill a specific job"""
-    API().kill(exec_arn, job_id, sfn)
+    API().kill(exec_arn, job_id)
 
 
 def rerun(exec_arn, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, app_name_filter=None,

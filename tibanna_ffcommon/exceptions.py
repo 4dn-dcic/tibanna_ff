@@ -78,6 +78,8 @@ def exception_coordinator(lambda_name, metadata_only_func):
                     error_msg = 'EC2 unintended termination error on step: %s: %s' % (lambda_name, str(e))
                 elif e.__class__ == EC2IdleException:
                     error_msg = 'EC2 Idle error on step: %s: %s' % (lambda_name, str(e))
+                elif e.__class__ == JobAbortedException:
+                    error_msg = 'Job Aborted'
                 else:
                     error_msg = 'Error on step: %s. Full traceback: %s' % (lambda_name, traceback.format_exc())
                 event['error'] = error_msg

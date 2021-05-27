@@ -69,3 +69,6 @@ class API(_API):
             return ddinfo
         else:
             return ddinfo
+
+    def kill(self, exec_arn=None, job_id=None):
+        super().kill(exec_arn=exec_arn, job_id=job_id, soft=True)
