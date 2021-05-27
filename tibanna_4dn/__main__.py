@@ -81,9 +81,9 @@ def kill_all(sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME):
     API().kill_all(sfn)
 
 
-def kill(exec_arn=None, job_id=None, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME):
+def kill(exec_arn=None, job_id=None):
     """kill a specific job"""
-    API().kill(exec_arn, job_id, sfn)
+    API().kill(exec_arn, job_id)
 
 
 def rerun(exec_arn, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, app_name_filter=None,
