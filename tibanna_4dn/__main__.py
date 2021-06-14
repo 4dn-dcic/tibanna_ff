@@ -45,9 +45,9 @@ class Subcommands(_Subcommands):
              {'flag': ["-S", "--setup"],
               'action': 'store_true',
               'help': "Setup IAM permission again"},
-             {'flag': ["-b", "--subnets"],
+             {'flag': ["-n", "--subnets"],
               'help': "subnet IDs, separated by commas"},
-             {'flag': ["-c", "--security_groups"],
+             {'flag': ["-r", "--security_groups"],
               'help': "security groups, separated by commas"}]
 
         _args['kill'] = \
