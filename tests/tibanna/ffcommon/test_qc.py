@@ -2,6 +2,7 @@ from tibanna_ffcommon.qc import (
     QCArgument,
     QCArgumentsByTarget,
     QCArgumentsPerTarget,
+    QCDataParser
 )
 import pytest
 import copy
@@ -72,6 +73,16 @@ def fake_qcarginfo4():
         "qc_zipped_html": True
     }
 
+@pytest.fixture
+def fake_qcschemainfo():
+    return {
+        "fake_schema": {"match_test": {'type': 'number'}},
+        "name": "match_test",
+        "test_val_1": 5,
+        "test_val_2": 2.04
+    }
+
+
 def test_QCArgumentsPerTarget(fake_qcarginfo1, fake_qcarginfo2, fake_qcarginfo3):
     qca_per_target = QCArgumentsPerTarget([QCArgument(**fake_qcarginfo1),
                                            QCArgument(**fake_qcarginfo2),
@@ -139,3 +150,11 @@ def test_wrong_QCArgument(qcarginfo_fastqc):
         QCArgument(**qcarginfo)
     assert exec_info
     assert 'QC Argument must be an Output QC file' in str(exec_info.value)
+
+def test_match_field_int(fake_qcschemainfo):
+    qc_dict = fake_qcschemainfo
+    fake_qc = QCDataParser(qc_dict.get('fake_schema'))
+
+    assert fake_qc.match_field_type(qc_dict.get('name'),qc_dict.get('test_val_1'))
+    assert fake_qc.match_field_type(qc_dict.get('name'),qc_dict.get('test_val_2'))
+
