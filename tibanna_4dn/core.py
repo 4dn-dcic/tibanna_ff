@@ -40,6 +40,7 @@ class API(_API):
     def __init__(self):
         pass
 
-    def deploy_pony(self, suffix=None, usergroup='', setup=False):
+    def deploy_pony(self, suffix=None, usergroup='', setup=False, subnets=None, security_groups=None):
         self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=setup,
-                            buckets=','.join(IAM_BUCKETS), deploy_costupdater=True)
+                            buckets=','.join(IAM_BUCKETS), deploy_costupdater=True,
+                            subnets=subnets, security_groups=security_groups)

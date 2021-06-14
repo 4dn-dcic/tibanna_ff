@@ -44,7 +44,11 @@ class Subcommands(_Subcommands):
               'help': "Tibanna usergroup to share the permission to access buckets and run jobs"},
              {'flag': ["-S", "--setup"],
               'action': 'store_true',
-              'help': "Setup IAM permission again"}]
+              'help': "Setup IAM permission again"},
+             {'flag': ["-b", "--subnets"],
+              'help': "subnet IDs, separated by commas"},
+             {'flag': ["-c", "--security_groups"],
+              'help': "security groups, separated by commas"}]
 
         _args['kill'] = \
             [{'flag': ["-e", "--exec-arn"],
@@ -61,16 +65,18 @@ class Subcommands(_Subcommands):
         return _args
 
 
-def deploy_core(name, suffix=None, usergroup=''):
+def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None):
     """
     New method of deploying packaged lambdas (BETA)
     """
-    API().deploy_core(name=name, suffix=suffix, usergroup=usergroup)
+    API().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subsets=subnets,
+                      security_groups=security_groups)
 
 
-def deploy_pony(suffix=None, usergroup='', setup=False):
-    """deploy tibanna unicorn or pony to AWS cloud (pony is for 4DN-DCIC only)"""
-    API().deploy_pony(suffix=suffix, usergroup=usergroup, setup=setup)
+def deploy_pony(suffix=None, usergroup='', setup=False, subnets=None, security_groups=None):
+    """deploy tibanna pony to AWS cloud (pony is for 4DN-DCIC only)"""
+    API().deploy_pony(suffix=suffix, usergroup=usergroup, setup=setup, subnets=subnets,
+                      security_groups=security_groups)
 
 
 def run_workflow(input_json, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, jobid='', sleep=3):
