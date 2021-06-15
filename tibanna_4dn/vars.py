@@ -14,13 +14,16 @@ TIBANNA_DEFAULT_STEP_FUNCTION_NAME = os.environ.get('TIBANNA_DEFAULT_STEP_FUNCTI
 DEFAULT_AWARD = '1U01CA200059-01'
 DEFAULT_LAB = '4dn-dcic-lab'
 
-HIGLASS_BUCKETS = [BUCKET_NAME('fourfront-webprod', 'FileProcessed'),
+HIGLASS_BUCKETS = [BUCKET_NAME('data', 'FileProcessed'),
                    BUCKET_NAME('fourfront-webdev', 'FileProcessed')]
 
 DEV_ENV = 'fourfront-webdev'
-IAM_BUCKETS = [BUCKET_NAME(DEV_ENV, 'FileProcessed'),
-               BUCKET_NAME(DEV_ENV, 'FileFastq'),
-               '4dn-open-data-public',
-               'tibanna-output']
+PROD_ENV = 'data'
+
+def IAM_BUCKETS(env): 
+    return [BUCKET_NAME(env, 'FileProcessed'),
+            BUCKET_NAME(env, 'FileFastq'),
+            '4dn-open-data-public',
+            BUCKET_NAME(env, 'log'),]
 
 DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_SUFFIX

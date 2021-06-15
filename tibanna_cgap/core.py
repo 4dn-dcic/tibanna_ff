@@ -5,7 +5,8 @@ from .vars import (
     TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
     LAMBDA_TYPE,
     IAM_BUCKETS,
-    DEV_ENV
+    DEV_ENV,
+    PROD_ENV
 )
 
 
@@ -46,7 +47,12 @@ class API(_API):
     def __init__(self):
         pass
 
-    def deploy_zebra(self, suffix=None, usergroup='', setup=False, subnets=None, security_groups=None):
+    def deploy_zebra(self, suffix=None, usergroup='', setup=False, subnets=None, security_groups=None, env=None):
+        if not env:
+            if usergroup:
+                env = DEV_ENV
+            else:
+                env = PROD_ENV
         self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=False,
-                            buckets=','.join(IAM_BUCKETS), deploy_costupdater=True,
+                            buckets=','.join(IAM_BUCKETS(env)), deploy_costupdater=True,
                             subnets=subnets, security_groups=security_groups)
