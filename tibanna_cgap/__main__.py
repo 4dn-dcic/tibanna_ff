@@ -46,9 +46,13 @@ class Subcommands(_Subcommands):
               'action': 'store_true',
               'help': "Setup IAM permission again"},
              {'flag': ["-n", "--subnets"],
+              'nargs': '+',
               'help': "subnet IDs, separated by commas"},
              {'flag': ["-r", "--security_groups"],
-              'help': "security groups, separated by commas"}]
+              'nargs': '+',
+              'help': "security groups, separated by commas"},
+             {'flag': ["-e", "--env"],
+              'help': "env name"}]
 
         _args['kill'] = \
             [{'flag': ["-e", "--exec-arn"],
@@ -73,10 +77,10 @@ def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=N
                       security_groups=security_groups)
 
 
-def deploy_zebra(suffix=None, usergroup='', setup=False, subnets=None, security_groups=None):
+def deploy_zebra(suffix=None, usergroup='', setup=False, subnets=None, security_groups=None, env=None):
     """deploy tibanna zebra to AWS cloud (zebra is for CGAP only)"""
     API().deploy_zebra(suffix=suffix, usergroup=usergroup, setup=setup, subnets=subnets,
-                       security_groups=security_groups)
+                       security_groups=security_groups, env=env)
 
 
 def run_workflow(input_json, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, jobid='', sleep=3):
