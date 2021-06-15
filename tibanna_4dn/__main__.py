@@ -45,7 +45,7 @@ class Subcommands(_Subcommands):
              {'flag': ["-S", "--setup"],
               'action': 'store_true',
               'help': "Setup IAM permission again"},
-             {'flag': ["-n", "--subnets"],
+             {'flag': ["-t", "--subnets"],
               'nargs': '+',
               'help': "subnet IDs, separated by commas"},
              {'flag': ["-r", "--security_groups"],
