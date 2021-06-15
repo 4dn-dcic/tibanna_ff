@@ -41,12 +41,15 @@ class API(_API):
     def __init__(self):
         pass
 
-    def deploy_pony(self, suffix=None, usergroup='', setup=False, subnets=None, security_groups=None, env=None):
+    def deploy_pony(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
         if not env:
             if usergroup:
                 env = DEV_ENV
             else:
                 env = PROD_ENV
-        self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=setup,
+        if env:
+            usergroup = env + '_' + usergroup if usergroup else env
+        self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=True, default_usergroup_tag='',
+                            do_not_delete_public_access_block=True, no_randomize=True,
                             buckets=','.join(IAM_BUCKETS), deploy_costupdater=True,
                             subnets=subnets, security_groups=security_groups)

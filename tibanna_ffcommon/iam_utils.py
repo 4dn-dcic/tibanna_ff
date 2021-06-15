@@ -17,6 +17,12 @@ class IAM(_IAM):
     update_ffmeta_lambda_name = UPDATE_FFMETA_LAMBDA_NAME
 
     @property
+    def lambda_names(self):
+        return [self.run_task_lambda_name, self.check_task_lambda_name,
+                self.start_run_lambda_name, self.update_ffmeta_lambda_name,
+                self.update_cost_lambda_name]
+
+    @property
     def policy_arn_list_for_role(self):
         """returns a dictionary with role_type as keys"""
         arnlist = super().policy_arn_list_for_role

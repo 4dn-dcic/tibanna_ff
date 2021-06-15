@@ -42,9 +42,6 @@ class Subcommands(_Subcommands):
              {'flag': ["-g", "--usergroup"],
               'default': '',
               'help': "Tibanna usergroup to share the permission to access buckets and run jobs"},
-             {'flag': ["-S", "--setup"],
-              'action': 'store_true',
-              'help': "Setup IAM permission again"},
              {'flag': ["-t", "--subnets"],
               'nargs': '+',
               'help': "subnet IDs, separated by commas"},
@@ -77,9 +74,9 @@ def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=N
                       security_groups=security_groups)
 
 
-def deploy_zebra(suffix=None, usergroup='', setup=False, subnets=None, security_groups=None, env=None):
+def deploy_zebra(suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
     """deploy tibanna zebra to AWS cloud (zebra is for CGAP only)"""
-    API().deploy_zebra(suffix=suffix, usergroup=usergroup, setup=setup, subnets=subnets,
+    API().deploy_zebra(suffix=suffix, usergroup=usergroup, subnets=subnets,
                        security_groups=security_groups, env=env)
 
 
