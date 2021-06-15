@@ -17,7 +17,7 @@ DEFAULT_LAB = '4dn-dcic-lab'
 HIGLASS_BUCKETS = [BUCKET_NAME('data', 'FileProcessed'),
                    BUCKET_NAME('fourfront-webdev', 'FileProcessed')]
 
-DEV_ENV = 'fourfront-webdev'
+DEV_ENV = 'webdev'
 PROD_ENV = 'data'
 
 def IAM_BUCKETS(env): 

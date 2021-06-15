@@ -26,9 +26,6 @@ def BUCKET_NAME(env, filetype):
     global _BUCKET_NAME_RAW_RILES
     global _BUCKET_NAME_LOG
 
-    if env.startswith('fourfront-'):
-        env = env.replace('fourfront-', '')
-
     # use cache
     if filetype == 'FileProcessed' and env in _BUCKET_NAME_PROCESSED_FILES:
         return _BUCKET_NAME_PROCESSED_FILES[env]
