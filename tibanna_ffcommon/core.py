@@ -5,7 +5,8 @@ from .vars import (
     TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
     RUN_TASK_LAMBDA_NAME,
     CHECK_TASK_LAMBDA_NAME,
-    UPDATE_COST_LAMBDA_NAME
+    UPDATE_COST_LAMBDA_NAME,
+    BUCKET_NAME
 )
 
 
@@ -19,6 +20,7 @@ class API(_API):
 
     StepFunction = StepFunctionFFAbstract
     default_stepfunction_name = TIBANNA_DEFAULT_STEP_FUNCTION_NAME
+    default_env = ''  # fill in the actual env name for inherited class
     sfn_type = ''  # fill in the actual type (e.g pony or zebra) for inherited class
     lambda_type = ''  # fill in the actual type (e.g pony or zebra) for inherited class
 
@@ -50,6 +52,30 @@ class API(_API):
             'validate_md5_s3_trigger': {}
         }
         return envlist_ff.get(name, '')
+
+    def run_workflow(self, input_json, sfn=None,
+                     env=None, jobid=None, sleep=3, verbose=True, open_browser=False):
+        if isinstance(input_json, dict):
+            data = copy.deepcopy(input_json)
+        elif isinstance(input_json, str) and os.path.exists(input_json):
+            with open(input_json) as input_file:
+                data = json.load(input_file)
+        else:
+            raise Exception("input json must be either a file or a dictionary") 
+
+        # env priority: run_workflow parameter -> _tibanna_settings -> default_env
+        if not env:
+            if data.get('_tibanna_settings', {}).get('env'):
+                env = data['_tibanna_settings']['env']
+            else:
+                env = self.default_env
+
+        # automatic log bucket handling according to env
+        if 'log_bucket' not in data['config']:
+            data['config']['log_bucket'] = BUCKET_NAME(env, 'log')
+
+        super().run_workflow(input_json=data, sfn=sfn, env=env, jobid=jobid,
+                             sleep=sleep, verbose=verbose, open_browser=open_browser)
 
     def get_info_from_dd(self, ddres):
         ddinfo = super().get_info_from_dd(ddres)
