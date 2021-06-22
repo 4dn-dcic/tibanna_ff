@@ -1077,7 +1077,8 @@ class FourfrontUpdaterAbstract(object):
                 exists = self.s3(argname).does_key_exist(k, self.bucket(argname))
                 if not exists:
                     return "FAILED"
-            except Exception:
+            except Exception as e:
+                logger.error(str(e))
                 return "FAILED"
         return "COMPLETED"
 
@@ -1415,18 +1416,23 @@ class FourfrontUpdaterAbstract(object):
 
     # md5 report
     def update_md5(self):
+        logger.info("updating md5...")
         if self.app_name != 'md5':
             return
         md5_report_arg = self.output_argnames[0]  # assume one output arg
+        logger.debug("md5 report arg = %s" % md5_report_arg)
         if self.ff_output_file(md5_report_arg)['type'] != 'Output report file':
             return
+        logger.debug("md5 report arg type = %s" % self.ff_output_file(md5_report_arg)['type'])
+        logger.debug("md5 report arg status = %s" % self.status(md5_report_arg))
+        logger.debug("self.bucket for md5 report arg = %s" % self.bucket(md5_report_arg))
         if self.status(md5_report_arg) == 'FAILED':
             self.ff_meta.run_status = 'error'
             return
         md5, content_md5 = self.parse_md5_report(self.read(md5_report_arg))
+        logger.debug("md5=%s, content_md5=%s" % (md5, content_md5))
         input_arg = self.input_argnames[0]  # assume one input arg
         input_meta = self.file_items(input_arg)[0]  # assume one input file
-        logger.debug("md5=%s, content_md5=%s" % (md5, content_md5))
 
         def process(meta):
             md5_patch = dict()
