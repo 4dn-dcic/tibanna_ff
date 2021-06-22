@@ -7,3 +7,8 @@ class StepFunctionPony(StepFunctionFFAbstract):
     @property
     def lambda_type(self):
         return LAMBDA_TYPE
+
+    @property
+    def iam(self):
+        from .iam_utils import IAM
+        return IAM(self.usergroup)

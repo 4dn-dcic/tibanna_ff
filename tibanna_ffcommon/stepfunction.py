@@ -53,11 +53,6 @@ class StepFunctionFFAbstract(StepFunctionUnicorn):
         return 'ffcommon'
 
     @property
-    def iam(self):
-        from .iam_utils import IAM
-        return IAM(self.usergroup)
-
-    @property
     def sfn_state_defs(self):
         state_defs = {
             "StartRunAwsem": {
