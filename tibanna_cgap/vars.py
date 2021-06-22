@@ -22,8 +22,12 @@ DEV_ENV = 'cgapwolf'
 PROD_ENV = 'cgap'
 
 def IAM_BUCKETS(env): 
-    return [BUCKET_NAME(env, 'FileProcessed'),
-            BUCKET_NAME(env, 'FileFastq'),
-            BUCKET_NAME(env, 'log'),]
+    iam_buckets = [BUCKET_NAME(env, 'FileProcessed'),
+                   BUCKET_NAME(env, 'FileFastq'),
+                   BUCKET_NAME(env, 'system'),
+                   BUCKET_NAME(env, 'log')]
+    if GLOBAL_BUCKET_ENV:
+        iam_buckets.append(GLOBAL_BUCKET_ENV)
+    return iam_buckets
 
 DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_SUFFIX

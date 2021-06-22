@@ -158,6 +158,11 @@ def add_user(user, usergroup):
     API().add_user(user=user, usergroup=usergroup)
 
 
+def cleanup(usergroup, suffix='', purge_history=False, do_not_remove_iam_group=False, do_not_ignore_errors=False, quiet=False):
+    API().cleanup(user_group_name=usergroup, suffix=suffix, do_not_remove_iam_group=do_not_remove_iam_group,
+                  ignore_errors=not do_not_ignore_errors, purge_history=purge_history, verbose=not quiet)
+
+
 def main(Subcommands=Subcommands):
     """
     Execute the program from the command line

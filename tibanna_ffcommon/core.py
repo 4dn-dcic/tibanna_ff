@@ -1,3 +1,4 @@
+import copy
 from tibanna.core import API as _API
 from .stepfunction import StepFunctionFFAbstract
 from .vars import (
@@ -6,7 +7,8 @@ from .vars import (
     RUN_TASK_LAMBDA_NAME,
     CHECK_TASK_LAMBDA_NAME,
     UPDATE_COST_LAMBDA_NAME,
-    BUCKET_NAME
+    BUCKET_NAME,
+    GLOBAL_BUCKET_ENV
 )
 
 
@@ -51,6 +53,10 @@ class API(_API):
             'validate_md5_s3_initiator': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},
             'validate_md5_s3_trigger': {}
         }
+        if GLOBAL_BUCKET_ENV:
+            envlist_ff['start_run'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
+            envlist_ff['update_ffmeta'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
+            envlist_ff['validate_md5_s3_initiator'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
         return envlist_ff.get(name, '')
 
     def run_workflow(self, input_json, sfn=None,
@@ -65,8 +71,8 @@ class API(_API):
 
         # env priority: run_workflow parameter -> _tibanna_settings -> default_env
         if not env:
-            if data.get('_tibanna_settings', {}).get('env'):
-                env = data['_tibanna_settings']['env']
+            if data.get('_tibanna', {}).get('env'):
+                env = data['_tibanna']['env']
             else:
                 env = self.default_env
 

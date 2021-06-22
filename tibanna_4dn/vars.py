@@ -20,10 +20,14 @@ HIGLASS_BUCKETS = [BUCKET_NAME('data', 'FileProcessed'),
 DEV_ENV = 'webdev'
 PROD_ENV = 'data'
 
-def IAM_BUCKETS(env): 
-    return [BUCKET_NAME(env, 'FileProcessed'),
-            BUCKET_NAME(env, 'FileFastq'),
-            '4dn-open-data-public',
-            BUCKET_NAME(env, 'log'),]
+def IAM_BUCKETS(env):
+    iam_buckets = [BUCKET_NAME(env, 'FileProcessed'),
+                   BUCKET_NAME(env, 'FileFastq'),
+                   '4dn-open-data-public',
+                   BUCKET_NAME(env, 'system'),
+                   BUCKET_NAME(env, 'log')]
+    if GLOBAL_BUCKET_ENV:
+        iam_buckets.append(GLOBAL_BUCKET_ENV)
+    return iam_buckets
 
 DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_SUFFIX
