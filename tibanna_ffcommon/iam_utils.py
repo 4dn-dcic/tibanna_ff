@@ -38,8 +38,8 @@ class IAM(_IAM):
         """returns a dictionary with role_type as keys"""
         arnlist = super().policy_arn_list_for_role
 
-        general_lambda_policy_types = ['vpc', 'bucket']
-        execution_lambda_policy_types = ['vpc', 'bucket', 'executions']
+        general_lambda_policy_types = ['vpc', 'bucket', 'cloudwatch']
+        execution_lambda_policy_types = general_lambda_policy_types + ['executions']
 
         arnlist[self.start_run_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types]
         arnlist[self.update_ffmeta_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types]
