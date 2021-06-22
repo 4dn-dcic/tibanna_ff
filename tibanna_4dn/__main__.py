@@ -45,11 +45,32 @@ class Subcommands(_Subcommands):
              {'flag': ["-t", "--subnets"],
               'nargs': '+',
               'help': "subnet IDs, separated by commas"},
-             {'flag': ["-r", "--security_groups"],
+             {'flag': ["-r", "--security-groups"],
               'nargs': '+',
               'help': "security groups, separated by commas"},
              {'flag': ["-e", "--env"],
               'help': "env name"}]
+
+        _args['deploy_core'] = \
+            [{'flag': ["-n", "--name"],
+              'help': "name of the lambda function to deploy (e.g. run_task_awsem)"},
+             {'flag': ["-s", "--suffix"],
+              'help': "suffix (e.g. 'dev') to add to the end of the name of the AWS " +
+                      "Lambda function, within the same usergroup"},
+             {'flag': ["-g", "--usergroup"],
+              'default': '',
+              'help': "Tibanna usergroup for the AWS Lambda function"},
+             {'flag': ["-t", "--subnets"],
+              'nargs': '+',
+              'help': "subnet IDs, separated by commas"},
+             {'flag': ["-r", "--security-groups"],
+              'nargs': '+',
+              'help': "security groups, separated by commas"},
+             {'flag': ["-e", "--env"],
+              'help': "env name"},
+             {'flag': ["-q", "--quiet"],
+              'action': "store_true",
+              'help': "minimize standard output from deployment"}]
 
         _args['kill'] = \
             [{'flag': ["-e", "--exec-arn"],
@@ -66,12 +87,13 @@ class Subcommands(_Subcommands):
         return _args
 
 
-def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None):
+def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None, env=None,
+                quiet=False):
     """
     New method of deploying packaged lambdas (BETA)
     """
     API().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subsets=subnets,
-                      security_groups=security_groups)
+                      security_groups=security_groups, env=env, quiet=quiet)
 
 
 def deploy_pony(suffix=None, usergroup='', subnets=None, security_groups=None, env=None):

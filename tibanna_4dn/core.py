@@ -41,6 +41,18 @@ class API(_API):
     def __init__(self):
         pass
 
+    def deploy_core(self, name, suffix=None, usergroup='', subnets=None, security_groups=None,
+                    env=None, quiet=False):
+        if env:
+            usergroup = env + '_' + usergroup if usergroup else env
+        else:
+            if usergroup:
+                env = DEV_ENV
+            else:
+                env = PROD_ENV
+        super().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subnets=subnets,
+                            security_groups=security_groups, quiet=quiet)
+
     def deploy_pony(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
         if env:
             usergroup = env + '_' + usergroup if usergroup else env

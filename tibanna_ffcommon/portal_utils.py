@@ -1426,6 +1426,7 @@ class FourfrontUpdaterAbstract(object):
         md5, content_md5 = self.parse_md5_report(self.read(md5_report_arg))
         input_arg = self.input_argnames[0]  # assume one input arg
         input_meta = self.file_items(input_arg)[0]  # assume one input file
+        logger.debug("md5=%s, content_md5=%s" % (md5, content_md5))
 
         def process(meta):
             md5_patch = dict()
@@ -1466,6 +1467,7 @@ class FourfrontUpdaterAbstract(object):
             patch_content['file_size'] = self.s3_file_size(input_arg)
             patch_content['status'] = 'uploaded'
             self.update_patch_items(input_meta['uuid'], patch_content)
+            logger.debug(self.patch_items)
 
     def parse_md5_report(self, read):
         """parses md5 report file content and returns md5, content_md5"""
