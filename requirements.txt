@@ -1,4 +1,4 @@
 tibanna>=1.4.0b
 #git+git://github.com/4dn-dcic/tibanna/@vpc#egg=tibanna
-dcicutils>=1.16.0.1b8
+dcicutils>=1.18.1.2b3
 #git+git://github.com/4dn-dcic/utils/@48a68c7#egg=dcicutils

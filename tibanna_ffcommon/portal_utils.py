@@ -4,6 +4,7 @@ import copy
 import random
 from uuid import uuid4
 import requests
+import traceback
 from functools import partial
 from dcicutils.ff_utils import (
     get_metadata,
@@ -65,6 +66,11 @@ from .exceptions import (
 
 
 logger = create_logger(__name__)
+
+
+# temp, debugging
+import pkg_resources
+logger.debug(pkg_resources.get_distribution('dcicutils').version)
 
 
 class FFInputAbstract(SerializableObject):
@@ -355,9 +361,16 @@ class TibannaSettings(SerializableObject):
             self.ff_keys = None
             self.settings = None
         else:
+            logger.debug("Getting tibanna settings for env %s" % env)
             self.env = env
-            self.s3 = s3Utils(env=env)
+            try:
+                self.s3 = s3Utils(env=env)
+            except Exception as e:
+                logger.error("Error from s3Utils: %s\nFull traceback: %s" % (str(e), traceback.format_exc()))
+            if not self.s3:
+                logger.error("none is returned from s3Utils for env %s" % env)
 
+            logger.debug("Getting tibanna keys for env %s" % env)
             if not ff_keys:
                 ff_keys = self.s3.get_access_keys('access_key_tibanna')
             self.ff_keys = ff_keys
