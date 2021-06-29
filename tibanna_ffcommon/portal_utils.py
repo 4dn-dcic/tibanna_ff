@@ -137,6 +137,12 @@ class FFInputAbstract(SerializableObject):
         if not self.output_bucket:
             self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
 
+        # fill in subnet and security group, if they exist in env variable
+        if os.environ.get('SUBNETS', ''):
+            self.config.subnets = os.environ['SUBNETS'].split(',')
+        if os.environ.get('SECURITY_GROUPS', ''):
+            self.config.security_groups = os.environ['SECURITY_GROUPS'].split(',')
+
     def as_dict(self):
         #d_shallow = super().as_dict().copy()
         d_shallow = self.__dict__.copy()
