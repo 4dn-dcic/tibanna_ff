@@ -8,6 +8,8 @@ RUN_TASK_LAMBDA_NAME = 'run_task'
 CHECK_TASK_LAMBDA_NAME = 'check_task'
 UPDATE_COST_LAMBDA_NAME = 'update_cost'
 
+TIBANNA_REPO_BRANCH = os.environ.get('TIBANNA_REPO_BRANCH', 'huit')
+
 
 def BUCKET_NAME(env, filetype):
     if filetype in ['FileFastq', 'FileReference']:
