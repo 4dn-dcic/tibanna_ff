@@ -80,8 +80,8 @@ class API(_API):
         if 'log_bucket' not in data['config']:
             data['config']['log_bucket'] = BUCKET_NAME(env, 'log')
 
-        super().run_workflow(input_json=data, sfn=sfn, env=env, jobid=jobid,
-                             sleep=sleep, verbose=verbose, open_browser=open_browser)
+        return super().run_workflow(input_json=data, sfn=sfn, env=env, jobid=jobid,
+                                    sleep=sleep, verbose=verbose, open_browser=open_browser)
 
     def get_info_from_dd(self, ddres):
         ddinfo = super().get_info_from_dd(ddres)

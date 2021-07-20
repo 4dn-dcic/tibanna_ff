@@ -81,7 +81,8 @@ class FFInputFile(SerializableObject):
     common_unicorn_fields = ['bucket_name', 'rename', 'unzip', 'mount']
 
     # for status check - these statuses indicate the file is not ready
-    not_ready_status_list = ['uploading', 'to be uploaded by workflow',
+    # uploading is not included here, otherwise md5 won't run on new extra files
+    not_ready_status_list = ['to be uploaded by workflow',
                              'upload failed', 'deleted']
 
     # the following two private attributes work as a cache for metadata -
