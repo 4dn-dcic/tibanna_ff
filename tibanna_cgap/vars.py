@@ -8,7 +8,7 @@ ACCESSION_PREFIX = 'GAP'
 
 
 # default step function name
-TIBANNA_DEFAULT_STEP_FUNCTION_NAME = os.environ.get('TIBANNA_DEFAULT_STEP_FUNCTION_NAME', 'tibanna_' + LAMBDA_TYPE)
+TIBANNA_DEFAULT_STEP_FUNCTION_NAME = 'tibanna_' + LAMBDA_TYPE
 
 
 # fourfront

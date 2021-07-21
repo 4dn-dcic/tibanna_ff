@@ -47,7 +47,7 @@ class API(_API):
         if envlist:
             return envlist
         envlist_ff = {
-            'run_workflow': {},
+            'run_workflow': {'TIBANNA_DEFAULT_STEP_FUNCTION_NAME': self.default_stepfunction_name},
             'start_run': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},
             'update_ffmeta': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},
             'validate_md5_s3_initiator': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},

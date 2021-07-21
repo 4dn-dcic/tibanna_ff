@@ -49,6 +49,7 @@ class API(_API):
 
     def deploy_core(self, name, suffix=None, usergroup='', subnets=None, security_groups=None,
                     env=None, quiet=False):
+        default_stepfunction_name = self.default_stepfunction_name
         if env:
             usergroup = env + '_' + usergroup if usergroup else env
         else:
@@ -56,8 +57,10 @@ class API(_API):
                 env = DEV_ENV
             else:
                 env = PROD_ENV
+        self.default_stepfunction_name += create_tibanna_suffix(suffix, usergroup)
         super().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subnets=subnets,
                             security_groups=security_groups, quiet=quiet)
+        self.default_stepfunction_name = default_stepfunction_name
 
     def deploy_zebra(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
         if env:
