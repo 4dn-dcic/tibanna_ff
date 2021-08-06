@@ -43,11 +43,6 @@ class StepFunctionFFAbstract(StepFunctionUnicorn):
         return 'tibanna_' + self.lambda_type + self.lambda_suffix
 
     @property
-    def sfn_role_arn(self):
-        return "arn:aws:iam::" + self.aws_acc + \
-               ":role/service-role/StatesExecutionRole-" + self.region_name
-
-    @property
     def sfn_start_lambda(self):
         return 'StartRunAwsem'
 

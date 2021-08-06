@@ -42,9 +42,35 @@ class Subcommands(_Subcommands):
              {'flag': ["-g", "--usergroup"],
               'default': '',
               'help': "Tibanna usergroup to share the permission to access buckets and run jobs"},
-             {'flag': ["-S", "--setup"],
-              'action': 'store_true',
-              'help': "Setup IAM permission again"}]
+             {'flag': ["-t", "--subnets"],
+              'nargs': '+',
+              'help': "subnet IDs, separated by commas"},
+             {'flag': ["-r", "--security-groups"],
+              'nargs': '+',
+              'help': "security groups, separated by commas"},
+             {'flag': ["-e", "--env"],
+              'help': "env name"}]
+
+        _args['deploy_core'] = \
+            [{'flag': ["-n", "--name"],
+              'help': "name of the lambda function to deploy (e.g. run_task_awsem)"},
+             {'flag': ["-s", "--suffix"],
+              'help': "suffix (e.g. 'dev') to add to the end of the name of the AWS " +
+                      "Lambda function, within the same usergroup"},
+             {'flag': ["-g", "--usergroup"],
+              'default': '',
+              'help': "Tibanna usergroup for the AWS Lambda function"},
+             {'flag': ["-t", "--subnets"],
+              'nargs': '+',
+              'help': "subnet IDs, separated by commas"},
+             {'flag': ["-r", "--security-groups"],
+              'nargs': '+',
+              'help': "security groups, separated by commas"},
+             {'flag': ["-e", "--env"],
+              'help': "env name"},
+             {'flag': ["-q", "--quiet"],
+              'action': "store_true",
+              'help': "minimize standard output from deployment"}]
 
         _args['kill'] = \
             [{'flag': ["-e", "--exec-arn"],
@@ -61,16 +87,19 @@ class Subcommands(_Subcommands):
         return _args
 
 
-def deploy_core(name, suffix=None, usergroup=''):
+def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None, env=None,
+                quiet=False):
     """
     New method of deploying packaged lambdas (BETA)
     """
-    API().deploy_core(name=name, suffix=suffix, usergroup=usergroup)
+    API().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subsets=subnets,
+                      security_groups=security_groups, env=env, quiet=quiet)
 
 
-def deploy_pony(suffix=None, usergroup='', setup=False):
-    """deploy tibanna unicorn or pony to AWS cloud (pony is for 4DN-DCIC only)"""
-    API().deploy_pony(suffix=suffix, usergroup=usergroup, setup=setup)
+def deploy_pony(suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
+    """deploy tibanna pony to AWS cloud (pony is for 4DN-DCIC only)"""
+    API().deploy_pony(suffix=suffix, usergroup=usergroup, subnets=subnets,
+                      security_groups=security_groups, env=env)
 
 
 def run_workflow(input_json, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, jobid='', sleep=3):
@@ -149,6 +178,11 @@ def plot_metrics(job_id, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, force_upload=Fa
 def add_user(user, usergroup):
     """add a user to a tibanna group"""
     API().add_user(user=user, usergroup=usergroup)
+
+
+def cleanup(usergroup, suffix='', purge_history=False, do_not_remove_iam_group=False, do_not_ignore_errors=False, quiet=False):
+    API().cleanup(user_group_name=usergroup, suffix=suffix, do_not_remove_iam_group=do_not_remove_iam_group,
+                  ignore_errors=not do_not_ignore_errors, purge_history=purge_history, verbose=not quiet)
 
 
 def main(Subcommands=Subcommands):

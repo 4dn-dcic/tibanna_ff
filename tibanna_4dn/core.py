@@ -5,7 +5,8 @@ from .vars import (
     TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
     LAMBDA_TYPE,
     IAM_BUCKETS,
-    DEV_ENV
+    DEV_ENV,
+    PROD_ENV
 )
 
 class API(_API):
@@ -40,6 +41,27 @@ class API(_API):
     def __init__(self):
         pass
 
-    def deploy_pony(self, suffix=None, usergroup='', setup=False):
-        self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=setup,
-                            buckets=','.join(IAM_BUCKETS), deploy_costupdater=True)
+    def deploy_core(self, name, suffix=None, usergroup='', subnets=None, security_groups=None,
+                    env=None, quiet=False):
+        if env:
+            usergroup = env + '_' + usergroup if usergroup else env
+        else:
+            if usergroup:
+                env = DEV_ENV
+            else:
+                env = PROD_ENV
+        super().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subnets=subnets,
+                            security_groups=security_groups, quiet=quiet)
+
+    def deploy_pony(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
+        if env:
+            usergroup = env + '_' + usergroup if usergroup else env
+        else:
+            if usergroup:
+                env = DEV_ENV
+            else:
+                env = PROD_ENV
+        self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=True, default_usergroup_tag='',
+                            do_not_delete_public_access_block=True, no_randomize=True,
+                            buckets=','.join(IAM_BUCKETS), deploy_costupdater=True,
+                            subnets=subnets, security_groups=security_groups)

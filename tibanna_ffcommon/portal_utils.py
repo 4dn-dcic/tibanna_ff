@@ -1,9 +1,11 @@
+import os
 import json
 import boto3
 import copy
 import random
 from uuid import uuid4
 import requests
+import traceback
 from functools import partial
 from dcicutils.ff_utils import (
     get_metadata,
@@ -65,6 +67,11 @@ from .exceptions import (
 
 
 logger = create_logger(__name__)
+
+
+# temp, debugging
+import pkg_resources
+logger.debug(pkg_resources.get_distribution('dcicutils').version)
 
 
 class FFInputAbstract(SerializableObject):
@@ -130,6 +137,12 @@ class FFInputAbstract(SerializableObject):
         # fill in output_bucket
         if not self.output_bucket:
             self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
+
+        # fill in subnet and security group, if they exist in env variable
+        if os.environ.get('SUBNETS', ''):
+            self.config.subnet = os.environ['SUBNETS'].split(',')[0]
+        if os.environ.get('SECURITY_GROUPS', ''):
+            self.config.security_group = os.environ['SECURITY_GROUPS'].split(',')[0]
 
     def as_dict(self):
         #d_shallow = super().as_dict().copy()
@@ -355,9 +368,16 @@ class TibannaSettings(SerializableObject):
             self.ff_keys = None
             self.settings = None
         else:
+            logger.debug("Getting tibanna settings for env %s" % env)
             self.env = env
-            self.s3 = s3Utils(env=env)
+            try:
+                self.s3 = s3Utils(env=env)
+            except Exception as e:
+                logger.error("Error from s3Utils: %s\nFull traceback: %s" % (str(e), traceback.format_exc()))
+            if not self.s3:
+                logger.error("none is returned from s3Utils for env %s" % env)
 
+            logger.debug("Getting tibanna keys for env %s" % env)
             if not ff_keys:
                 ff_keys = self.s3.get_access_keys('access_key_tibanna')
             self.ff_keys = ff_keys
@@ -1077,7 +1097,8 @@ class FourfrontUpdaterAbstract(object):
                 exists = self.s3(argname).does_key_exist(k, self.bucket(argname))
                 if not exists:
                     return "FAILED"
-            except Exception:
+            except Exception as e:
+                logger.error(str(e))
                 return "FAILED"
         return "COMPLETED"
 
@@ -1415,15 +1436,21 @@ class FourfrontUpdaterAbstract(object):
 
     # md5 report
     def update_md5(self):
+        logger.info("updating md5...")
         if self.app_name != 'md5':
             return
         md5_report_arg = self.output_argnames[0]  # assume one output arg
+        logger.debug("md5 report arg = %s" % md5_report_arg)
         if self.ff_output_file(md5_report_arg)['type'] != 'Output report file':
             return
+        logger.debug("md5 report arg type = %s" % self.ff_output_file(md5_report_arg)['type'])
+        logger.debug("md5 report arg status = %s" % self.status(md5_report_arg))
+        logger.debug("self.bucket for md5 report arg = %s" % self.bucket(md5_report_arg))
         if self.status(md5_report_arg) == 'FAILED':
             self.ff_meta.run_status = 'error'
             return
         md5, content_md5 = self.parse_md5_report(self.read(md5_report_arg))
+        logger.debug("md5=%s, content_md5=%s" % (md5, content_md5))
         input_arg = self.input_argnames[0]  # assume one input arg
         input_meta = self.file_items(input_arg)[0]  # assume one input file
 
@@ -1466,6 +1493,7 @@ class FourfrontUpdaterAbstract(object):
             patch_content['file_size'] = self.s3_file_size(input_arg)
             patch_content['status'] = 'uploaded'
             self.update_patch_items(input_meta['uuid'], patch_content)
+            logger.debug(self.patch_items)
 
     def parse_md5_report(self, read):
         """parses md5 report file content and returns md5, content_md5"""

@@ -1,0 +1,35 @@
+{
+    "parameters": {"nthreads": 1},
+    "workflow_uuid": "9e094699-561b-4396-8d6a-ffc45f98c5e1",
+    "input_files" : [
+       {
+           "workflow_argument_name": "fastq_R1",
+           "uuid": "20770468-6df8-4af0-a922-39b20ac7977d"
+       },
+       {
+           "workflow_argument_name": "fastq_R2",
+           "uuid": "20770468-6df8-4af0-a922-39b20ac7977d"
+       },
+       {
+           "workflow_argument_name": "reference",
+           "uuid": "23d01305-e0cc-4cc7-af92-254a8c41034d"
+       }
+    ],
+    "config": {
+      "instance_type": "t3.xlarge",
+      "ebs_size": "5x",
+      "EBS_optimized": true,
+      "spot_instance": true,
+      "log_bucket": "tibanna-output",
+      "run_name": "run_workflow_bwa-mem_no_unzip-check",
+      "behavior_on_capacity_limit": "wait_and_retry",
+      "security_group": "sg-04b9d1a18fd086f33",
+      "subnet": "subnet-0228ceba052aaf47f",
+      "key_name": "4dn-encode"
+    },
+    "_tibanna": {
+      "run_type": "workflow_bwa-mem_no_unzip-check",
+      "env": "fourfront-cgapwolf"
+    },
+    "app_name": "workflow_bwa-mem_no_unzip-check"
+}
