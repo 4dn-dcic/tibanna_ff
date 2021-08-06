@@ -1,4 +1,2 @@
-tibanna>=1.4.0b3
-#git+git://github.com/4dn-dcic/tibanna/@vpc#egg=tibanna
+tibanna>=1.4.1
 dcicutils>=1.19.0
-#git+git://github.com/4dn-dcic/utils/@48a68c7#egg=dcicutils
