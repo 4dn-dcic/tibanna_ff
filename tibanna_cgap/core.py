@@ -8,6 +8,7 @@ from .vars import (
     DEV_ENV,
     PROD_ENV
 )
+from tibanna.utils import create_tibanna_suffix
 
 
 class API(_API):
