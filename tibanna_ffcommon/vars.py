@@ -43,16 +43,14 @@ def BUCKET_NAME(env, filetype):
         return _BUCKET_NAME_LOG[env]
 
     # no cache
-    if filetype == 'log':
-        if AWS_ACCOUNT_NUMBER == '643366669028':  # 4dn-dcic account
-            _BUCKET_NAME_LOG[env] = 'tibanna-output'
-        else:
-            _BUCKET_NAME_LOG[env] = 'application-%s-tibanna-logs' % env
+    if filetype == 'log' and AWS_ACCOUNT_NUMBER == '643366669028':  # 4dn-dcic account
+        _BUCKET_NAME_LOG[env] = 'tibanna-output'
     else:
         s3 = s3Utils(env=env)
         _BUCKET_NAME_PROCESSED_FILES[env] = s3.outfile_bucket
         _BUCKET_NAME_RAW_RILES[env] = s3.raw_file_bucket
         _BUCKET_NAME_SYS[env] = s3.sys_bucket
+        _BUCKET_NAME_LOG[env] = s3.tibanna_output_bucket
 
     if filetype == 'FileProcessed':
         return _BUCKET_NAME_PROCESSED_FILES[env]

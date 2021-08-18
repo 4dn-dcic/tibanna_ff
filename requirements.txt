@@ -1,2 +1,2 @@
 tibanna>=1.4.1
-dcicutils>=1.19.0
+dcicutils>=2.0.0
