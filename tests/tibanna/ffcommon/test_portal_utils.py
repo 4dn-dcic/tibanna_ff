@@ -41,7 +41,7 @@ def test_ff_input_abstract():
     inp = FFInputAbstract(**data)
     assert inp.workflow_uuid == 'a'
     assert inp.config.log_bucket == 'b'
-
+    assert 'ecr' in inp.config.awsf_image
 
 def test_ff_input_abstract_missing_field_error2():
     data = {'workflow_uuid': 'a',

@@ -3,4 +3,4 @@ Benchmark-4dn>=0.5.13
 boto3>=1.9.0
 botocore>=1.12.1
 dcicutils>=1.19.0
-tibanna>=1.4.1
+tibanna>=1.5.0
