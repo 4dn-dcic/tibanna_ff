@@ -61,7 +61,7 @@ class API(_API):
             envlist_ff['validate_md5_s3_initiator'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
         if AWSF_IMAGE:
             envlist_ff['start_run'].update({'AWSF_IMAGE': AWSF_IMAGE})
-        for _, envs in envlist_ff:
+        for _, envs in envlist_ff.items():
             envs.update({'TIBANNA_FF_VERSION': __version__})
         return envlist_ff.get(name, '')
 
