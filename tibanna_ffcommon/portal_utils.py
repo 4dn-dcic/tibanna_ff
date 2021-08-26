@@ -64,6 +64,7 @@ from .exceptions import (
     MalFormattedFFInputException,
     MalFormattedWorkflowMetadataException
 )
+from .vars import AWSF_IMAGE
 
 
 logger = create_logger(__name__)
@@ -98,6 +99,8 @@ class FFInputAbstract(SerializableObject):
                 raise TibannaStartException("%s" % e)
 
         self.config = Config(**config)
+        self.config.awsf_image = AWSF_IMAGE
+
         self.jobid = jobid
 
         # self.ff_input_files is a FFInputFiles class object created from the input_files field
