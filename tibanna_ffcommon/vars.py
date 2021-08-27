@@ -1,6 +1,7 @@
 from tibanna.vars import *
 import os
 from dcicutils.s3_utils import s3Utils
+from tibanna._version import __version__ as tibanna_version
 
 
 S3_ENCRYPT_KEY = os.environ.get("S3_ENCRYPT_KEY", '')
@@ -17,6 +18,7 @@ VALIDATE_MD5_S3_INITIATOR_LAMBDA_NAME = 'validate_md5_s3_initiator'
 VALIDATE_MD5_S3_TRIGGER_LAMBDA_NAME = 'validate_md5_s3_trigger'
 
 GLOBAL_BUCKET_ENV = os.environ.get('GLOBAL_BUCKET_ENV', '')
+AWSF_IMAGE = '%s.dkr.ecr.%s.amazonaws.com/tibanna-awsf:%s' % (AWS_ACCOUNT_NUMBER, AWS_REGION, tibanna_version)
 
 
 # cached bucket names (internally used by function BUCKET_NAME

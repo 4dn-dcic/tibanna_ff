@@ -1,6 +1,7 @@
 import copy
 from tibanna.core import API as _API
 from .stepfunction import StepFunctionFFAbstract
+from ._version import __version__
 from .vars import (
     S3_ENCRYPT_KEY,
     TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
@@ -8,7 +9,8 @@ from .vars import (
     CHECK_TASK_LAMBDA_NAME,
     UPDATE_COST_LAMBDA_NAME,
     BUCKET_NAME,
-    GLOBAL_BUCKET_ENV
+    GLOBAL_BUCKET_ENV,
+    AWSF_IMAGE
 )
 
 
@@ -57,6 +59,10 @@ class API(_API):
             envlist_ff['start_run'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
             envlist_ff['update_ffmeta'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
             envlist_ff['validate_md5_s3_initiator'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
+        if AWSF_IMAGE:
+            envlist_ff['start_run'].update({'AWSF_IMAGE': AWSF_IMAGE})
+        for _, envs in envlist_ff.items():
+            envs.update({'TIBANNA_FF_VERSION': __version__})
         return envlist_ff.get(name, '')
 
     def run_workflow(self, input_json, sfn=None,
