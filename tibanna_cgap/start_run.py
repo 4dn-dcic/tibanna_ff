@@ -19,11 +19,11 @@ def start_run(input_json):
     (different versions of the same app could have a different uuid)
     '''
     starter = FourfrontStarter(**input_json)
+    logger.debug("starter.inp.as_dict() = " + str(starter.inp.as_dict()))
     if starter.inp.config.log_bucket and starter.inp.jobid:
         s3 = boto3.client('s3')
         s3.put_object(Body=json.dumps(input_json, indent=4).encode('ascii'),
                       Key=starter.inp.jobid + '.input.json',
                       Bucket=starter.inp.config.log_bucket)
     starter.run()
-    logger.debug("starter.inp.as_dict() = " + str(starter.inp.as_dict()))
     return(starter.inp.as_dict())
