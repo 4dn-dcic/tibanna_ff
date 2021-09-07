@@ -410,7 +410,10 @@ class QCDataParser(object):
         if field_type == 'string':
             return {name: str(value)}
         elif field_type == 'number':
-            return {name: self.number(value.replace(',', ''))}
+            if(isinstance(value, (int,float))):
+                return {name: value}
+            else:
+                return {name: self.number(value.replace(',', ''))}
         else:
             if strict:
                 return {}
