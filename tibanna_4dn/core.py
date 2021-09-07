@@ -63,5 +63,5 @@ class API(_API):
                 env = PROD_ENV
         self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=True, default_usergroup_tag='',
                             do_not_delete_public_access_block=True, no_randomize=True,
-                            buckets=','.join(IAM_BUCKETS), deploy_costupdater=True,
+                            buckets=','.join(IAM_BUCKETS(env)), deploy_costupdater=True,
                             subnets=subnets, security_groups=security_groups)
