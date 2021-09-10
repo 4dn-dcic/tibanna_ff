@@ -18,6 +18,7 @@ class StepFunctionCostUpdater(StepFunctionCostUpdater_):
             "Next": "UpdateCostAwsem"
             },
             "UpdateCostAwsem": {
+                "Type": "Task",
                 "Resource": self.lambda_arn_prefix + "update_cost_" + self.lambda_type + self.lambda_suffix,
                 "ResultPath": "$.done",
                 "Next": "UpdateCostDone"
