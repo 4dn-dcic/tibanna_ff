@@ -48,17 +48,7 @@ def expected_policy_arn_list_for_cgap():
             'update_ffmeta': [prefix + 'tibanna_zebra_cgap_vpc_access',
                               prefix + 'tibanna_zebra_cgap_bucket_access',
                               prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
-                              prefix + 'tibanna_zebra_cgap_dynamodb'],
-            'validate_md5_s3_initiator': [prefix + 'tibanna_zebra_cgap_vpc_access',
-                                          prefix + 'tibanna_zebra_cgap_bucket_access',
-                                          prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
-                                          prefix + 'tibanna_zebra_cgap_dynamodb',
-                                          prefix + 'tibanna_zebra_cgap_executions'],
-            'validate_md5_s3_trigger': [prefix + 'tibanna_zebra_cgap_vpc_access',
-                                        prefix + 'tibanna_zebra_cgap_bucket_access',
-                                        prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
-                                        prefix + 'tibanna_zebra_cgap_dynamodb',
-                                        prefix + 'tibanna_zebra_cgap_executions']}
+                              prefix + 'tibanna_zebra_cgap_dynamodb']}
 
 
 def test_policy_prefix(expected_policy_arn_list_for_cgap):
