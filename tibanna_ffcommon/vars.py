@@ -14,8 +14,6 @@ START_RUN_LAMBDA_NAME = 'start_run'
 UPDATE_FFMETA_LAMBDA_NAME = 'update_ffmeta'
 RUN_WORKFLOW_LAMBDA_NAME = 'run_workflow'
 STATUS_WFR_LAMBDA_NAME = 'status_wfr'
-VALIDATE_MD5_S3_INITIATOR_LAMBDA_NAME = 'validate_md5_s3_initiator'
-VALIDATE_MD5_S3_TRIGGER_LAMBDA_NAME = 'validate_md5_s3_trigger'
 
 GLOBAL_BUCKET_ENV = os.environ.get('GLOBAL_BUCKET_ENV', '')
 AWSF_IMAGE = '%s.dkr.ecr.%s.amazonaws.com/tibanna-awsf:%s' % (AWS_ACCOUNT_NUMBER, AWS_REGION, tibanna_version)

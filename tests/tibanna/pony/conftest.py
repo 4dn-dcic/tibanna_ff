@@ -58,21 +58,6 @@ def ff_keys(s3_utils):
 
 
 @pytest.fixture
-def s3_trigger_event_data():
-    return get_event_file_for('validate_md5_s3_trigger')
-
-
-@pytest.fixture
-def s3_trigger_event_data_pf():
-    return get_event_file_for('validate_md5_s3_trigger', event_file='event_pf.json')
-
-
-@pytest.fixture
-def s3_trigger_event_data_pf_extra_status():
-    return get_event_file_for('validate_md5_s3_trigger', event_file='event_pf_extra_status.json')
-
-
-@pytest.fixture
 def start_run_md5_data(ff_keys):
     return get_event_file_for('start_run', ff_keys=ff_keys, event_file='event_md5.json')
 
