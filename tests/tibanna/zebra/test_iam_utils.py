@@ -33,7 +33,8 @@ def expected_policy_arn_list_for_cgap():
             'start_run': [prefix + 'tibanna_zebra_cgap_vpc_access',
                           prefix + 'tibanna_zebra_cgap_bucket_access',
                           prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
-                          prefix + 'tibanna_zebra_cgap_dynamodb'],
+                          prefix + 'tibanna_zebra_cgap_dynamodb',
+                          prefix + 'ElasticBeanstalkFullAccess'],
             'status_wfr': [prefix + 'tibanna_zebra_cgap_vpc_access',
                            prefix + 'tibanna_zebra_cgap_bucket_access',
                            prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
@@ -48,7 +49,8 @@ def expected_policy_arn_list_for_cgap():
             'update_ffmeta': [prefix + 'tibanna_zebra_cgap_vpc_access',
                               prefix + 'tibanna_zebra_cgap_bucket_access',
                               prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
-                              prefix + 'tibanna_zebra_cgap_dynamodb']}
+                              prefix + 'tibanna_zebra_cgap_dynamodb',
+                              prefix + 'ElasticBeanstalkFullAccess']}
 
 
 def test_policy_prefix(expected_policy_arn_list_for_cgap):
