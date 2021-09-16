@@ -29,11 +29,12 @@ def expected_policy_arn_list_for_cgap():
                              prefix + 'tibanna_zebra_cgap_bucket_access',
                              prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
                              prefix + 'tibanna_zebra_cgap_dynamodb',
-                             prefix + 'tibanna_zebra_cgap_executions'],
+                             prefix + 'tibanna_zebra_cgap_executions',
             'start_run': [prefix + 'tibanna_zebra_cgap_vpc_access',
                           prefix + 'tibanna_zebra_cgap_bucket_access',
                           prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
-                          prefix + 'tibanna_zebra_cgap_dynamodb'],
+                          prefix + 'tibanna_zebra_cgap_dynamodb',
+                          'arn:aws:iam::643366669028:policy/ElasticBeanstalkFullAccess' % AWS_ACCOUNT_NUMBER]
             'status_wfr': [prefix + 'tibanna_zebra_cgap_vpc_access',
                            prefix + 'tibanna_zebra_cgap_bucket_access',
                            prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
@@ -48,7 +49,8 @@ def expected_policy_arn_list_for_cgap():
             'update_ffmeta': [prefix + 'tibanna_zebra_cgap_vpc_access',
                               prefix + 'tibanna_zebra_cgap_bucket_access',
                               prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
-                              prefix + 'tibanna_zebra_cgap_dynamodb']}
+                              prefix + 'tibanna_zebra_cgap_dynamodb',
+                              'arn:aws:iam::643366669028:policy/ElasticBeanstalkFullAccess' % AWS_ACCOUNT_NUMBER]}
 
 
 def test_policy_prefix(expected_policy_arn_list_for_cgap):
