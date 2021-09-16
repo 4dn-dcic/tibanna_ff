@@ -35,8 +35,10 @@ class IAM(_IAM):
         general_lambda_policy_types = ['vpc', 'bucket', 'cloudwatch', 'dynamodb']
         execution_lambda_policy_types = general_lambda_policy_types + ['executions']
 
-        arnlist[self.start_run_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types]
-        arnlist[self.update_ffmeta_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types]
+        arnlist[self.start_run_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
+                                              ['arn:aws:iam::643366669028:policy/ElasticBeanstalkFullAccess']
+        arnlist[self.update_ffmeta_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
+                                                  ['arn:aws:iam::643366669028:policy/ElasticBeanstalkFullAccess']
         arnlist[self.run_workflow_lambda_name] = [self.policy_arn(_) for _ in execution_lambda_policy_types]
         arnlist[self.status_wfr_lambda_name] = [self.policy_arn(_) for _ in execution_lambda_policy_types]
 
