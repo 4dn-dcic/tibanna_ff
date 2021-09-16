@@ -29,7 +29,7 @@ def expected_policy_arn_list_for_cgap():
                              prefix + 'tibanna_zebra_cgap_bucket_access',
                              prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
                              prefix + 'tibanna_zebra_cgap_dynamodb',
-                             prefix + 'tibanna_zebra_cgap_executions',
+                             prefix + 'tibanna_zebra_cgap_executions'],
             'start_run': [prefix + 'tibanna_zebra_cgap_vpc_access',
                           prefix + 'tibanna_zebra_cgap_bucket_access',
                           prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
