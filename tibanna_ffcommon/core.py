@@ -34,7 +34,7 @@ class API(_API):
 
     @property
     def do_not_delete(self):
-        return ['validate_md5_s3_trigger']
+        return [] # add lambdas not to delete upon redeployment (e.g. used to contain 'validate_md5_s3_trigger')
 
     @property
     def IAM(self):
@@ -49,16 +49,12 @@ class API(_API):
         if envlist:
             return envlist
         envlist_ff = {
-            'run_workflow': {'TIBANNA_DEFAULT_STEP_FUNCTION_NAME': self.default_stepfunction_name},
             'start_run': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},
-            'update_ffmeta': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},
-            'validate_md5_s3_initiator': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},
-            'validate_md5_s3_trigger': {}
+            'update_ffmeta': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY}
         }
         if GLOBAL_BUCKET_ENV:
             envlist_ff['start_run'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
             envlist_ff['update_ffmeta'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
-            envlist_ff['validate_md5_s3_initiator'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
         if AWSF_IMAGE:
             envlist_ff['start_run'].update({'AWSF_IMAGE': AWSF_IMAGE})
         for _, envs in envlist_ff.items():

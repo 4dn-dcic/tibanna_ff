@@ -12,8 +12,6 @@ CHECK_TASK_LAMBDA_NAME = 'check_task'
 UPDATE_COST_LAMBDA_NAME = 'update_cost'
 START_RUN_LAMBDA_NAME = 'start_run'
 UPDATE_FFMETA_LAMBDA_NAME = 'update_ffmeta'
-RUN_WORKFLOW_LAMBDA_NAME = 'run_workflow'
-STATUS_WFR_LAMBDA_NAME = 'status_wfr'
 
 GLOBAL_BUCKET_ENV = os.environ.get('GLOBAL_BUCKET_ENV', '')
 AWSF_IMAGE = '%s.dkr.ecr.%s.amazonaws.com/tibanna-awsf:%s' % (AWS_ACCOUNT_NUMBER, AWS_REGION, tibanna_version)
