@@ -5,7 +5,6 @@ from .vars import (
     UPDATE_COST_LAMBDA_NAME,
     START_RUN_LAMBDA_NAME,
     UPDATE_FFMETA_LAMBDA_NAME,
-    RUN_WORKFLOW_LAMBDA_NAME,
     STATUS_WFR_LAMBDA_NAME,
 )
 
@@ -17,14 +16,11 @@ class IAM(_IAM):
     update_cost_lambda_name = UPDATE_COST_LAMBDA_NAME
     start_run_lambda_name = START_RUN_LAMBDA_NAME
     update_ffmeta_lambda_name = UPDATE_FFMETA_LAMBDA_NAME
-    run_workflow_lambda_name = RUN_WORKFLOW_LAMBDA_NAME
-    status_wfr_lambda_name = STATUS_WFR_LAMBDA_NAME
 
     @property
     def lambda_names(self):
         return [self.run_task_lambda_name, self.check_task_lambda_name,
                 self.start_run_lambda_name, self.update_ffmeta_lambda_name,
-                self.run_workflow_lambda_name, self.status_wfr_lambda_name,
                 self.update_cost_lambda_name]
 
     @property
@@ -33,15 +29,11 @@ class IAM(_IAM):
         arnlist = super().policy_arn_list_for_role
 
         general_lambda_policy_types = ['vpc', 'bucket', 'cloudwatch', 'dynamodb']
-        execution_lambda_policy_types = general_lambda_policy_types + ['executions']
-
         policy_prefix = 'arn:aws:iam::' + self.account_id + ':policy/'
 
         arnlist[self.start_run_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
                                               [policy_prefix + 'ElasticBeanstalkFullAccess']
         arnlist[self.update_ffmeta_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
                                                   [policy_prefix + 'ElasticBeanstalkFullAccess']
-        arnlist[self.run_workflow_lambda_name] = [self.policy_arn(_) for _ in execution_lambda_policy_types]
-        arnlist[self.status_wfr_lambda_name] = [self.policy_arn(_) for _ in execution_lambda_policy_types]
 
         return arnlist
