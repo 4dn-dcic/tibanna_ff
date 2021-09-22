@@ -33,12 +33,9 @@ class IAM(_IAM):
         # Give EB read access to tibanna (for now, so perms are compatible in legacy account) - Will Sept 22 2021
         arnlist[self.start_run_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
                                               [policy_prefix + 'AWSElasticBeanstalkReadOnly']
-        arnlist[self.run_task_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
-                                             [policy_prefix + 'AWSElasticBeanstalkReadOnly']
-        arnlist[self.check_task_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
-                                               [policy_prefix + 'AWSElasticBeanstalkReadOnly']
-        arnlist[self.update_cost_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
-                                                [policy_prefix + 'AWSElasticBeanstalkReadOnly']
+        arnlist[self.run_task_lambda_name] += [policy_prefix + 'AWSElasticBeanstalkReadOnly']
+        arnlist[self.check_task_lambda_name] += [policy_prefix + 'AWSElasticBeanstalkReadOnly']
+        arnlist[self.update_cost_lambda_name] += [policy_prefix + 'AWSElasticBeanstalkReadOnly']
         arnlist[self.update_ffmeta_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
                                                   [policy_prefix + 'AWSElasticBeanstalkReadOnly']
 
