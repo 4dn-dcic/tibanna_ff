@@ -35,13 +35,33 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Test + Deploy
+      - name: Run tests
         env:
           S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
-        run: 
-          invoke test --deployment;
+        run: |
+          invoke test --deployment
+
+      - name: Deploy pony data
+        env:
+          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
+        run: |
           tibanna_4dn deploy_pony -e data --subnets ${{ secrets.SUBNET }} -r ${{ secrets.SECURITY_GROUP }}
+
+      - name: Deploy pony webdev
+        env:
+          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
+        run: |
           tibanna_4dn deploy_pony -e webdev --subnets ${{ secrets.SUBNET }} -r ${{ secrets.SECURITY_GROUP }}
+      
+      - name: Deploy zebra cgap
+        env:
+          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
+        run: |
           tibanna_cgap deploy_zebra -e cgap --subnets ${{ secrets.SUBNET }} -r ${{ secrets.SECURITY_GROUP }}
+
+      - name: Deploy zebra cgapwolf
+        env:
+          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
+        run: |
           tibanna_cgap deploy_zebra -e cgapwolf --subnets ${{ secrets.SUBNET }} -r ${{ secrets.SECURITY_GROUP }}
           
