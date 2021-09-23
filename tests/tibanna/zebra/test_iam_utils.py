@@ -6,14 +6,15 @@ import pytest
 @pytest.fixture
 def expected_policy_arn_list_for_cgap():
     prefix = 'arn:aws:iam::%s:policy/' % AWS_ACCOUNT_NUMBER
-    return {'check_task': [prefix + 'tibanna_zebra_cgap_cw_metric',
+    return {'check_task': [prefix + 'tibanna_zebra_cgap_vpc_access',
+                           prefix + 'tibanna_zebra_cgap_cw_metric',
                            prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
                            prefix + 'tibanna_zebra_cgap_bucket_access',
                            prefix + 'tibanna_zebra_cgap_ec2_desc',
                            prefix + 'tibanna_zebra_cgap_ec2_termination',
                            prefix + 'tibanna_zebra_cgap_dynamodb',
                            prefix + 'tibanna_zebra_cgap_pricing',
-                           prefix + 'tibanna_zebra_cgap_vpc_access'],
+                           prefix + 'AWSElasticBeanstalkReadOnly'],
             'ec2': [prefix + 'tibanna_zebra_cgap_bucket_access',
                     prefix + 'tibanna_zebra_cgap_cw_metric',
                     'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly'],
@@ -24,26 +25,29 @@ def expected_policy_arn_list_for_cgap():
                          prefix + 'tibanna_zebra_cgap_dynamodb',
                          prefix + 'tibanna_zebra_cgap_executions',
                          prefix + 'tibanna_zebra_cgap_cw_dashboard',
-                         'arn:aws:iam::aws:policy/AmazonEC2FullAccess'],
+                         'arn:aws:iam::aws:policy/AmazonEC2FullAccess',
+                         prefix + 'AWSElasticBeanstalkReadOnly'],
             'start_run': [prefix + 'tibanna_zebra_cgap_vpc_access',
                           prefix + 'tibanna_zebra_cgap_bucket_access',
                           prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
                           prefix + 'tibanna_zebra_cgap_dynamodb',
-                          prefix + 'ElasticBeanstalkFullAccess'],
+                          prefix + 'AWSElasticBeanstalkReadOnly'],
             'stepfunction': ['arn:aws:iam::aws:policy/service-role/AWSLambdaRole'],
             'update_cost': [prefix + 'tibanna_zebra_cgap_bucket_access',
                             prefix + 'tibanna_zebra_cgap_executions',
                             prefix + 'tibanna_zebra_cgap_dynamodb',
                             prefix + 'tibanna_zebra_cgap_pricing',
-                            prefix + 'tibanna_zebra_cgap_vpc_access'],
+                            prefix + 'tibanna_zebra_cgap_vpc_access',
+                            prefix + 'AWSElasticBeanstalkReadOnly'],
             'update_ffmeta': [prefix + 'tibanna_zebra_cgap_vpc_access',
                               prefix + 'tibanna_zebra_cgap_bucket_access',
                               prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
                               prefix + 'tibanna_zebra_cgap_dynamodb',
-                              prefix + 'ElasticBeanstalkFullAccess']}
+                              prefix + 'AWSElasticBeanstalkReadOnly']}
 
 
 def test_policy_prefix(expected_policy_arn_list_for_cgap):
     iam = iam_utils.IAM(user_group_tag='cgap')
     assert iam.tibanna_policy_prefix == 'tibanna_zebra_cgap'
-    assert iam.policy_arn_list_for_role == expected_policy_arn_list_for_cgap
+    for lambda_name, policy_list in iam.policy_arn_list_for_role.items():
+        assert sorted(policy_list) == sorted(expected_policy_arn_list_for_cgap[lambda_name])
