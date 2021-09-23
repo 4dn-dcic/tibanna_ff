@@ -17,6 +17,7 @@ def expected_policy_arn_list_for_cgap():
                            'arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly'],
             'ec2': [prefix + 'tibanna_zebra_cgap_bucket_access',
                     prefix + 'tibanna_zebra_cgap_cw_metric',
+                    prefix + 'tibanna_zebra_cgap_ec2_desc',
                     'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly'],
             'run_task': [prefix + 'tibanna_zebra_cgap_list_instanceprofiles',
                          prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
