@@ -14,7 +14,7 @@ def expected_policy_arn_list_for_cgap():
                            prefix + 'tibanna_zebra_cgap_ec2_termination',
                            prefix + 'tibanna_zebra_cgap_dynamodb',
                            prefix + 'tibanna_zebra_cgap_pricing',
-                           prefix + 'AWSElasticBeanstalkReadOnly'],
+                           'arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly'],
             'ec2': [prefix + 'tibanna_zebra_cgap_bucket_access',
                     prefix + 'tibanna_zebra_cgap_cw_metric',
                     'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly'],
@@ -26,24 +26,24 @@ def expected_policy_arn_list_for_cgap():
                          prefix + 'tibanna_zebra_cgap_executions',
                          prefix + 'tibanna_zebra_cgap_cw_dashboard',
                          'arn:aws:iam::aws:policy/AmazonEC2FullAccess',
-                         prefix + 'AWSElasticBeanstalkReadOnly'],
+                         'arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly'],
             'start_run': [prefix + 'tibanna_zebra_cgap_vpc_access',
                           prefix + 'tibanna_zebra_cgap_bucket_access',
                           prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
                           prefix + 'tibanna_zebra_cgap_dynamodb',
-                          prefix + 'AWSElasticBeanstalkReadOnly'],
+                          'arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly'],
             'stepfunction': ['arn:aws:iam::aws:policy/service-role/AWSLambdaRole'],
             'update_cost': [prefix + 'tibanna_zebra_cgap_bucket_access',
                             prefix + 'tibanna_zebra_cgap_executions',
                             prefix + 'tibanna_zebra_cgap_dynamodb',
                             prefix + 'tibanna_zebra_cgap_pricing',
                             prefix + 'tibanna_zebra_cgap_vpc_access',
-                            prefix + 'AWSElasticBeanstalkReadOnly'],
+                            'arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly'],
             'update_ffmeta': [prefix + 'tibanna_zebra_cgap_vpc_access',
                               prefix + 'tibanna_zebra_cgap_bucket_access',
                               prefix + 'tibanna_zebra_cgap_cloudwatchlogs',
                               prefix + 'tibanna_zebra_cgap_dynamodb',
-                              prefix + 'AWSElasticBeanstalkReadOnly']}
+                              'arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']}
 
 
 def test_policy_prefix(expected_policy_arn_list_for_cgap):
