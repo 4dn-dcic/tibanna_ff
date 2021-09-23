@@ -28,15 +28,14 @@ class IAM(_IAM):
         arnlist = super().policy_arn_list_for_role
 
         general_lambda_policy_types = ['vpc', 'bucket', 'cloudwatch', 'dynamodb']
-        policy_prefix = 'arn:aws:iam::' + self.account_id + ':policy/'
 
         # Give EB read access to tibanna (for now, so perms are compatible in legacy account) - Will Sept 22 2021
         arnlist[self.start_run_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
-                                              [policy_prefix + 'AWSElasticBeanstalkReadOnly']
-        arnlist[self.run_task_lambda_name] += [policy_prefix + 'AWSElasticBeanstalkReadOnly']
-        arnlist[self.check_task_lambda_name] += [policy_prefix + 'AWSElasticBeanstalkReadOnly']
-        arnlist[self.update_cost_lambda_name] += [policy_prefix + 'AWSElasticBeanstalkReadOnly']
+                                              ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
+        arnlist[self.run_task_lambda_name] += ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
+        arnlist[self.check_task_lambda_name] += ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
+        arnlist[self.update_cost_lambda_name] += ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
         arnlist[self.update_ffmeta_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
-                                                  [policy_prefix + 'AWSElasticBeanstalkReadOnly']
+                                                  ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
 
         return arnlist
