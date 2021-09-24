@@ -1,6 +1,6 @@
 # Deployment for Tibanna_ff
 
-name: deploy-prod
+name: run-tests
 
 # Controls when the action will run. 
 on:
@@ -41,27 +41,3 @@ jobs:
         run: |
           invoke test --deployment --subnets ${{ secrets.SUBNET }} --security-groups ${{ secrets.SECURITY_GROUP }}
 
-      - name: Deploy pony data
-        env:
-          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
-        run: |
-          tibanna_4dn deploy_pony -e data --subnets ${{ secrets.SUBNET }} -r ${{ secrets.SECURITY_GROUP }}
-
-      - name: Deploy pony webdev
-        env:
-          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
-        run: |
-          tibanna_4dn deploy_pony -e webdev --subnets ${{ secrets.SUBNET }} -r ${{ secrets.SECURITY_GROUP }}
-      
-      - name: Deploy zebra cgap
-        env:
-          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
-        run: |
-          tibanna_cgap deploy_zebra -e cgap --subnets ${{ secrets.SUBNET }} -r ${{ secrets.SECURITY_GROUP }}
-
-      - name: Deploy zebra cgapwolf
-        env:
-          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
-        run: |
-          tibanna_cgap deploy_zebra -e cgapwolf --subnets ${{ secrets.SUBNET }} -r ${{ secrets.SECURITY_GROUP }}
-          

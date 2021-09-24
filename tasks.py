@@ -8,7 +8,7 @@ from tibanna_ffcommon.vars import DEV_SUFFIX
 
 @task
 def test(ctx, watch=False, last_failing=False, no_flake=False, k='',  extra='',
-         ignore='', ignore_pony=False, no_post=False, deployment=False):
+         ignore='', ignore_pony=False, no_post=False, deployment=False, subnets=None, security_groups=None):
     """Run the tests.
     Note: --watch requires pytest-xdist to be installed.
     """
@@ -47,8 +47,8 @@ def test(ctx, watch=False, last_failing=False, no_flake=False, k='',  extra='',
             sys.exit(retcode)
         return retcode
     else:
-        API_4dn().deploy_pony(suffix=DEV_SUFFIX)
-        API_cgap().deploy_zebra(suffix=DEV_SUFFIX)
+        API_4dn().deploy_pony(suffix=DEV_SUFFIX, subnets=subnets, security_groups=security_groups)
+        API_cgap().deploy_zebra(suffix=DEV_SUFFIX, subnets=subnets, security_groups=security_groups)
         pytest.main(['--workers', '100', 'tests/post_deployment'])
 
 
