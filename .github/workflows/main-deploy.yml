@@ -39,7 +39,7 @@ jobs:
         env:
           S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
         run: |
-          invoke test --deployment
+          invoke test --deployment --subnets ${{ secrets.SUBNET }} --security-groups ${{ secrets.SECURITY_GROUP }}
 
       - name: Deploy pony data
         env:
