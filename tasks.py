@@ -47,7 +47,7 @@ def test(ctx, watch=False, last_failing=False, no_flake=False, k='',  extra='',
             sys.exit(retcode)
         return retcode
     else:
-        # subnets, security_groups are strings, but since we call the core API directly, we need to cenvert it to a list first
+        # subnets and security_groups are strings, but since we call the core API directly and not the tibanna_4dn/tibanna_cgap CLI, we need to convert it to a list
         API_4dn().deploy_pony(suffix=DEV_SUFFIX, subnets=[subnets], security_groups=[security_groups])
         API_cgap().deploy_zebra(suffix=DEV_SUFFIX, subnets=[subnets], security_groups=[security_groups])
         pytest.main(['--workers', '100', 'tests/post_deployment'])
