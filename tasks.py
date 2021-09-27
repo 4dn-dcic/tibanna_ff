@@ -47,8 +47,9 @@ def test(ctx, watch=False, last_failing=False, no_flake=False, k='',  extra='',
             sys.exit(retcode)
         return retcode
     else:
-        API_4dn().deploy_pony(suffix=DEV_SUFFIX, subnets=subnets, security_groups=security_groups)
-        API_cgap().deploy_zebra(suffix=DEV_SUFFIX, subnets=subnets, security_groups=security_groups)
+        # subnets, security_groups are strings, but since we call the core API directly, we need to cenvert it to a list first
+        API_4dn().deploy_pony(suffix=DEV_SUFFIX, subnets=[subnets], security_groups=[security_groups])
+        API_cgap().deploy_zebra(suffix=DEV_SUFFIX, subnets=[subnets], security_groups=[security_groups])
         pytest.main(['--workers', '100', 'tests/post_deployment'])
 
 
