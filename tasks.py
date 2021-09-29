@@ -48,11 +48,13 @@ def test(ctx, watch=False, last_failing=False, no_flake=False, k='',  extra='',
         return retcode
     else:
         # subnets and security_groups are strings, but since we call the core API directly and not the tibanna_4dn/tibanna_cgap CLI, we need to convert it to a list
-        API_4dn().deploy_pony(suffix=DEV_SUFFIX, subnets=[subnets], security_groups=[security_groups], env="data")
         API_4dn().deploy_pony(suffix=DEV_SUFFIX, subnets=[subnets], security_groups=[security_groups], env="webdev")
-        API_cgap().deploy_zebra(suffix=DEV_SUFFIX, subnets=[subnets], security_groups=[security_groups], env="cgap")
         API_cgap().deploy_zebra(suffix=DEV_SUFFIX, subnets=[subnets], security_groups=[security_groups], env="cgapwolf")
-        pytest.main(['--workers', '100', 'tests/post_deployment'])
+        retcode = pytest.main(['--workers', '100', 'tests/post_deployment'])
+        if retcode != 0:
+            print("test failed exiting")
+            sys.exit(retcode)
+        return retcode
 
 
 def flake():
