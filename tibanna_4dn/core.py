@@ -53,7 +53,7 @@ class API(_API):
         super().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subnets=subnets,
                             security_groups=security_groups, quiet=quiet)
 
-    def deploy_pony(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
+    def deploy_pony(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, deploy_costupdater=True):
         if env:
             usergroup = env + '_' + usergroup if usergroup else env
         else:
@@ -63,5 +63,5 @@ class API(_API):
                 env = PROD_ENV
         self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=True, default_usergroup_tag='',
                             do_not_delete_public_access_block=True, no_randomize=True,
-                            buckets=','.join(IAM_BUCKETS(env)), deploy_costupdater=True,
+                            buckets=','.join(IAM_BUCKETS(env)), deploy_costupdater=deploy_costupdater,
                             subnets=subnets, security_groups=security_groups)

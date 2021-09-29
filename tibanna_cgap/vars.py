@@ -30,4 +30,4 @@ def IAM_BUCKETS(env):
         iam_buckets.append(GLOBAL_BUCKET_ENV)
     return iam_buckets
 
-DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_SUFFIX
+DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_ENV + '_' + DEV_SUFFIX
