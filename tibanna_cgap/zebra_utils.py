@@ -77,13 +77,13 @@ class FourfrontStarter(FourfrontStarterAbstract):
             infile_meta = get_metadata(inf_uuid,
                                        key=self.tbn.ff_keys,
                                        ff_env=self.tbn.env,
-                                       add_on='frame=object')
+                                       add_on='frame=object&datastore=database')
             if infile_meta.get('samples'):
                 for exp in infile_meta.get('samples'):
                     exp_obj = get_metadata(exp,
                                            key=self.tbn.ff_keys,
                                            ff_env=self.tbn.env,
-                                           add_on='frame=raw')
+                                           add_on='frame=raw&datastore=database')
                     pf_source_samples_set.add(exp_obj['uuid'])
             if infile_meta.get('source_samples'):
                 # this field is an array of strings, not linkTo's
