@@ -170,7 +170,7 @@ class FFInputAbstract(SerializableObject):
                 self._metadata[id] = get_metadata(id,
                                                   key=self.tibanna_settings.ff_keys,
                                                   ff_env=self.tibanna_settings.env,
-                                                  add_on='frame=object',
+                                                  add_on='frame=object&datastore=database',
                                                   check_queue=True)
             except Exception as e:
                 raise FdnConnectionException(e)
@@ -447,7 +447,7 @@ class FourfrontStarterAbstract(object):
             return get_metadata(uuid,
                                 key=self.tbn.ff_keys,
                                 ff_env=self.tbn.env,
-                                add_on='frame=object',
+                                add_on='frame=object&datastore=database',
                                 check_queue=check_queue)
         except Exception as e:
             raise FdnConnectionException(e)
@@ -821,7 +821,7 @@ class FourfrontUpdaterAbstract(object):
                 self._metadata[id] = get_metadata(id,
                                                   key=self.tibanna_settings.ff_keys,
                                                   ff_env=self.tibanna_settings.env,
-                                                  add_on='frame=object',
+                                                  add_on='frame=object&datastore=database',
                                                   check_queue=True)
             except Exception as e:
                 raise FdnConnectionException(e)

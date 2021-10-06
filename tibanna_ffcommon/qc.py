@@ -294,7 +294,7 @@ class QCArgumentsPerTarget(object):
                 self._metadata[id] = get_metadata(id,
                                                   key=self.ff_key,
                                                   ff_env=self.ff_env,
-                                                  add_on='frame=object',
+                                                  add_on='frame=object&datastore=database',
                                                   check_queue=True)
             except Exception as e:
                 raise FdnConnectionException(e)
