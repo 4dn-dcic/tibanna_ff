@@ -33,17 +33,3 @@ def IAM_BUCKETS(env):
 
 
 DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_ENV + '_' + DEV_SUFFIX
-
-
-# Secure Tibanna AMI
-# Note that this means only these regions will work (replicate AMI in main account as needed)
-# Note additionally that these AMI's all must be configured to be launchable by our AWS
-# accounts
-AMI_PER_REGION = {
-    'us-east-1': 'ami-00ad035048da98fc2',
-    'us-east-2': 'ami-0afbf1ab3268ddf17',
-}
-if AWS_REGION not in AMI_PER_REGION:
-    logger.warning("Secure Tibanna AMI for region %s is not available." % AWS_REGION)
-    raise Exception('')
-AMI_ID = AMI_PER_REGION.get(AWS_REGION, '')
