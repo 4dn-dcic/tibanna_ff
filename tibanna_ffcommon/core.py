@@ -10,7 +10,8 @@ from .vars import (
     UPDATE_COST_LAMBDA_NAME,
     BUCKET_NAME,
     GLOBAL_BUCKET_ENV,
-    AWSF_IMAGE
+    AWSF_IMAGE,
+    AMI_ID
 )
 
 
