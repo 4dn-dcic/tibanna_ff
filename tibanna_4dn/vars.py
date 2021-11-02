@@ -1,5 +1,5 @@
 from tibanna_ffcommon.vars import *
-import os
+
 
 LAMBDA_TYPE = 'pony'
 SFN_TYPE = 'pony'
@@ -20,6 +20,7 @@ HIGLASS_BUCKETS = [BUCKET_NAME('data', 'FileProcessed'),
 DEV_ENV = 'webdev'
 PROD_ENV = 'data'
 
+
 def IAM_BUCKETS(env):
     iam_buckets = [BUCKET_NAME(env, 'FileProcessed'),
                    BUCKET_NAME(env, 'FileFastq'),
@@ -29,5 +30,6 @@ def IAM_BUCKETS(env):
     if GLOBAL_BUCKET_ENV:
         iam_buckets.append(GLOBAL_BUCKET_ENV)
     return iam_buckets
+
 
 DEV_SFN = 'tibanna_' + SFN_TYPE + '_' + DEV_ENV + '_' + DEV_SUFFIX
