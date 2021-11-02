@@ -33,6 +33,8 @@ class API(_API):
     check_task_lambda = CHECK_TASK_LAMBDA_NAME
     update_cost_lambda = UPDATE_COST_LAMBDA_NAME
 
+    ami_id = AMI_ID
+
     @property
     def do_not_delete(self):
         return [] # add lambdas not to delete upon redeployment (e.g. used to contain 'validate_md5_s3_trigger')
