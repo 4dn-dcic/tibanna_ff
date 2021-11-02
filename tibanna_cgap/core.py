@@ -6,7 +6,8 @@ from .vars import (
     LAMBDA_TYPE,
     IAM_BUCKETS,
     DEV_ENV,
-    PROD_ENV
+    PROD_ENV,
+    AMI_ID
 )
 from tibanna.utils import create_tibanna_suffix
 
