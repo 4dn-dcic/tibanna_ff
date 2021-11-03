@@ -133,7 +133,7 @@
     "root_ebs_size": 8,
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
     "json_bucket": "tibanna-output",
-    "ami_id": "ami-0f06a8358d41c4b9c",
+    "ami_id": "ami-00ad035048da98fc2",
     "language": "wdl",
     "job_tag": "mad_qc_workflow",
     "instance_id": "i-08070a91f8af61f1a",
@@ -212,7 +212,7 @@
     },
     "config": {
       "EBS_optimized": true,
-      "ami_id": "ami-0f06a8358d41c4b9c",
+      "ami_id": "ami-00ad035048da98fc2",
       "behavior_on_capacity_limit": "fail",
       "cloudwatch_dashboard": false,
       "cpu": "",

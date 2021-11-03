@@ -275,7 +275,7 @@
     },
     "config": {
       "ebs_size": 200,
-      "ami_id": "ami-0f06a8358d41c4b9c",
+      "ami_id": "ami-00ad035048da98fc2",
       "language": "wdl",
       "json_dir": "/tmp/json",
       "EBS_optimized": false,
@@ -478,7 +478,7 @@
     "job_tag": "encode-chipseq",
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
     "public_postrun_json": true,
-    "ami_id": "ami-0f06a8358d41c4b9c",
+    "ami_id": "ami-00ad035048da98fc2",
     "log_bucket": "tibanna-output",
     "key_name": ""
   },

@@ -107,7 +107,7 @@
     "cloudwatch_dashboard": false,
     "root_ebs_size": 8,
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
-    "ami_id": "ami-0f06a8358d41c4b9c",
+    "ami_id": "ami-00ad035048da98fc2",
     "language": "cwl_v1",
     "job_tag": "fastq-first-line",
     "instance_id": "i-08f6ce72c8543ff01",
@@ -183,7 +183,7 @@
     },
     "config": {
       "EBS_optimized": true,
-      "ami_id": "ami-0f06a8358d41c4b9c",
+      "ami_id": "ami-00ad035048da98fc2",
       "behavior_on_capacity_limit": "fail",
       "cloudwatch_dashboard": false,
       "cpu": 2,
