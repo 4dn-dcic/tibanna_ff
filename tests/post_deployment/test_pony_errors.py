@@ -30,5 +30,5 @@ def test_bwa():
     ec2_res = ec2.describe_instances(Filters=[{'Name': 'tag:Name', 'Values': ['awsem-' + res['jobid']]}])
     instance_id = ec2_res['Reservations'][0]['Instances'][0]['InstanceId']
     ec2.terminate_instances(InstanceIds=[instance_id])
-    time.sleep(360)
+    time.sleep(420)
     assert api.check_status(res['_tibanna']['exec_arn']) == 'FAILED'
