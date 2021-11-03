@@ -85,6 +85,8 @@ class API(_API):
         if 'log_bucket' not in data['config']:
             data['config']['log_bucket'] = BUCKET_NAME(env, 'log')
 
+        data['config']['ami_id'] = self.ami_id
+
         return super().run_workflow(input_json=data, sfn=sfn, env=env, jobid=jobid,
                                     sleep=sleep, verbose=verbose, open_browser=open_browser)
 
