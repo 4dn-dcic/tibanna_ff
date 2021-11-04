@@ -239,7 +239,7 @@
     "json_bucket": "tibanna-output",
     "overwrite_input_extra": false,
     "email": false,
-    "ami_id": "ami-0a7ddfc7e412ab6e0",
+    "ami_id": "ami-00ad035048da98fc2",
     "language": "cwl_v1",
     "job_tag": "bamsnap",
     "instance_id": "i-008eb0d2585fa3b79",

@@ -21,7 +21,7 @@
         "ebs_iops": "", 
         "EBS_optimized": false, 
         "shutdown_min": 30, 
-        "instance_type": "t2.micro", 
+        "instance_type": "t3.small", 
         "key_name": "4dn-encode", 
         "password": "dragonfly", 
         "log_bucket": "tibanna-output"

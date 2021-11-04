@@ -57,7 +57,7 @@
   "postrunjson": {
     "config": {
       "ebs_size": 10,
-      "ami_id": "ami-31caa14e",
+      "ami_id": "ami-00ad035048da98fc2",
       "json_dir": "/tmp/json",
       "EBS_optimized": true,
       "ebs_iops": 500,
@@ -289,7 +289,7 @@
   ],
   "config": {
     "ebs_size": 10,
-    "ami_id": "ami-31caa14e",
+    "ami_id": "ami-00ad035048da98fc2",
     "json_dir": "/tmp/json",
     "EBS_optimized": true,
     "ebs_iops": 500,

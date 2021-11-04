@@ -34,7 +34,7 @@ def test_md5():
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
     assert 'exec_arn' in res['_tibanna']
-    time.sleep(360)
+    time.sleep(420)
     # check step function status
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
     outjson = api.check_output(res['_tibanna']['exec_arn'])
@@ -65,7 +65,7 @@ def test_fastqc():
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
     assert 'exec_arn' in res['_tibanna']
-    time.sleep(360)
+    time.sleep(420)
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
     outjson = api.check_output(res['_tibanna']['exec_arn'])
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
@@ -95,7 +95,7 @@ def test_bwa():
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
     assert 'exec_arn' in res['_tibanna']
-    time.sleep(360)
+    time.sleep(420)
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
     outjson = api.check_output(res['_tibanna']['exec_arn'])
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
@@ -128,7 +128,7 @@ def test_bed2beddb():
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
     assert 'exec_arn' in res['_tibanna']
-    time.sleep(360)
+    time.sleep(420)
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
     outjson = api.check_output(res['_tibanna']['exec_arn'])
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))
@@ -162,7 +162,7 @@ def test_bed2beddb_opendata():
     res = api.run_workflow(data, sfn=DEV_SFN)
     assert 'jobid' in res
     assert 'exec_arn' in res['_tibanna']
-    time.sleep(360)
+    time.sleep(420)
     assert api.check_status(res['_tibanna']['exec_arn']) == 'SUCCEEDED'
     outjson = api.check_output(res['_tibanna']['exec_arn'])
     postrunjson = json.loads(api.log(job_id=res['jobid'], postrunjson=True))

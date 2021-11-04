@@ -53,7 +53,7 @@
     "userdata_dir": "/tmp/userdata",
     "json_dir": "/tmp/json",
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
-    "ami_id": "ami-0f06a8358d41c4b9c",
+    "ami_id": "ami-00ad035048da98fc2",
     "json_bucket": "tibanna-output",
     "language": "cwl_v1"
   },
@@ -473,7 +473,7 @@
     ],
     "config": {
       "EBS_optimized": true,
-      "ami_id": "ami-0f06a8358d41c4b9c",
+      "ami_id": "ami-00ad035048da98fc2",
       "ebs_iops": 500,
       "ebs_size": 13,
       "ebs_type": "io1",

@@ -10,7 +10,8 @@ from .vars import (
     UPDATE_COST_LAMBDA_NAME,
     BUCKET_NAME,
     GLOBAL_BUCKET_ENV,
-    AWSF_IMAGE
+    AWSF_IMAGE,
+    AMI_ID
 )
 
 
@@ -31,6 +32,8 @@ class API(_API):
     run_task_lambda = RUN_TASK_LAMBDA_NAME
     check_task_lambda = CHECK_TASK_LAMBDA_NAME
     update_cost_lambda = UPDATE_COST_LAMBDA_NAME
+
+    ami_id = AMI_ID
 
     @property
     def do_not_delete(self):
@@ -81,6 +84,8 @@ class API(_API):
         # automatic log bucket handling according to env
         if 'log_bucket' not in data['config']:
             data['config']['log_bucket'] = BUCKET_NAME(env, 'log')
+
+        data['config']['ami_id'] = self.ami_id
 
         return super().run_workflow(input_json=data, sfn=sfn, env=env, jobid=jobid,
                                     sleep=sleep, verbose=verbose, open_browser=open_browser)

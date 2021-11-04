@@ -274,7 +274,7 @@
     "spot_instance": false,
     "behavior_on_capacity_limit": "fail",
     "script_url": "https://raw.githubusercontent.com/4dn-dcic/tibanna/master/awsf/",
-    "ami_id": "ami-0f06a8358d41c4b9c",
+    "ami_id": "ami-00ad035048da98fc2",
     "language": "wdl",
     "job_tag": "encode-chipseq-aln-ctl",
     "instance_id": "i-0135a5f8446cf4a69",
@@ -404,7 +404,7 @@
     "commands": [],
     "config": {
       "EBS_optimized": true,
-      "ami_id": "ami-0f06a8358d41c4b9c",
+      "ami_id": "ami-00ad035048da98fc2",
       "behavior_on_capacity_limit": "fail",
       "cloudwatch_dashboard": true,
       "cpu": "",
