@@ -66,7 +66,7 @@ def BUCKET_NAME(env, filetype):
 
     if filetype == 'FileProcessed':
         return _BUCKET_NAME_PROCESSED_FILES[env]
-    elif filetype in ['FileFastq', 'FileReference']:
+    elif filetype in ['FileFastq', 'FileReference', 'FileMicroscopy']:
         return _BUCKET_NAME_RAW_RILES[env]
     elif filetype == 'system':
         return _BUCKET_NAME_SYS[env]
