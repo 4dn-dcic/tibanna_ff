@@ -35,12 +35,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Run tests
-        env:
-          S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
-        run: |
-          invoke test --deployment --subnets ${{ secrets.SUBNET }} --security-groups ${{ secrets.SECURITY_GROUP }}
-
       - name: Deploy pony webdev
         env:
           S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
