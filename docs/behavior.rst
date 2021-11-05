@@ -22,6 +22,7 @@ The database schemas implemented in ``fourfront`` and ``cgap-portal`` that are r
 - May be handled as an input of a workflow run
 
   - FileFastq
+  - FileMicroscopy
   - FileReference
   - FileProcessed (a processed file created from a previous run can be an input)
   - Workflow (workflow itself is an input of a workflow run)
