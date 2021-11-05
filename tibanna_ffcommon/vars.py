@@ -19,7 +19,7 @@ AWSF_IMAGE = '%s.dkr.ecr.%s.amazonaws.com/tibanna-awsf:%s' % (AWS_ACCOUNT_NUMBER
 
 # cached bucket names (internally used by function BUCKET_NAME
 _BUCKET_NAME_PROCESSED_FILES = dict()
-_BUCKET_NAME_RAW_RILES = dict()
+_BUCKET_NAME_RAW_FILES = dict()
 _BUCKET_NAME_SYS = dict()
 _BUCKET_NAME_LOG = dict()
 
@@ -40,15 +40,15 @@ AMI_ID = AMI_PER_REGION.get(AWS_REGION, '')
 
 def BUCKET_NAME(env, filetype):
     global _BUCKET_NAME_PROCESSED_FILES
-    global _BUCKET_NAME_RAW_RILES
+    global _BUCKET_NAME_RAW_FILES
     global _BUCKET_NAME_SYSG
     global _BUCKET_NAME_LOG
 
     # use cache
     if filetype == 'FileProcessed' and env in _BUCKET_NAME_PROCESSED_FILES:
         return _BUCKET_NAME_PROCESSED_FILES[env]
-    if filetype in ['FileFastq', 'FileReference'] and env in _BUCKET_NAME_RAW_RILES:
-        return _BUCKET_NAME_RAW_RILES[env]
+    if filetype in ['FileFastq', 'FileReference', 'FileMicroscopy'] and env in _BUCKET_NAME_RAW_FILES:
+        return _BUCKET_NAME_RAW_FILES[env]
     if filetype == 'system' and env in _BUCKET_NAME_SYS:  # log bucket
         return _BUCKET_NAME_SYS[env]
     if filetype == 'log' and env in _BUCKET_NAME_LOG:  # log bucket
@@ -60,14 +60,14 @@ def BUCKET_NAME(env, filetype):
     else:
         s3 = s3Utils(env=env)
         _BUCKET_NAME_PROCESSED_FILES[env] = s3.outfile_bucket
-        _BUCKET_NAME_RAW_RILES[env] = s3.raw_file_bucket
+        _BUCKET_NAME_RAW_FILES[env] = s3.raw_file_bucket
         _BUCKET_NAME_SYS[env] = s3.sys_bucket
         _BUCKET_NAME_LOG[env] = s3.tibanna_output_bucket
 
     if filetype == 'FileProcessed':
         return _BUCKET_NAME_PROCESSED_FILES[env]
-    elif filetype in ['FileFastq', 'FileReference']:
-        return _BUCKET_NAME_RAW_RILES[env]
+    elif filetype in ['FileFastq', 'FileReference', 'FileMicroscopy']:
+        return _BUCKET_NAME_RAW_FILES[env]
     elif filetype == 'system':
         return _BUCKET_NAME_SYS[env]
     else:  # log
