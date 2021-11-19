@@ -17,6 +17,7 @@ def start_run(input_json):
     starter = FourfrontStarter(**input_json)
     if starter.inp.config.log_bucket and starter.inp.jobid:
         s3 = boto3.client('s3')
+        # TODO: encryption must be specified here if used for 4DN
         s3.put_object(Body=json.dumps(input_json, indent=4).encode('ascii'),
                       Key=starter.inp.jobid + '.input.json',
                       Bucket=starter.inp.config.log_bucket)
