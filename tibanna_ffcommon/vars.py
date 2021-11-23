@@ -4,7 +4,8 @@ from dcicutils.s3_utils import s3Utils
 from tibanna._version import __version__ as tibanna_version
 
 
-S3_ENCRYPT_KEY = os.environ.get("S3_ENCRYPT_KEY", '')
+S3_ENCRYPT_KEY = os.environ.get('S3_ENCRYPT_KEY', '')
+S3_ENCRYT_KEY_ID = os.environ.get('S3_ENCRYPT_KEY_ID', None)
 DEV_SUFFIX = 'pre'
 
 RUN_TASK_LAMBDA_NAME = 'run_task'
