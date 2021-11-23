@@ -49,8 +49,11 @@ class Subcommands(_Subcommands):
               'nargs': '+',
               'help': "security groups, separated by commas"},
              {'flag': ["-e", "--env"],
-              'help': "env name"}]
-
+              'help': "env name"},
+             {'flag': ['-K', '--kms-key-id'],
+              'nargs': 1,
+              'help': 'Pass a KMS key ID to deploy tibanna with KMS support'}
+             ]
         _args['deploy_core'] = \
             [{'flag': ["-n", "--name"],
               'help': "name of the lambda function to deploy (e.g. run_task_awsem)"},
@@ -70,7 +73,11 @@ class Subcommands(_Subcommands):
               'help': "env name"},
              {'flag': ["-q", "--quiet"],
               'action': "store_true",
-              'help': "minimize standard output from deployment"}]
+              'help': "minimize standard output from deployment"},
+             {'flag': ['-K', '--kms-key-id'],
+              'nargs': 1,
+              'help': 'Pass a KMS key ID to deploy tibanna with KMS support'}
+             ]
 
         _args['kill'] = \
             [{'flag': ["-e", "--exec-arn"],
@@ -87,18 +94,19 @@ class Subcommands(_Subcommands):
         return _args
 
 
-def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, quiet=False):
+def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, quiet=False,
+                kms_key_id=None):
     """
     New method of deploying packaged lambdas (BETA)
     """
     API().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subnets=subnets,
-                      security_groups=security_groups, env=env, quiet=quiet)
+                      security_groups=security_groups, env=env, quiet=quiet, kms_key_id=kms_key_id)
 
 
-def deploy_zebra(suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
+def deploy_zebra(suffix=None, usergroup='', subnets=None, security_groups=None, env=None, kms_key_id=None):
     """deploy tibanna zebra to AWS cloud (zebra is for CGAP only)"""
     API().deploy_zebra(suffix=suffix, usergroup=usergroup, subnets=subnets,
-                       security_groups=security_groups, env=env)
+                       security_groups=security_groups, env=env, kms_key_id=kms_key_id)
 
 
 def run_workflow(input_json, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, jobid='', sleep=3):
