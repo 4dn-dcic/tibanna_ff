@@ -51,7 +51,6 @@ class Subcommands(_Subcommands):
              {'flag': ["-e", "--env"],
               'help': "env name"},
              {'flag': ['-K', '--kms-key-id'],
-              'nargs': 1,
               'help': 'Pass a KMS key ID to deploy tibanna with KMS support'}
              ]
         _args['deploy_core'] = \
@@ -75,7 +74,6 @@ class Subcommands(_Subcommands):
               'action': "store_true",
               'help': "minimize standard output from deployment"},
              {'flag': ['-K', '--kms-key-id'],
-              'nargs': 1,
               'help': 'Pass a KMS key ID to deploy tibanna with KMS support'}
              ]
 
