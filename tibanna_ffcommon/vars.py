@@ -57,7 +57,7 @@ def BUCKET_NAME(env, filetype):
     if filetype == 'log' and env in _BUCKET_NAME_LOG:  # log bucket
         return _BUCKET_NAME_LOG[env]
     if filetype == 'cwl' and env in _BUCKET_NAME_CWL:
-        return _BUCKET_NAME_CWL
+        return _BUCKET_NAME_CWL[env]
 
     # no cache
     if filetype == 'log' and AWS_ACCOUNT_NUMBER == '643366669028':  # 4dn-dcic account
