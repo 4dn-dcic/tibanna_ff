@@ -21,11 +21,16 @@ HIGLASS_BUCKETS = []
 DEV_ENV = 'cgapwolf'
 PROD_ENV = 'cgap'
 
-def IAM_BUCKETS(env): 
+
+def IAM_BUCKETS(env):
+    """ This function determines the buckets for which the IAM policy is generated for.
+        If you want tibanna to have access to more buckets, this is where to add them.
+    """
     iam_buckets = [BUCKET_NAME(env, 'FileProcessed'),
                    BUCKET_NAME(env, 'FileFastq'),
                    BUCKET_NAME(env, 'system'),
-                   BUCKET_NAME(env, 'log')]
+                   BUCKET_NAME(env, 'log'),
+                   BUCKET_NAME(env, 'cwl')]
     if GLOBAL_BUCKET_ENV:
         iam_buckets.append(GLOBAL_BUCKET_ENV)
     return iam_buckets
