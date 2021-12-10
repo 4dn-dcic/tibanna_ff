@@ -134,7 +134,6 @@ def test_md5(update_ffmeta_event_data_newmd5):
     assert 'f4864029-a8ad-4bb8-93e7-5108f462ccaa' in updater.patch_items
     assert 'md5sum' not in updater.patch_items['f4864029-a8ad-4bb8-93e7-5108f462ccaa']  # already in
     assert 'file_size' in updater.patch_items['f4864029-a8ad-4bb8-93e7-5108f462ccaa']
-    assert 'status' in updater.patch_items['f4864029-a8ad-4bb8-93e7-5108f462ccaa']
     s3.delete_object(Bucket='elasticbeanstalk-fourfront-webdev-wfoutput', Key=report_key)
 
 
