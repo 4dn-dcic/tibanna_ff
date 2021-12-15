@@ -1489,12 +1489,14 @@ class FourfrontUpdaterAbstract(object):
             secondary_format = matching_extra['file_format']
             patch_content[matching_extra_ind]['file_size'] = \
                 self.s3_file_size(input_arg, secondary_format=secondary_format)
-            patch_content[matching_extra_ind]['status'] = 'uploaded'
+            if patch_content[matching_extra_ind]['status'] in ['uploading', 'to be uploaded by workflow']:
+                patch_content[matching_extra_ind]['status'] = 'uploaded'
             self.update_patch_items(input_meta['uuid'], {'extra_files': patch_content})
         else:
             patch_content = process(input_meta)
             patch_content['file_size'] = self.s3_file_size(input_arg)
-            patch_content['status'] = 'uploaded'
+            if input_meta['status'] in ['uploading', 'to be uploaded by workflow']:
+                patch_content['status'] = 'uploaded'
             self.update_patch_items(input_meta['uuid'], patch_content)
             logger.debug(self.patch_items)
 
