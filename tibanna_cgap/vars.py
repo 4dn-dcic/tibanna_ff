@@ -2,13 +2,13 @@ from tibanna_ffcommon.vars import *
 import os
 
 
-LAMBDA_TYPE = 'zebra'
+LAMBDA_TYPE = 'zebra'  # XXX: This interaction breaks the executions IAM permission
 SFN_TYPE = 'zebra'
 ACCESSION_PREFIX = 'GAP'
 
 
 # default step function name
-TIBANNA_DEFAULT_STEP_FUNCTION_NAME = 'tibanna_' + LAMBDA_TYPE
+TIBANNA_DEFAULT_STEP_FUNCTION_NAME = 'tibanna_' + LAMBDA_TYPE  # note that this is mismatched
 
 
 # fourfront
