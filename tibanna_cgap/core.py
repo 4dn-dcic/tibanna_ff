@@ -65,7 +65,7 @@ class API(_API):
         self.default_stepfunction_name = default_stepfunction_name
 
     def deploy_zebra(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None,
-                     deploy_costupdater=False, kms_key_id=None):
+                     deploy_costupdater=False, kms_key_id=S3_ENCRYPT_KEY_ID):
         if env:
             usergroup = env + '_' + usergroup if usergroup else env
         else:
@@ -76,4 +76,4 @@ class API(_API):
         self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=True, default_usergroup_tag='',
                             do_not_delete_public_access_block=True, no_randomize=True,
                             buckets=','.join(IAM_BUCKETS(env)), deploy_costupdater=deploy_costupdater,
-                            subnets=subnets, security_groups=security_groups, kms_key_id=S3_ENCRYPT_KEY_ID)
+                            subnets=subnets, security_groups=security_groups, kms_key_id=kms_key_id)
