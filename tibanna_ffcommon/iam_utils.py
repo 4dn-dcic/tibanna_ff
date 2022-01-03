@@ -5,7 +5,7 @@ from .vars import (
     UPDATE_COST_LAMBDA_NAME,
     START_RUN_LAMBDA_NAME,
     UPDATE_FFMETA_LAMBDA_NAME,
-    S3_ENCRYT_KEY_ID,
+    S3_ENCRYPT_KEY_ID,
 )
 
 
@@ -29,7 +29,7 @@ class IAM(_IAM):
         arnlist = super().policy_arn_list_for_role
 
         general_lambda_policy_types = ['vpc', 'bucket', 'cloudwatch', 'dynamodb']
-        if S3_ENCRYT_KEY_ID:  # if we have a value, this key is valid and we must add perms
+        if S3_ENCRYPT_KEY_ID:  # if we have a value, this key is valid and we must add perms
             general_lambda_policy_types.append('kms')
 
         # Give EB read access to tibanna (for now, so perms are compatible in legacy account) - Will Sept 22 2021
