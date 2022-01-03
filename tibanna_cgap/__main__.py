@@ -8,7 +8,8 @@ import inspect
 from tibanna_ffcommon._version import __version__  # for now use the same version as tibanna
 # from botocore.errorfactory import ExecutionAlreadyExists
 from .vars import (
-    TIBANNA_DEFAULT_STEP_FUNCTION_NAME
+    TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
+    S3_ENCRYPT_KEY_ID
 )
 # do not delete imported but unused functions below.
 from .core import API
@@ -50,8 +51,6 @@ class Subcommands(_Subcommands):
               'help': "security groups, separated by commas"},
              {'flag': ["-e", "--env"],
               'help': "env name"},
-             {'flag': ['-K', '--kms-key-id'],
-              'help': 'Pass a KMS key ID to deploy tibanna with KMS support'}
              ]
         _args['deploy_core'] = \
             [{'flag': ["-n", "--name"],
@@ -73,8 +72,6 @@ class Subcommands(_Subcommands):
              {'flag': ["-q", "--quiet"],
               'action': "store_true",
               'help': "minimize standard output from deployment"},
-             {'flag': ['-K', '--kms-key-id'],
-              'help': 'Pass a KMS key ID to deploy tibanna with KMS support'}
              ]
 
         _args['kill'] = \
@@ -93,7 +90,7 @@ class Subcommands(_Subcommands):
 
 
 def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, quiet=False,
-                kms_key_id=None):
+                kms_key_id=S3_ENCRYPT_KEY_ID):
     """
     New method of deploying packaged lambdas (BETA)
     """
@@ -101,7 +98,7 @@ def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=N
                       security_groups=security_groups, env=env, quiet=quiet, kms_key_id=kms_key_id)
 
 
-def deploy_zebra(suffix=None, usergroup='', subnets=None, security_groups=None, env=None, kms_key_id=None):
+def deploy_zebra(suffix=None, usergroup='', subnets=None, security_groups=None, env=None, kms_key_id=S3_ENCRYPT_KEY_ID):
     """deploy tibanna zebra to AWS cloud (zebra is for CGAP only)"""
     API().deploy_zebra(suffix=suffix, usergroup=usergroup, subnets=subnets,
                        security_groups=security_groups, env=env, kms_key_id=kms_key_id)
