@@ -142,9 +142,10 @@ class FFInputAbstract(SerializableObject):
             self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
 
         # fill in subnet and security group, if they exist in env variable
-        if os.environ.get('SUBNETS', ''):
+        # and are not already set in the existing config (input JSON)
+        if not self.config.subnet and os.environ.get('SUBNETS', ''):
             self.config.subnet = os.environ['SUBNETS'].split(',')[0]
-        if os.environ.get('SECURITY_GROUPS', ''):
+        if not self.config.security_group and os.environ.get('SECURITY_GROUPS', ''):
             self.config.security_group = os.environ['SECURITY_GROUPS'].split(',')[0]
 
     def as_dict(self):
@@ -1489,12 +1490,14 @@ class FourfrontUpdaterAbstract(object):
             secondary_format = matching_extra['file_format']
             patch_content[matching_extra_ind]['file_size'] = \
                 self.s3_file_size(input_arg, secondary_format=secondary_format)
-            patch_content[matching_extra_ind]['status'] = 'uploaded'
+            if patch_content[matching_extra_ind]['status'] in ['uploading', 'to be uploaded by workflow']:
+                patch_content[matching_extra_ind]['status'] = 'uploaded'
             self.update_patch_items(input_meta['uuid'], {'extra_files': patch_content})
         else:
             patch_content = process(input_meta)
             patch_content['file_size'] = self.s3_file_size(input_arg)
-            patch_content['status'] = 'uploaded'
+            if input_meta['status'] in ['uploading', 'to be uploaded by workflow']:
+                patch_content['status'] = 'uploaded'
             self.update_patch_items(input_meta['uuid'], patch_content)
             logger.debug(self.patch_items)
 
