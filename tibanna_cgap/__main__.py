@@ -8,8 +8,7 @@ import inspect
 from tibanna_ffcommon._version import __version__  # for now use the same version as tibanna
 # from botocore.errorfactory import ExecutionAlreadyExists
 from .vars import (
-    TIBANNA_DEFAULT_STEP_FUNCTION_NAME,
-    S3_ENCRYPT_KEY_ID
+    TIBANNA_DEFAULT_STEP_FUNCTION_NAME
 )
 # do not delete imported but unused functions below.
 from .core import API
@@ -89,19 +88,18 @@ class Subcommands(_Subcommands):
         return _args
 
 
-def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, quiet=False,
-                kms_key_id=S3_ENCRYPT_KEY_ID):
+def deploy_core(name, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, quiet=False):
     """
     New method of deploying packaged lambdas (BETA)
     """
     API().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subnets=subnets,
-                      security_groups=security_groups, env=env, quiet=quiet, kms_key_id=kms_key_id)
+                      security_groups=security_groups, env=env, quiet=quiet)
 
 
-def deploy_zebra(suffix=None, usergroup='', subnets=None, security_groups=None, env=None, kms_key_id=S3_ENCRYPT_KEY_ID):
+def deploy_zebra(suffix=None, usergroup='', subnets=None, security_groups=None, env=None):
     """deploy tibanna zebra to AWS cloud (zebra is for CGAP only)"""
     API().deploy_zebra(suffix=suffix, usergroup=usergroup, subnets=subnets,
-                       security_groups=security_groups, env=env, kms_key_id=kms_key_id)
+                       security_groups=security_groups, env=env)
 
 
 def run_workflow(input_json, sfn=TIBANNA_DEFAULT_STEP_FUNCTION_NAME, jobid='', sleep=3):
