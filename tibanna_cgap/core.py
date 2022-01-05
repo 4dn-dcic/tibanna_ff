@@ -7,7 +7,6 @@ from .vars import (
     IAM_BUCKETS,
     DEV_ENV,
     PROD_ENV,
-    S3_ENCRYPT_KEY_ID
 )
 from tibanna.utils import create_tibanna_suffix
 
@@ -50,7 +49,7 @@ class API(_API):
         pass
 
     def deploy_core(self, name, suffix=None, usergroup='', subnets=None, security_groups=None,
-                    env=None, quiet=False, kms_key_id=S3_ENCRYPT_KEY_ID):
+                    env=None, quiet=False):
         default_stepfunction_name = self.default_stepfunction_name
         if env:
             usergroup = env + '_' + usergroup if usergroup else env
@@ -61,11 +60,11 @@ class API(_API):
                 env = PROD_ENV
         self.default_stepfunction_name += create_tibanna_suffix(suffix, usergroup)
         super().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subnets=subnets,
-                            security_groups=security_groups, quiet=quiet, kms_key_id=kms_key_id)
+                            security_groups=security_groups, quiet=quiet)
         self.default_stepfunction_name = default_stepfunction_name
 
     def deploy_zebra(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None,
-                     deploy_costupdater=False, kms_key_id=S3_ENCRYPT_KEY_ID):
+                     deploy_costupdater=False):
         if env:
             usergroup = env + '_' + usergroup if usergroup else env
         else:
@@ -76,4 +75,4 @@ class API(_API):
         self.deploy_tibanna(suffix=suffix, usergroup=usergroup, setup=True, default_usergroup_tag='',
                             do_not_delete_public_access_block=True, no_randomize=True,
                             buckets=','.join(IAM_BUCKETS(env)), deploy_costupdater=deploy_costupdater,
-                            subnets=subnets, security_groups=security_groups, kms_key_id=kms_key_id)
+                            subnets=subnets, security_groups=security_groups)
