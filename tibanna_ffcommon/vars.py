@@ -4,7 +4,8 @@ from dcicutils.s3_utils import s3Utils
 from tibanna._version import __version__ as tibanna_version
 
 
-S3_ENCRYPT_KEY = os.environ.get("S3_ENCRYPT_KEY", '')
+S3_ENCRYPT_KEY = os.environ.get('S3_ENCRYPT_KEY', '')
+S3_ENCRYPT_KEY_ID = os.environ.get('S3_ENCRYPT_KEY_ID', None)
 DEV_SUFFIX = 'pre'
 
 RUN_TASK_LAMBDA_NAME = 'run_task'
@@ -22,6 +23,7 @@ _BUCKET_NAME_PROCESSED_FILES = dict()
 _BUCKET_NAME_RAW_FILES = dict()
 _BUCKET_NAME_SYS = dict()
 _BUCKET_NAME_LOG = dict()
+_BUCKET_NAME_CWL = dict()
 
 
 # Secure Tibanna AMI
@@ -43,6 +45,7 @@ def BUCKET_NAME(env, filetype):
     global _BUCKET_NAME_RAW_FILES
     global _BUCKET_NAME_SYSG
     global _BUCKET_NAME_LOG
+    global _BUCKET_NAME_CWL
 
     # use cache
     if filetype == 'FileProcessed' and env in _BUCKET_NAME_PROCESSED_FILES:
@@ -53,6 +56,8 @@ def BUCKET_NAME(env, filetype):
         return _BUCKET_NAME_SYS[env]
     if filetype == 'log' and env in _BUCKET_NAME_LOG:  # log bucket
         return _BUCKET_NAME_LOG[env]
+    if filetype == 'cwl' and env in _BUCKET_NAME_CWL:
+        return _BUCKET_NAME_CWL[env]
 
     # no cache
     if filetype == 'log' and AWS_ACCOUNT_NUMBER == '643366669028':  # 4dn-dcic account
@@ -63,6 +68,7 @@ def BUCKET_NAME(env, filetype):
         _BUCKET_NAME_RAW_FILES[env] = s3.raw_file_bucket
         _BUCKET_NAME_SYS[env] = s3.sys_bucket
         _BUCKET_NAME_LOG[env] = s3.tibanna_output_bucket
+        _BUCKET_NAME_CWL[env] = s3.tibanna_cwls_bucket
 
     if filetype == 'FileProcessed':
         return _BUCKET_NAME_PROCESSED_FILES[env]
@@ -70,5 +76,7 @@ def BUCKET_NAME(env, filetype):
         return _BUCKET_NAME_RAW_FILES[env]
     elif filetype == 'system':
         return _BUCKET_NAME_SYS[env]
+    elif filetype == 'cwl':
+        return _BUCKET_NAME_CWL[env]
     else:  # log
         return _BUCKET_NAME_LOG[env]

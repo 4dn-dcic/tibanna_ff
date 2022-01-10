@@ -22,8 +22,14 @@ def start_run(input_json):
     logger.debug("starter.inp.as_dict() = " + str(starter.inp.as_dict()))
     if starter.inp.config.log_bucket and starter.inp.jobid:
         s3 = boto3.client('s3')
+        kwargs = {}
+        if starter.inp.config.encrypt_s3_upload and starter.inp.config.kms_key_id:
+            kwargs.update({
+                'ServerSideEncryption': 'aws:kms',
+                'SSEKMSKeyId': starter.inp.config.kms_key_id,
+            })
         s3.put_object(Body=json.dumps(input_json, indent=4).encode('ascii'),
                       Key=starter.inp.jobid + '.input.json',
-                      Bucket=starter.inp.config.log_bucket)
+                      Bucket=starter.inp.config.log_bucket, **kwargs)
     starter.run()
     return(starter.inp.as_dict())

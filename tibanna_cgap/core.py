@@ -6,7 +6,7 @@ from .vars import (
     LAMBDA_TYPE,
     IAM_BUCKETS,
     DEV_ENV,
-    PROD_ENV
+    PROD_ENV,
 )
 from tibanna.utils import create_tibanna_suffix
 
@@ -63,7 +63,8 @@ class API(_API):
                             security_groups=security_groups, quiet=quiet)
         self.default_stepfunction_name = default_stepfunction_name
 
-    def deploy_zebra(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, deploy_costupdater=False):
+    def deploy_zebra(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None,
+                     deploy_costupdater=False):
         if env:
             usergroup = env + '_' + usergroup if usergroup else env
         else:

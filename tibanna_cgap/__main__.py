@@ -49,8 +49,8 @@ class Subcommands(_Subcommands):
               'nargs': '+',
               'help': "security groups, separated by commas"},
              {'flag': ["-e", "--env"],
-              'help': "env name"}]
-
+              'help': "env name"},
+             ]
         _args['deploy_core'] = \
             [{'flag': ["-n", "--name"],
               'help': "name of the lambda function to deploy (e.g. run_task_awsem)"},
@@ -70,7 +70,8 @@ class Subcommands(_Subcommands):
               'help': "env name"},
              {'flag': ["-q", "--quiet"],
               'action': "store_true",
-              'help': "minimize standard output from deployment"}]
+              'help': "minimize standard output from deployment"},
+             ]
 
         _args['kill'] = \
             [{'flag': ["-e", "--exec-arn"],

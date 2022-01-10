@@ -13,6 +13,7 @@ from collections import namedtuple
 from .exceptions import (
     FdnConnectionException
 )
+from .vars import S3_ENCRYPT_KEY_ID
 
 
 class QCArgument(SerializableObject):
@@ -244,7 +245,7 @@ class QCArgumentsPerTarget(object):
         the actual qclist item may be different. Each file item gets its own qclist item.
         """
 
-        existing_qc = get_existing_qc_item_linked_to_target(target_accession)
+        existing_qc = self.get_existing_qc_item_linked_to_target(target_accession)
         if existing_qc:
             if existing_qc.type == 'quality_metric_qclist':
                 # add to existing qclist instead of creating a new one.
@@ -276,7 +277,7 @@ class QCArgumentsPerTarget(object):
         if 'quality_metric' not in res:
             return None
         else:
-            qc_type, qc_uuid = parse_quality_metric_field_from_file_item(res['quality_metric'])
+            qc_type, qc_uuid = self.parse_quality_metric_field_from_file_item(res['quality_metric'])
             if qc_type == 'quality_metric_qclist':
                 qc_list = self.get_metadata(qc_uuid).get('qc_list')
             else:
@@ -505,6 +506,11 @@ def put_data_to_s3(data, bucket, key, acl=None):
         content_type = 'binary/octet-stream'
     put_object_args = {'Bucket': bucket, 'Key': key, 'Body': data,
                        'ContentType': content_type}
+    if S3_ENCRYPT_KEY_ID:
+        put_object_args.update({
+            'ServerSideEncryption': 'aws:kms',
+            'SSEKMSKeyId': S3_ENCRYPT_KEY_ID
+        })
     if acl:
         put_object_args.update({'ACL': acl})
     return boto3.client('s3').put_object(**put_object_args)

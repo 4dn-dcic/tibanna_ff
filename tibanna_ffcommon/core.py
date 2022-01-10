@@ -1,4 +1,6 @@
 import copy
+import os
+import json
 from tibanna.core import API as _API
 from .stepfunction import StepFunctionFFAbstract
 from ._version import __version__
@@ -72,7 +74,7 @@ class API(_API):
             with open(input_json) as input_file:
                 data = json.load(input_file)
         else:
-            raise Exception("input json must be either a file or a dictionary") 
+            raise Exception("input json must be either a file or a dictionary")
 
         # env priority: run_workflow parameter -> _tibanna_settings -> default_env
         if not env:
