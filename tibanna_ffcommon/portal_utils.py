@@ -178,6 +178,9 @@ class FFInputAbstract(SerializableObject):
             return self._metadata[id]
 
     def patch_metadata(self, data, id):
+        # clear cache
+        if id in self._metadata:
+            del self._metadata[id]
         try:
             res = patch_metadata(data, id,
                                  key=self.tibanna_settings.ff_keys,
@@ -891,6 +894,9 @@ class FourfrontUpdaterAbstract(object):
 
     def patch_all(self):
         for item_id, item in self.patch_items.items():
+            # invalidate cache
+            if item_id in self._metadata:
+                del self._metadata[item_id]
             patch_metadata(item, item_id,
                            key=self.tibanna_settings.ff_keys,
                            ff_env=self.tibanna_settings.env,
