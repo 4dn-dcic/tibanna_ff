@@ -110,14 +110,12 @@ class QCArgument(SerializableObject):
 
     def get_qc_url(self):
         """Get the value for the url field of the QC item to be created.
-        qc_bucket is the bucket where the final QC html will go to.
-        target_accession is the accession of the first target file to which
-        the QC item will be linked to.
+           From tibanna_ff 1.0.0, qc URLs go to @@download
         """
         if self.qc_unzip_from_ec2:
             return None
         if self.qc_zipped_html or self.qc_html:
-            return 'https://s3.amazonaws.com/' + self.bucket + '/' + self.target_html
+            return '/' + self.target_accession + '/@@download'
         else:
             return None
 
