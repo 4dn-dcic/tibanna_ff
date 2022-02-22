@@ -12,6 +12,7 @@ from tibanna_cgap.zebra_utils import (
     ZebraInput
 )
 from tests.tibanna.zebra.conftest import valid_env, logger
+import pytest
 import mock
 
 
