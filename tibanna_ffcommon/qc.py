@@ -268,7 +268,7 @@ class QCArgumentsPerTarget(object):
                                                        'value': existing_qc.uuid})
 
         return {'new_qclist_item': new_qclist_item,
-                'existing_qclist_item': existing_qc.uuid}
+                'existing_qclist_item': existing_qc.uuid if existing_qc else None}
 
     def get_existing_qc_item_linked_to_target(self, target_accession):
         """get an existing quality_metric item already linked to a target accession
