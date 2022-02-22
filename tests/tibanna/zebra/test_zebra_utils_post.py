@@ -21,6 +21,11 @@ from tests.tibanna.zebra.conftest import (
 )
 
 
+# These are integrated tests intended to work with legacy environments.
+# These need to be refactored to use cgap-wolf - Will Feb 22 2022
+pytestmark = [pytest.mark.skip]
+
+
 @valid_env
 def test_fourfront_starter(start_run_event_md5):
     starter = FourfrontStarter(**start_run_event_md5)

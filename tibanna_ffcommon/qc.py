@@ -45,7 +45,7 @@ class QCArgument(SerializableObject):
         # (not a part of a workflow QC argument)
         self.s3_key = None
         self.bucket = None
-        self.target_accession = None
+        self.target_accession = None  # this is the accession of the file being qc'd
         self.qc_data_parser = None
 
     @property
@@ -85,10 +85,10 @@ class QCArgument(SerializableObject):
         return do.as_dict()
 
     def copy_qc_files_to_s3(self):
-        """copies qc files to a designated location on s3."""
-        qc_item = dict()
-        #qc_bucket = self.bucket(qc.workflow_argument_name)
-        #qc_key = self.file_key(qc.workflow_argument_name)
+        """copies qc files to a designated location on s3.
+           Note that when deploying tibanna with encrypted buckets, these files are not
+           public-read, since the KMS key is not public.
+        """
         if self.qc_unzip_from_ec2:
             return None
         elif self.qc_zipped:
@@ -99,6 +99,8 @@ class QCArgument(SerializableObject):
                 put_data_to_s3(data.encode(), self.bucket, self.target_html, acl='public-read')
 
     def create_qc_item_content(self):
+        """ Builds the qc_item metadata - structurally dependent on QualityMetric definition
+        """
         qc_item_content = dict()
         url = self.get_qc_url()
         data_fields = self.get_qc_data_fields()
@@ -110,9 +112,9 @@ class QCArgument(SerializableObject):
 
     def get_qc_url(self):
         """Get the value for the url field of the QC item to be created.
-        qc_bucket is the bucket where the final QC html will go to.
-        target_accession is the accession of the first target file to which
-        the QC item will be linked to.
+           Link directly to s3 in an expected format.
+           Note that /qc/<@id>/@@download processes this field - patching an s3 URL
+           will allow the download API to process it and create a pre-signed URL
         """
         if self.qc_unzip_from_ec2:
             return None
@@ -243,8 +245,9 @@ class QCArgumentsPerTarget(object):
     def create_qclist_item_for_target(self, target_accession):
         """depending on the existing qc and list items on a given target accession
         the actual qclist item may be different. Each file item gets its own qclist item.
+        XXX: I'm not convinced this function totally works... - Will Jan 20 2022
         """
-
+        new_qclist_item = None
         existing_qc = self.get_existing_qc_item_linked_to_target(target_accession)
         if existing_qc:
             if existing_qc.type == 'quality_metric_qclist':
@@ -255,7 +258,7 @@ class QCArgumentsPerTarget(object):
                     # add qcs of new type.
                     existing_qc_list_dict.update({qc_type: qc_item['uuid']})
                 # new value for the qc_list field for existing qclist metadata item.
-                new_qclist = [{'qc_type': k, 'value': v} for k, v in existing_qc_list_dict.items()]
+                new_qclist_item = [{'qc_type': k, 'value': v} for k, v in existing_qc_list_dict.items()]
             else:
                 if existing_qc.type not in self.qc_types_no_none:
                     # add existing qc to new qclist item.
@@ -264,9 +267,8 @@ class QCArgumentsPerTarget(object):
                     new_qclist_item['qc_list'].append({'qc_type': existing_qc.type,
                                                        'value': existing_qc.uuid})
 
-
         return {'new_qclist_item': new_qclist_item,
-                'existing_qclist_item': existing_qc.uuid}
+                'existing_qclist_item': existing_qc.uuid if existing_qc else None}
 
     def get_existing_qc_item_linked_to_target(self, target_accession):
         """get an existing quality_metric item already linked to a target accession
@@ -288,7 +290,7 @@ class QCArgumentsPerTarget(object):
         return self.get_metadata("profiles/" + qc_type + ".json")['properties']
 
     def get_metadata(self, id):
-        if self._metadata.get(id, ''):
+        if id in self._metadata:
             return self._metadata[id]
         else:
             try:
@@ -411,7 +413,7 @@ class QCDataParser(object):
         if field_type == 'string':
             return {name: str(value)}
         elif field_type == 'number':
-            if(isinstance(value, (int,float))):
+            if isinstance(value, (int,float)):
                 return {name: value}
             else:
                 return {name: self.number(value.replace(',', ''))}
@@ -433,6 +435,7 @@ class QCDataParser(object):
             return num
         except ValueError:
             return astring
+
 
 def read_s3_data(bucket, key):
     """store the content of a zipped key on S3.
