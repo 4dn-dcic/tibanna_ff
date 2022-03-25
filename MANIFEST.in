@@ -1,7 +1,5 @@
 include README.md
 include LICENSE.txt
-include requirements.txt
-include requirements-test.txt
 include tibanna_4dn/lambdas/*
 include tibanna_cgap/lambdas/*
 include tests/tibanna/*
