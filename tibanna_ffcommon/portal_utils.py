@@ -214,7 +214,7 @@ class FFInputAbstract(SerializableObject):
         # create args
         args = dict()
         for k in ['app_name', 'app_version', 'cwl_directory_url', 'cwl_main_filename', 'cwl_child_filenames',
-                  'wdl_directory_url', 'wdl_main_filename', 'wdl_child_filenames', 'workflow_engine']:
+                  'wdl_directory_url', 'wdl_main_filename', 'wdl_child_filenames', 'workflow_engine', 'run_args']:
             logger.debug("wfmeta[%s]=%s" % (k, str(self.wf_meta.get(k))))
             args[k] = self.wf_meta.get(k, '')
         if self.wf_meta.get('workflow_language', '') == 'WDL_DRAFT2':

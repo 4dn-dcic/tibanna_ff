@@ -8,19 +8,13 @@ Whenever changes are made, we need to run tests.
 Prerequisites
 +++++++++++++
 
-To run tests, first do
+To run tests, first install the package using
 
 ::
 
-    pip install -r reqirements-test.txt
+    make install
 
-
-Also, before running any tests, make sure to first build based on the current repo content.
-
-::
-
-    python setup.py install
-    
+   
 
 
 Test portals
@@ -38,12 +32,7 @@ Local tests do not involve spinning up any EC2 instance, but some of them involv
 
 Local tests are a good starting point, but they're not comprehensive, because it doesn't involve any real EC2 instance, and the code is not run on an actual AWS Lambda environment. So this way, we cannot catch any Lambda deployment error or IAM permission setup error.
 
-Running all local tests can be done by ``invoke test``. Some ``flake8`` tests are going to fail that we're not going to fix, so it is recommended to run this test without ``flake8``.
-
-::
-
-    invoke test --no-flake
-
+Running all local tests can be done by ``make test``. 
 
 To run your code through ``flake8``, it would be nice to do it script by script after modification, e.g.
 

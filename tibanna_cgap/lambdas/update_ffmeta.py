@@ -9,7 +9,7 @@ config = {
     'function_handler': 'handler',
     'handler': 'service.handler',
     'region': AWS_REGION,
-    'runtime': 'python3.6',
+    'runtime': 'python8',
     'role': 'lambda_full_s3',
     'description': 'Tibanna zebra update_ffmeta',
     'timeout': 600,  # for BAMSNAP
