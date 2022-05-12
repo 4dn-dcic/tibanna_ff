@@ -1,0 +1,72 @@
+[tool.poetry]
+name = "tibanna_ff"
+version = "1.1.0"
+description = "Tibanna runs portable pipelines (in CWL/WDL) on the AWS Cloud."
+authors = ["4DN-DCIC Team <support@4dnucleome.org>"]
+license = "MIT"
+readme = "README.md"
+keywords = ["tibanna"]
+homepage = "http://github.com/4dn-dcic/tibanna_ff"
+repository = "http://github.com/4dn-dcic/tibanna_ff.git"
+packages = [
+  { include="tibanna_ffcommon", from="." },
+  { include="tibanna_4dn", from="." },
+  { include="tibanna_cgap", from="." },
+]
+# The following is needed so that we can extract the version at runtime
+include = ["pyproject.toml"]
+classifiers = [
+  'License :: OSI Approved :: MIT License',
+  'Natural Language :: English',
+  'Operating System :: POSIX :: Linux',
+
+  # Specify the Python versions you support here. In particular, ensure
+  # that you indicate whether you support Python 2, Python 3 or both.
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3.7',
+  'Programming Language :: Python :: 3.8',
+]
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.9"
+tibanna = ">=2.0.0"
+dcicutils = ">=3.5.0"
+boto3 = "^1.9.0"
+botocore = "^1.12.1"
+requests = "^2.22.0"
+tomlkit = "^0.10.0"
+
+[tool.poetry.dev-dependencies]
+invoke = "0.18.1"
+flake8 = "^3.7.9"
+
+# PyTest and its auxiliary support files
+pytest = "5.0.0"
+pytest-cov = "2.3.1"
+pytest-parallel = "0.1.0"
+pycodestyle= "2.5.0"
+mock = "4.0"
+pytest-mock = "3.1.1"
+
+coverage = {extras = ["toml"], version = "^6.3.2"}
+
+# Docs build dependencies
+Sphinx = "^3.3.0"
+sphinx-click = "^2.5.0"
+sphinx-rtd-theme = "0.5.0"  # Do we have a good reason to pin this? -kmp 9-Nov-2020
+
+[tool.poetry.scripts]
+tibanna_4dn = "tibanna_4dn.__main__:main"
+tibanna_cgap = "tibanna_cgap.__main__:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+omit = [".*", "*/site-packages/*", "*/__pycache__/*", "*/tests/*", "*/dist/*", "*/.eggs/*"]
+include = ["*/tibanna_4dn/*", "*/tibanna_cgap/*", "*/tibanna_ffcommon/*"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov --cov-report term --cov-fail-under 2 -rxs"

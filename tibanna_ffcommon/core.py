@@ -52,6 +52,9 @@ class API(_API):
     def env_list(self, name):
         envlist = super().env_list(name)
         if envlist:
+            # This is the envlist for run_task or check_task
+            if GLOBAL_BUCKET_ENV:
+                envlist.update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
             return envlist
         envlist_ff = {
             'start_run': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},

@@ -54,7 +54,7 @@ class API(_API):
         super().deploy_core(name=name, suffix=suffix, usergroup=usergroup, subnets=subnets,
                             security_groups=security_groups, quiet=quiet)
 
-    def deploy_pony(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, deploy_costupdater=True):
+    def deploy_pony(self, suffix=None, usergroup='', subnets=None, security_groups=None, env=None, deploy_costupdater=False):
         if env:
             usergroup = env + '_' + usergroup if usergroup else env
         else:

@@ -144,12 +144,12 @@ class FFInputAbstract(SerializableObject):
         # fill in subnet and security group, if they exist in env variable
         # and are not already set in the existing config (input JSON)
         if not self.config.subnet and os.environ.get('SUBNETS', ''):
-            self.config.subnet = os.environ['SUBNETS'].split(',')[0]
+            possible_subnets = os.environ['SUBNETS'].split(',')
+            self.config.subnet = random.choice(possible_subnets)  # randomly select from list
         if not self.config.security_group and os.environ.get('SECURITY_GROUPS', ''):
             self.config.security_group = os.environ['SECURITY_GROUPS'].split(',')[0]
 
     def as_dict(self):
-        #d_shallow = super().as_dict().copy()
         d_shallow = self.__dict__.copy()
         del(d_shallow['parameters_'])
         if '_metadata' in d_shallow:
@@ -214,7 +214,7 @@ class FFInputAbstract(SerializableObject):
         # create args
         args = dict()
         for k in ['app_name', 'app_version', 'cwl_directory_url', 'cwl_main_filename', 'cwl_child_filenames',
-                  'wdl_directory_url', 'wdl_main_filename', 'wdl_child_filenames', 'workflow_engine']:
+                  'wdl_directory_url', 'wdl_main_filename', 'wdl_child_filenames', 'workflow_engine', 'run_args']:
             logger.debug("wfmeta[%s]=%s" % (k, str(self.wf_meta.get(k))))
             args[k] = self.wf_meta.get(k, '')
         if self.wf_meta.get('workflow_language', '') == 'WDL_DRAFT2':
