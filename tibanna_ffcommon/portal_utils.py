@@ -322,6 +322,8 @@ class ProcessedFileMetadataAbstract(SerializableObject):
     def __init__(self, uuid=None, accession=None, file_format='',
                  extra_files=None, status='to be uploaded by workflow',
                  md5sum=None, file_size=None, other_fields=None, **kwargs):
+        if uuid:
+            logger.debug(f'Using existing uuid passed by caller: {uuid}')
         self.uuid = uuid if uuid else str(uuid4())
         self.accession = accession if accession else generate_rand_accession(self.accession_prefix, 'FI')
         self.status = status
@@ -448,6 +450,7 @@ class FourfrontStarterAbstract(object):
 
     def get_meta(self, uuid, check_queue=False):
         try:
+            logger.debug(f'Getting metadata for {uuid}')
             return get_metadata(uuid,
                                 key=self.tbn.ff_keys,
                                 ff_env=self.tbn.env,
@@ -480,6 +483,7 @@ class FourfrontStarterAbstract(object):
 
     def post_pfs(self):
         if self.pfs:
+            logger.debug(f'Posting pfs {self.pfs.items()}')
             for argname, pf in self.pfs.items():
                 if not self.user_supplied_output_files(argname):
                     pf.post(self.tbn.ff_keys)
