@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tibanna_ff"
-version = "1.1.0.1b0"
+version = "1.1.0.1b1"
 description = "Tibanna runs portable pipelines (in CWL/WDL) on the AWS Cloud."
 authors = ["4DN-DCIC Team <support@4dnucleome.org>"]
 license = "MIT"
