@@ -75,14 +75,14 @@ python-versions = "*"
 
 [[package]]
 name = "boto3"
-version = "1.24.60"
+version = "1.24.64"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 
 [package.dependencies]
-botocore = ">=1.27.60,<1.28.0"
+botocore = ">=1.27.64,<1.28.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -91,7 +91,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.27.60"
+version = "1.27.64"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -156,7 +156,7 @@ toml = ["tomli"]
 
 [[package]]
 name = "dcicutils"
-version = "4.4.0"
+version = "4.5.0"
 description = "Utility package for interacting with the 4DN Data Portal and other 4DN resources"
 category = "main"
 optional = false
@@ -933,12 +933,12 @@ babel = [
 beautifulsoup4 = []
 benchmark-4dn = []
 boto3 = [
-    {file = "boto3-1.24.60-py3-none-any.whl", hash = "sha256:de7d5d66292c4f8e0000755117cec047adf1f0c78e192f7061ac1c54a2389968"},
-    {file = "boto3-1.24.60.tar.gz", hash = "sha256:9d2dab8abe90d4afaced79a10476642dc7b3755a2bdc1f871927f8d21af25777"},
+    {file = "boto3-1.24.64-py3-none-any.whl", hash = "sha256:232ce2e82cf7d79f3ec02d301fd370a8e21ede81d5be3d9edf182ad10dc24e30"},
+    {file = "boto3-1.24.64.tar.gz", hash = "sha256:932edb4373cca0062521a236af46d80115598d3056c7356f00fee26db25efcd7"},
 ]
 botocore = [
-    {file = "botocore-1.27.60-py3-none-any.whl", hash = "sha256:5063d504698f379289249c5c27d9395ec72f445f0ac2ec4e0ed00135e76e5cac"},
-    {file = "botocore-1.27.60.tar.gz", hash = "sha256:5f9ddf144c7fe025a877dd31c9225563172769e9597013f50a226248f05ff6a8"},
+    {file = "botocore-1.27.64-py3-none-any.whl", hash = "sha256:670aec1c6f201a06ad7fbf252485629f4cd17e63e31dea5b67accb4d08b5f2fa"},
+    {file = "botocore-1.27.64.tar.gz", hash = "sha256:25793c7e13d989ba27bbca83ea5e19a4ee1cf7ddbab2c0ab3d63461e64e9be50"},
 ]
 certifi = []
 charset-normalizer = [
@@ -1003,8 +1003,8 @@ coverage = [
     {file = "coverage-6.4.4.tar.gz", hash = "sha256:e16c45b726acb780e1e6f88b286d3c10b3914ab03438f32117c4aa52d7f30d58"},
 ]
 dcicutils = [
-    {file = "dcicutils-4.4.0-py3-none-any.whl", hash = "sha256:995a7b0fb68cc2fd3cf886b56e48d9699346d14a212f632f22588b2e1662811d"},
-    {file = "dcicutils-4.4.0.tar.gz", hash = "sha256:bc198aceb9894d9809d12703374cd1e64a10f55ed84fba5555195c6b450c7e9c"},
+    {file = "dcicutils-4.5.0-py3-none-any.whl", hash = "sha256:db298890c528435883dea9ca901e2203831492dc40a8716f2dfa2f043774ed90"},
+    {file = "dcicutils-4.5.0.tar.gz", hash = "sha256:df180dcfe78630cbd32b6172b483fb81b8019a5e553341af3529ce9776cb4078"},
 ]
 docker = []
 docutils = []
