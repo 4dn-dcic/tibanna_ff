@@ -14,7 +14,7 @@ UPDATE_COST_LAMBDA_NAME = 'update_cost'
 START_RUN_LAMBDA_NAME = 'start_run'
 UPDATE_FFMETA_LAMBDA_NAME = 'update_ffmeta'
 
-GLOBAL_BUCKET_ENV = os.environ.get('GLOBAL_BUCKET_ENV', '')
+GLOBAL_ENV_BUCKET = os.environ.get('GLOBAL_ENV_BUCKET', '')
 AWSF_IMAGE = '%s.dkr.ecr.%s.amazonaws.com/tibanna-awsf:%s' % (AWS_ACCOUNT_NUMBER, AWS_REGION, tibanna_version)
 
 
