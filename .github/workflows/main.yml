@@ -44,9 +44,9 @@ jobs:
 
       - name: QA
         env:
-          GLOBAL_ENV_BUCKET: $ {{ secrets.GLOBAL_ENV_BUCKET }}
+          GLOBAL_ENV_BUCKET: ${{ secrets.GLOBAL_ENV_BUCKET }}
           S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
-          CODACY_PROJECT_TOKEN: $ {{ secrets.CODACY_PROJECT_TOKEN }}
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
           poetry run invoke test --no-flake --no-post
           # XXX: codacy run - enable when working
