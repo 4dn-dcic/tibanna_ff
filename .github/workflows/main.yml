@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
@@ -41,11 +41,12 @@ jobs:
       - name: Build
         run: |
           make install
-          
+
       - name: QA
         env:
+          GLOBAL_ENV_BUCKET: $ {{ secrets.GLOBAL_ENV_BUCKET }}
           S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
-          CODACY_PROJECT_TOKEN: $ {{ secrets.CODACY_PROJECT_TOKEN }} 
+          CODACY_PROJECT_TOKEN: $ {{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
           poetry run invoke test --no-flake --no-post
           # XXX: codacy run - enable when working
