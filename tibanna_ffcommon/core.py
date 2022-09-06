@@ -11,7 +11,7 @@ from .vars import (
     CHECK_TASK_LAMBDA_NAME,
     UPDATE_COST_LAMBDA_NAME,
     BUCKET_NAME,
-    GLOBAL_BUCKET_ENV,
+    GLOBAL_ENV_BUCKET,
     AWSF_IMAGE,
     AMI_ID
 )
@@ -53,16 +53,16 @@ class API(_API):
         envlist = super().env_list(name)
         if envlist:
             # This is the envlist for run_task or check_task
-            if GLOBAL_BUCKET_ENV:
-                envlist.update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
+            if GLOBAL_ENV_BUCKET:
+                envlist.update({'GLOBAL_ENV_BUCKET': GLOBAL_ENV_BUCKET})
             return envlist
         envlist_ff = {
             'start_run': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY},
             'update_ffmeta': {'S3_ENCRYPT_KEY': S3_ENCRYPT_KEY}
         }
-        if GLOBAL_BUCKET_ENV:
-            envlist_ff['start_run'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
-            envlist_ff['update_ffmeta'].update({'GLOBAL_BUCKET_ENV': GLOBAL_BUCKET_ENV})
+        if GLOBAL_ENV_BUCKET:
+            envlist_ff['start_run'].update({'GLOBAL_ENV_BUCKET': GLOBAL_ENV_BUCKET})
+            envlist_ff['update_ffmeta'].update({'GLOBAL_ENV_BUCKET': GLOBAL_ENV_BUCKET})
         if AWSF_IMAGE:
             envlist_ff['start_run'].update({'AWSF_IMAGE': AWSF_IMAGE})
         for _, envs in envlist_ff.items():

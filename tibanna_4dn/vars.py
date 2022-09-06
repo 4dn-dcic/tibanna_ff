@@ -27,8 +27,8 @@ def IAM_BUCKETS(env):
                    '4dn-open-data-public',
                    BUCKET_NAME(env, 'system'),
                    BUCKET_NAME(env, 'log')]
-    if GLOBAL_BUCKET_ENV:
-        iam_buckets.append(GLOBAL_BUCKET_ENV)
+    if GLOBAL_ENV_BUCKET:
+        iam_buckets.append(GLOBAL_ENV_BUCKET)
     return iam_buckets
 
 
