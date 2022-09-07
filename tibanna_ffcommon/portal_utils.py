@@ -890,6 +890,7 @@ class FourfrontUpdaterAbstract(object):
                                         add_on='force_md5')
                     logger.debug("response=" + str(res))
                 except Exception as e:
+                    logger.error("Error posting metadata: " + str(e))
                     raise e
 
     def patch_all(self):
@@ -906,6 +907,7 @@ class FourfrontUpdaterAbstract(object):
         try:
             self.ff_meta.patch(key=self.tibanna_settings.ff_keys)
         except Exception as e:
+            logger.debug("ff_meta dict:" + self.ff_meta.toJSON())
             raise FdnConnectionException("Failed to update ff_meta %s" % str(e))
 
     def update_patch_items(self, uuid, item):

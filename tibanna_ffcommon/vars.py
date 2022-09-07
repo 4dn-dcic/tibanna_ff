@@ -50,7 +50,7 @@ def BUCKET_NAME(env, filetype):
     # use cache
     if filetype == 'FileProcessed' and env in _BUCKET_NAME_PROCESSED_FILES:
         return _BUCKET_NAME_PROCESSED_FILES[env]
-    if filetype in ['FileFastq', 'FileReference', 'FileMicroscopy'] and env in _BUCKET_NAME_RAW_FILES:
+    if filetype in ['FileFastq', 'FileReference', 'FileMicroscopy', 'FileSubmitted'] and env in _BUCKET_NAME_RAW_FILES:
         return _BUCKET_NAME_RAW_FILES[env]
     if filetype == 'system' and env in _BUCKET_NAME_SYS:  # log bucket
         return _BUCKET_NAME_SYS[env]
@@ -72,7 +72,7 @@ def BUCKET_NAME(env, filetype):
 
     if filetype == 'FileProcessed':
         return _BUCKET_NAME_PROCESSED_FILES[env]
-    elif filetype in ['FileFastq', 'FileReference', 'FileMicroscopy']:
+    elif filetype in ['FileFastq', 'FileReference', 'FileMicroscopy', 'FileSubmitted']:
         return _BUCKET_NAME_RAW_FILES[env]
     elif filetype == 'system':
         return _BUCKET_NAME_SYS[env]
