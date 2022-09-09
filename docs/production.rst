@@ -10,6 +10,7 @@ Deploying Tibanna requires a few environment variables, including:
 * S3_ENCRYPT_KEY
 * S3_ENCRYPT_KEY_ID (if deploying to an encrypted environment)
 * GLOBAL_ENV_BUCKET
+* TIBANNA_VERSION
 
 You must also have an existing network (VPC) with subnets to target and a security group
 to associate with Tibanna. Tibanna takes these arguments directly
@@ -27,6 +28,7 @@ Deploy Tibanna to the main account with:
 * S3_ENCRYPT_KEY=<key from environment GAC you are deploying>
 * S3_ENCRYPT_KEY_ID unset since Fourfront is not encrypted
 * GLOBAL_ENV_BUCKET=foursight-prod-envs
+* TIBANNA_VERSION=<version of Tibanna to use in the lambdas, e.g. 2.1.0>
 * -e <env_name>, for valid names see s3://foursight-prod-envs/main.ecosystem, typically "data" or "fourfront-webdev"
 * --subnets subnet-006dce98b4b349b90 (C4NetworkMain Public Subnet A)
 * -r sg-04b9d1a18fd086f33 (C4NetworkMain Application Security Group)
@@ -45,6 +47,7 @@ Deploy Tibanna to isolated accounts with:
 * S3_ENCRYPT_KEY=<key from environment GAC you are deploying>
 * S3_ENCRYPT_KEY_ID=<key ID from environment GAC you are deploying, if applicable>
 * GLOBAL_ENV_BUCKET=<Get this value from the GAC as well>
+* TIBANNA_VERSION=<version of Tibanna to use in the lambdas, e.g. 2.1.0>
 * -e <env_name>, for valid names see main.ecosystem in $GLOBAL_ENV_BUCKET
 * --subnets <subnetA>,<subnetB>
 * -r <application security group>
