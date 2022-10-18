@@ -434,7 +434,8 @@ class FourfrontStarterAbstract(object):
 
     def run(self):
         self.create_pfs()
-        self.post_pfs()  # must preceed creat_ff
+        import pdb; pdb.set_trace()
+        self.post_pfs()  # must preceed create_ff
         self.create_ff()
         self.post_ff()
         self.inp.add_args(self.ff)

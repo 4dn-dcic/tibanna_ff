@@ -12,30 +12,30 @@
     "wdl_directory_url": "",
     "cwl_child_filenames": [],
     "output_target": {
-      "multivec_file": "ff6df769-40f3-486f-a46a-872de0828905/4DNFI5YO5SZ2.bed.multires.mv5"
+      "multivec_file": "a7015222-390c-4e6f-8c94-77625f7b6bf7/4DNFINGT4SXC.bed.multires.mv5"
     },
     "language": "cwl_v1",
     "cwl_main_filename": "bedtomultivec.cwl",
     "secondary_files": {},
     "cwl_version": "v1",
-    "output_S3_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+    "output_S3_bucket": "elasticbeanstalk-fourfront-webprod-wfoutput",
     "app_version": "dev",
     "cwl_directory_url": "https://raw.githubusercontent.com/4dn-dcic/docker-4dn-bedtomultivec/v4/cwl/",
     "input_files": {
       "row_infos_file": {
         "rename": "",
-        "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
-        "object_key": "f6985ebb-5e1e-455d-8f69-7e4419e253b4/4DNFI9JY4IEO.txt"
+        "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
+        "object_key": "0b8fb997-038d-49dd-beb3-7bd68aea3ded/4DNFI27WSLAG.txt"
       },
       "bedfile": {
         "rename": "",
-        "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
-        "object_key": "ff6df769-40f3-486f-a46a-872de0828905/4DNFI5YO5SZ2.bed.gz"
+        "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
+        "object_key": "a7015222-390c-4e6f-8c94-77625f7b6bf7/4DNFINGT4SXC.bed.gz"
       },
       "chromsizes_file": {
         "rename": "",
-        "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
-        "object_key": "f9b737a2-e817-4351-966e-ed2137382553/4DNFIG22HTWT.txt"
+        "bucket_name": "elasticbeanstalk-fourfront-webprod-files",
+        "object_key": "4a6d10ee-2edb-4402-a98f-0edb1d58f5e9.4DNFI823LSII.chromsizes"
       }
     }
   },
@@ -88,24 +88,24 @@
         "Input_files_data": {
           "chromsizes_file": {
             "profile": "",
-            "path": "f9b737a2-e817-4351-966e-ed2137382553/4DNFIG22HTWT.txt",
+            "path": "4a6d10ee-2edb-4402-a98f-0edb1d58f5e9/4DNFI823LSII.chromsizes",
             "rename": "",
             "class": "File",
-            "dir": "elasticbeanstalk-fourfront-webdev-files"
+            "dir": "elasticbeanstalk-fourfront-webprod-files"
           },
           "bedfile": {
             "profile": "",
-            "path": "ff6df769-40f3-486f-a46a-872de0828905/4DNFI5YO5SZ2.bed.gz",
+            "path": "a7015222-390c-4e6f-8c94-77625f7b6bf7/4DNFINGT4SXC.bed.gz",
             "rename": "",
             "class": "File",
-            "dir": "elasticbeanstalk-fourfront-webdev-wfoutput"
+            "dir": "elasticbeanstalk-fourfront-webprod-wfoutput"
           },
           "row_infos_file": {
             "profile": "",
-            "path": "f6985ebb-5e1e-455d-8f69-7e4419e253b4/4DNFI9JY4IEO.txt",
+            "path": "0b8fb997-038d-49dd-beb3-7bd68aea3ded/4DNFI27WSLAG.txt",
             "rename": "",
             "class": "File",
-            "dir": "elasticbeanstalk-fourfront-webdev-wfoutput"
+            "dir": "elasticbeanstalk-fourfront-webprod-wfoutput"
           }
         },
         "Secondary_files_data": {},
@@ -117,18 +117,18 @@
       },
       "Output": {
         "output_target": {
-          "multivec_file": "ff6df769-40f3-486f-a46a-872de0828905/4DNFI5YO5SZ2.bed.multires.mv5"
+          "multivec_file": "a7015222-390c-4e6f-8c94-77625f7b6bf7/4DNFINGT4SXC.bed.multires.mv5"
         },
         "secondary_output_target": {},
-        "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput",
+        "output_bucket_directory": "elasticbeanstalk-fourfront-webprod-wfoutput",
         "Output files": {
           "multivec_file": {
-            "target": "ff6df769-40f3-486f-a46a-872de0828905/4DNFI5YO5SZ2.bed.multires.mv5",
+            "target": "a7015222-390c-4e6f-8c94-77625f7b6bf7/4DNFINGT4SXC.bed.multires.mv5",
             "checksum": "sha1$1c11172cce31b855617873ece85423306c808bd7",
             "basename": "4DNFI5YO5SZ2.bed.multires.mv5",
             "md5sum": "076ea000a803357f2a88f725ffeff435",
-            "location": "file:///data1/out/4DNFI5YO5SZ2.bed.multires.mv5",
-            "path": "/data1/out/4DNFI5YO5SZ2.bed.multires.mv5",
+            "location": "file:///data1/out/4DNFINGT4SXC.bed.multires.mv5",
+            "path": "/data1/out/4DNFINGT4SXC.bed.multires.mv5",
             "class": "File",
             "size": 8688344
           }
@@ -163,7 +163,7 @@
         "    --volume=/data1/tmpF1GUJ0:/var/spool/cwl:rw ",
         "    --volume=/data1/tmp323luf:/tmp:rw ",
         "    --volume=/data1/input/f6985ebb-5e1e-455d-8f69-7e4419e253b4/4DNFI9JY4IEO.txt:/var/lib/cwl/stg2596553f-4174-4f56-9d06-c105afc59844/4DNFI9JY4IEO.txt:ro ",
-        "    --volume=/data1/input/ff6df769-40f3-486f-a46a-872de0828905/4DNFI5YO5SZ2.bed.gz:/var/lib/cwl/stg000542c0-dcb9-4855-af2a-5a672fbdc89c/4DNFI5YO5SZ2.bed.gz:ro ",
+        "    --volume=/data1/input/a7015222-390c-4e6f-8c94-77625f7b6bf7/4DNFINGT4SXC.bed.gz:/var/lib/cwl/stg000542c0-dcb9-4855-af2a-5a672fbdc89c/4DNFI5YO5SZ2.bed.gz:ro ",
         "    --volume=/data1/input/f9b737a2-e817-4351-966e-ed2137382553/4DNFIG22HTWT.txt:/var/lib/cwl/stgcd51777a-0711-4234-92da-77eb22df3c11/4DNFIG22HTWT.txt:ro ",
         "    --workdir=/var/spool/cwl ",
         "    --rm ",
@@ -213,25 +213,25 @@
       {
         "ordinal": 1,
         "workflow_argument_name": "bedfile",
-        "value": "ff6df769-40f3-486f-a46a-872de0828905",
+        "value": "a7015222-390c-4e6f-8c94-77625f7b6bf7",
         "dimension": "0"
       },
       {
         "ordinal": 1,
         "workflow_argument_name": "row_infos_file",
-        "value": "f6985ebb-5e1e-455d-8f69-7e4419e253b4",
+        "value": "0b8fb997-038d-49dd-beb3-7bd68aea3ded",
         "dimension": "0"
       },
       {
         "ordinal": 1,
         "workflow_argument_name": "chromsizes_file",
-        "value": "f9b737a2-e817-4351-966e-ed2137382553",
+        "value": "4a6d10ee-2edb-4402-a98f-0edb1d58f5e9",
         "dimension": "0"
       }
     ]
   },
   "overwrite_input_extra": true,
-  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+  "output_bucket": "elasticbeanstalk-fourfront-webprod-wfoutput",
   "jobid": "BpqrLp86uXRF",
   "instance_id": "i-017c85b63f7ac6e58",
   "pf_meta": [],
@@ -261,22 +261,22 @@
   "workflow_uuid": "a52b9b9d-1654-4967-883f-4d2adee77bc7",
   "input_files": [
     {
-      "object_key": "4DNFI5YO5SZ2.bed.gz",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
+      "object_key": "4DNFINGT4SXC.bed.gz",
+      "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
       "workflow_argument_name": "bedfile",
-      "uuid": "ff6df769-40f3-486f-a46a-872de0828905"
+      "uuid": "a7015222-390c-4e6f-8c94-77625f7b6bf7"
     },
     {
-      "object_key": "4DNFI9JY4IEO.txt",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
+      "object_key": "4DNFI27WSLAG.txt",
+      "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
       "workflow_argument_name": "row_infos_file",
-      "uuid": "f6985ebb-5e1e-455d-8f69-7e4419e253b4"
+      "uuid": "0b8fb997-038d-49dd-beb3-7bd68aea3ded"
     },
     {
-      "object_key": "4DNFIG22HTWT.txt",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
+      "object_key": "4DNFI823LSII.chromsizes",
+      "bucket_name": "elasticbeanstalk-fourfront-webprod-files",
       "workflow_argument_name": "chromsizes_file",
-      "uuid": "f9b737a2-e817-4351-966e-ed2137382553"
+      "uuid": "4a6d10ee-2edb-4402-a98f-0edb1d58f5e9"
     }
   ]
 }
