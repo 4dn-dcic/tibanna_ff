@@ -56,7 +56,7 @@ def test_fourfront_starter6(start_run_fixedname_data):
     assert starter.inp.as_dict().get('_tibanna').get('run_name') == 'md5_test'
 
 
-#@pytest.mark.skip  # read timeout errors
+@pytest.mark.skip  # read timeout errors
 @valid_env
 def test_fourfront_starter7(start_run_hicprocessingbam_customfield_wALL_data):
     """testing a case where input_bam is a list with two elements
@@ -69,7 +69,7 @@ def test_fourfront_starter7(start_run_hicprocessingbam_customfield_wALL_data):
     assert len(outjson['args']['secondary_files']) == 0
 
 
-#@pytest.mark.skip  # read timeout errors
+@pytest.mark.skip  # read timeout errors
 @valid_env
 def test_fourfront_starter7b(start_run_hicprocessingbam_customfield_wALL_data):
     """testing a case where input_bam is a list with a single element
@@ -84,7 +84,7 @@ def test_fourfront_starter7b(start_run_hicprocessingbam_customfield_wALL_data):
     assert len(outjson['args']['secondary_files']) == 0
 
 
-#@pytest.mark.skip  # read timeout errors
+@pytest.mark.skip  # read timeout errors
 @valid_env
 def test_fourfront_starter7c(start_run_hicprocessingbam_customfield_wALL_data):
     """testing a case where input_bam is a list with three elements,

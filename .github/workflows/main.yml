@@ -48,7 +48,7 @@ jobs:
           S3_ENCRYPT_KEY: ${{ secrets.S3_ENCRYPT_KEY }}
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
-          poetry run invoke test --no-flake
+          poetry run invoke test --no-flake --no-post
           # XXX: codacy run - enable when working
           # python-codacy-coverage -r coverage.xml
 
