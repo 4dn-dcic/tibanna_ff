@@ -39,8 +39,8 @@ def test_format_extension_map():
             'settings': {'1': '1'}}
     tibanna = TibannaSettings(**data)
     fe_map = FormatExtensionMap(tibanna.ff_keys)
-    assert(fe_map)
-    assert 'bwt' in fe_map.fe_dict.keys()
+    assert fe_map
+    assert 'bw' in fe_map.fe_dict.keys()
 
 
 @valid_env
