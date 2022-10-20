@@ -7,7 +7,7 @@
   "input_files" : [
        {
            "workflow_argument_name": "input_bams",
-           "uuid": ["68f38e45-8c66-41e2-99ab-b0b2fcd20d45","7420a20a-aa77-4ea8-b0b0-32a8e80c9bcb"]
+           "uuid": ["c9b5e243-1393-4711-89cd-0dfc8652516d","72042faa-cb86-4da9-9b0d-c6264e5139db"]
        },
        {
            "workflow_argument_name": "chromsize",

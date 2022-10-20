@@ -145,7 +145,7 @@ class FFInputAbstract(SerializableObject):
         # and are not already set in the existing config (input JSON)
         if not self.config.subnet and os.environ.get('SUBNETS', ''):
             possible_subnets = os.environ['SUBNETS'].split(',')
-            self.config.subnet = random.choice(possible_subnets)  # randomly select from list
+            self.config.subnet = possible_subnets  # pass all subnets to config
         if not self.config.security_group and os.environ.get('SECURITY_GROUPS', ''):
             self.config.security_group = os.environ['SECURITY_GROUPS'].split(',')[0]
 
@@ -434,7 +434,7 @@ class FourfrontStarterAbstract(object):
 
     def run(self):
         self.create_pfs()
-        self.post_pfs()  # must preceed creat_ff
+        self.post_pfs()  # must preceed create_ff
         self.create_ff()
         self.post_ff()
         self.inp.add_args(self.ff)

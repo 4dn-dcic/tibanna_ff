@@ -6,19 +6,19 @@
     "input_parameters": {},
     "cwl_child_filenames": [],
     "output_target": {
-      "report": "f1340bec-a842-402c-bbac-6e239df96682/report822085265412"
+      "report": "00c8aca8-0e40-4ac7-9ef1-33d5c5652402/report473488522031"
     },
     "cwl_main_filename": "md5.cwl",
     "secondary_files": {},
     "cwl_version": "v1",
-    "output_S3_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+    "output_S3_bucket": "elasticbeanstalk-fourfront-webprod-wfoutput",
     "app_version": "0.2.6",
     "cwl_directory_url": "https://raw.githubusercontent.com/4dn-dcic/pipelines-cwl/dev/cwl_awsem_v1/",
     "input_files": {
       "input_file": {
-        "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
-        "object_key": "12005967-f060-40dd-a63c-c7204dcf46a7/4DNFIFLJJ99W.pairs.gz.px2",
-        "format_if_extra": "pairs_px2"
+        "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
+        "object_key": "d52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz",
+        "format_if_extra": "bed.gz"
       }
     }
   },
@@ -61,9 +61,9 @@
         "Input_files_data": {
           "input_file": {
             "profile": "",
-            "path": "12005967-f060-40dd-a63c-c7204dcf46a7/4DNFIFLJJ99W.pairs.gz.px2",
+            "path": "d52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz",
             "class": "File",
-            "dir": "elasticbeanstalk-fourfront-webdev-wfoutput"
+            "dir": "elasticbeanstalk-fourfront-webprod-wfoutput"
           }
         },
         "Secondary_files_data": {},
@@ -71,12 +71,12 @@
       },
       "Output": {
         "output_target": {
-          "report": "f1340bec-a842-402c-bbac-6e239df96682/report822085265412"
+          "report": "00c8aca8-0e40-4ac7-9ef1-33d5c5652402/report473488522031"
         },
         "secondary_output_target": {},
         "Output files": {
           "report": {
-            "target": "f1340bec-a842-402c-bbac-6e239df96682/report822085265412",
+            "target": "00c8aca8-0e40-4ac7-9ef1-33d5c5652402/report473488522031",
             "checksum": "sha1$3991b1fd26a0b50ce94047516d6bcdd702e7c5d6",
             "basename": "report",
             "md5sum": "205d6391542add65c44ca329bb92da48",
@@ -86,7 +86,7 @@
             "size": 66
           }
         },
-        "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput"
+        "output_bucket_directory": "elasticbeanstalk-fourfront-webprod-wfoutput"
       },
       "total_output_size": "28K",
       "start_time": "20180731-14:16:54-UTC"
@@ -98,14 +98,14 @@
         "    -i ",
         "    --volume=/data1/tmpODutf5:/var/spool/cwl:rw ",
         "    --volume=/data1/tmp3vTx3G:/tmp:rw ",
-        "    --volume=/data1/input/12005967-f060-40dd-a63c-c7204dcf46a7/4DNFIFLJJ99W.pairs.gz.px2:/var/lib/cwl/stg57982edf-e240-4fce-92a7-2daa4f6a2b89/4DNFIFLJJ99W.pairs.gz.px2:ro ",
+        "    --volume=/data1/input/d52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz:/var/lib/cwl/stgd52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz:ro ",
         "    --workdir=/var/spool/cwl ",
         "    --rm ",
         "    --env=TMPDIR=/tmp ",
         "    --env=HOME=/var/spool/cwl ",
         "    duplexa/md5:v2 ",
         "    run.sh ",
-        "    /var/lib/cwl/stg57982edf-e240-4fce-92a7-2daa4f6a2b89/4DNFIFLJJ99W.pairs.gz.px2"
+        "    /var/lib/cwl/stgd52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz"
       ]
     ]
   },
@@ -132,12 +132,12 @@
       {
         "ordinal": 1,
         "workflow_argument_name": "input_file",
-        "value": "12005967-f060-40dd-a63c-c7204dcf46a7",
-        "format_if_extra": "pairs_px2"
+        "value": "d52b1206-f2a7-439a-ac17-c442e3bafe1d",
+        "format_if_extra": "bed"
       }
     ]
   },
-  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+  "output_bucket": "elasticbeanstalk-fourfront-webprod-wfoutput",
   "_tibanna": {
     "env": "fourfront-webdev",
     "settings": {
@@ -157,9 +157,9 @@
     {
       "format_if_extra": "pairs_px2",
       "workflow_argument_name": "input_file",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-wfoutput",
-      "uuid": "12005967-f060-40dd-a63c-c7204dcf46a7",
-      "object_key": "4DNFIFLJJ99W.pairs.gz.px2"
+      "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
+      "uuid": "7d52b1206-f2a7-439a-ac17-c442e3bafe1d",
+      "object_key": "4DNFIIF1Y5CQ.bed.gz"
     }
   ],
   "config": {

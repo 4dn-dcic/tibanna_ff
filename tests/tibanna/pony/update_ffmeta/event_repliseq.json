@@ -11,7 +11,7 @@
     }
   },
   "app_name": "repliseq-parta",
-  "output_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+  "output_bucket": "elasticbeanstalk-fourfront-webprod-wfoutput",
   "workflow_uuid": "4dn-dcic-lab:wf-repliseq-parta-v16",
   "parameters": {
     "nthreads": 4,
@@ -22,19 +22,19 @@
       "object_key": "4DNFIZQZ39L9.bwaIndex.tgz",
       "workflow_argument_name": "bwaIndex",
       "uuid": "1f53df95-4cf3-41cc-971d-81bb16c486dd",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-files"
+      "bucket_name": "elasticbeanstalk-fourfront-webprod-files"
     },
     {
       "workflow_argument_name": "fastq",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
-      "uuid": "a6ffb820-c600-4c32-9d99-249ed8029022",
-      "object_key": "4DNFI2ZDNVFL.fastq.gz"
+      "bucket_name": "elasticbeanstalk-fourfront-webprod-files",
+      "uuid": "5cc8101c-8dad-4bf9-a479-9aee26f595d1",
+      "object_key": "4DNFIZSS3RUJ.fastq.gz"
     },
     {
       "object_key": "4DNFI823LSII.chrom.sizes",
       "workflow_argument_name": "chromsizes",
       "uuid": "4a6d10ee-2edb-4402-a98f-0edb1d58f5e9",
-      "bucket_name": "elasticbeanstalk-fourfront-webdev-files"
+      "bucket_name": "elasticbeanstalk-fourfront-webprod-files"
     }
   ],
   "config": {
@@ -77,7 +77,7 @@
       },
       {
         "workflow_argument_name": "fastq",
-        "value": "a6ffb820-c600-4c32-9d99-249ed8029022",
+        "value": "5cc8101c-8dad-4bf9-a479-9aee26f595d1",
         "ordinal": 1,
         "dimension": "0"
       },
@@ -108,7 +108,7 @@
           {
             "href": "/4127ad92-16cf-4716-ab68-dc9b352658eb/@@download/4DNFISOIRL62.bedGraph.gz.px2",
             "filename": "4DNFISOIRL62",
-            "upload_key": "4127ad92-16cf-4716-ab68-dc9b352658eb/4DNFISOIRL62.bedGraph.gz.px2",
+            "upload_key": "b82b5248-13c2-472b-af87-db1b703318d4/4DNFI7PG8YL3.bedGraph.gz",
             "status": "uploading",
             "uuid": "4127ad92-16cf-4716-ab68-dc9b352658eb",
             "accession": "4DNFISOIRL62",
@@ -196,17 +196,17 @@
     "cwl_version": "v1",
     "input_files": {
       "bwaIndex": {
-        "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
+        "bucket_name": "elasticbeanstalk-fourfront-webprod-files",
         "rename": "",
         "object_key": "1f53df95-4cf3-41cc-971d-81bb16c486dd/4DNFIZQZ39L9.bwaIndex.tgz"
       },
       "fastq": {
-        "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
+        "bucket_name": "elasticbeanstalk-fourfront-webprod-files",
         "rename": "",
-        "object_key": "a6ffb820-c600-4c32-9d99-249ed8029022/4DNFI2ZDNVFL.fastq.gz"
+        "object_key": "5cc8101c-8dad-4bf9-a479-9aee26f595d1/4DNFIZSS3RUJ.fastq.gz"
       },
       "chromsizes": {
-        "bucket_name": "elasticbeanstalk-fourfront-webdev-files",
+        "bucket_name": "elasticbeanstalk-fourfront-webprod-files",
         "rename": "",
         "object_key": "4a6d10ee-2edb-4402-a98f-0edb1d58f5e9/4DNFI823LSII.chrom.sizes"
       }
@@ -223,11 +223,11 @@
     },
     "secondary_output_target": {
       "count_bg": [
-        "4127ad92-16cf-4716-ab68-dc9b352658eb/4DNFISOIRL62.bedGraph.gz.px2",
+        "b82b5248-13c2-472b-af87-db1b703318d4/4DNFI7PG8YL3.bedGraph.gz",
         "4127ad92-16cf-4716-ab68-dc9b352658eb/4DNFISOIRL62.bw"
       ]
     },
-    "output_S3_bucket": "elasticbeanstalk-fourfront-webdev-wfoutput",
+    "output_S3_bucket": "elasticbeanstalk-fourfront-webprod-wfoutput",
     "language": "cwl_v1"
   },
   "instance_id": "i-01e0f3dfb460b5c4a",
@@ -251,22 +251,22 @@
         "Input_files_data": {
           "bwaIndex": {
             "class": "File",
-            "dir": "elasticbeanstalk-fourfront-webdev-files",
+            "dir": "elasticbeanstalk-fourfront-webprod-files",
             "path": "1f53df95-4cf3-41cc-971d-81bb16c486dd/4DNFIZQZ39L9.bwaIndex.tgz",
             "profile": "",
             "rename": ""
           },
           "chromsizes": {
             "class": "File",
-            "dir": "elasticbeanstalk-fourfront-webdev-files",
+            "dir": "elasticbeanstalk-fourfront-webprod-files",
             "path": "4a6d10ee-2edb-4402-a98f-0edb1d58f5e9/4DNFI823LSII.chrom.sizes",
             "profile": "",
             "rename": ""
           },
           "fastq": {
             "class": "File",
-            "dir": "elasticbeanstalk-fourfront-webdev-files",
-            "path": "a6ffb820-c600-4c32-9d99-249ed8029022/4DNFI2ZDNVFL.fastq.gz",
+            "dir": "elasticbeanstalk-fourfront-webprod-files",
+            "path": "5cc8101c-8dad-4bf9-a479-9aee26f595d1/4DNFIZSS3RUJ.fastq.gz",
             "profile": "",
             "rename": ""
           }
@@ -309,7 +309,7 @@
                 "md5sum": "aa8e2848e1f022b197fe31c804de08bf",
                 "path": "/data1/out/out.w5000.bedGraph.gz.px2",
                 "size": 991610,
-                "target": "4127ad92-16cf-4716-ab68-dc9b352658eb/4DNFISOIRL62.bedGraph.gz.px2"
+                "target": "b82b5248-13c2-472b-af87-db1b703318d4/4DNFI7PG8YL3.bedGraph.gz"
               }
             ],
             "size": 2864324,
@@ -337,7 +337,7 @@
           }
         },
         "alt_cond_output_argnames": [],
-        "output_bucket_directory": "elasticbeanstalk-fourfront-webdev-wfoutput",
+        "output_bucket_directory": "elasticbeanstalk-fourfront-webprod-wfoutput",
         "output_target": {
           "count_bg": "4127ad92-16cf-4716-ab68-dc9b352658eb/4DNFISOIRL62.bedGraph.gz",
           "dedup_qc_report": "4a48adbb-d2ff-4fca-b974-36365173ce33/dedup_qc_report442370024617",
@@ -345,7 +345,7 @@
         },
         "secondary_output_target": {
           "count_bg": [
-            "4127ad92-16cf-4716-ab68-dc9b352658eb/4DNFISOIRL62.bedGraph.gz.px2",
+            "b82b5248-13c2-472b-af87-db1b703318d4/4DNFI7PG8YL3.bedGraph.gz",
             "4127ad92-16cf-4716-ab68-dc9b352658eb/4DNFISOIRL62.bw"
           ]
         }
@@ -375,7 +375,7 @@
         "    -i ",
         "    --volume=/data1/tmpoBBo7C:/var/spool/cwl:rw ",
         "    --volume=/data1/tmpJf5zB5:/tmp:rw ",
-        "    --volume=/data1/input/a6ffb820-c600-4c32-9d99-249ed8029022/4DNFI2ZDNVFL.fastq.gz:/var/lib/cwl/stg742e2048-dc9b-44e0-a7ed-959224b83081/4DNFI2ZDNVFL.fastq.gz:ro ",
+        "    --volume=/data1/input/5cc8101c-8dad-4bf9-a479-9aee26f595d1/4DNFIZSS3RUJ.fastq.gz:/var/lib/cwl/stg742e2048-dc9b-44e0-a7ed-959224b83081/4DNFIZSS3RUJ.fastq.gz:ro ",
         "    --workdir=/var/spool/cwl ",
         "    --rm ",
         "    --env=TMPDIR=/tmp ",
@@ -383,7 +383,7 @@
         "    duplexa/4dn-repliseq:v16 ",
         "    run-clip.sh ",
         "    -1 ",
-        "    /var/lib/cwl/stg742e2048-dc9b-44e0-a7ed-959224b83081/4DNFI2ZDNVFL.fastq.gz ",
+        "    /var/lib/cwl/stg742e2048-dc9b-44e0-a7ed-959224b83081/4DNFIZSS3RUJ.fastq.gz ",
         "    -o ",
         "    out ",
         "    -O ",

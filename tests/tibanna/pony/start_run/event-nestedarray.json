@@ -16,12 +16,12 @@
       "env": "fourfront-webdev",
       "run_type": "md5"
     },
-    "app_name": "md5", 
+    "app_name": "md5",
     "workflow_uuid": "4dn-dcic-lab:wf-md5-0.2.6",
     "input_files": [
-                    {"workflow_argument_name": "input_file", 
-                     "uuid": [["d4c9efed-8847-4e62-b728-314a0edf095f", "4949be7d-17b3-4f59-8b2c-87c4a641d61a"],
-                              ["23667285-546d-411d-a00c-50bd8cead930", "38969bef-628a-41d6-bc74-c6b347c2e688"]]
+                    {"workflow_argument_name": "input_file",
+                     "uuid": [["790f1f6c-7c3e-4b90-8f32-a575b057e99e", "0b1f8118-9b57-4c8d-b105-b3a7afc0b110"],
+                              ["34be5820-e4ee-4a34-8d7a-c73d4550cf36"]]
                     }
     ],
     "jobid": "somejobid"
