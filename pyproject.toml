@@ -29,12 +29,12 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.9"
-tibanna = "^2.2.1"
+tibanna = "^2.2.6"
 dcicutils = "^6.0.0"
 boto3 = "^1.9.0"
 botocore = "^1.12.1"
 requests = "^2.22.0"
-tomlkit = "^0.10.0"
+tomlkit = ">=0.11.0,<0.12.0"
 
 [tool.poetry.dev-dependencies]
 invoke = "0.18.1"
