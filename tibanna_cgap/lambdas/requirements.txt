@@ -2,5 +2,5 @@ Benchmark-4dn>=0.5.13
 boto3>=1.9.0
 botocore>=1.12.1
 dcicutils>6.0.0,<7
-tibanna>=2.0.0
+tibanna==3.1.0
 requests==2.27.1

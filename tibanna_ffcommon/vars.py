@@ -33,13 +33,19 @@ _BUCKET_NAME_CWL = dict()
 # Note additionally that these AMI's all must be configured to be launchable by our AWS
 # accounts
 AMI_PER_REGION = {
-    'us-east-1': 'ami-00ad035048da98fc2',
-    'us-east-2': 'ami-0afbf1ab3268ddf17',
+    'x86': {
+        'us-east-1': 'ami-00ad035048da98fc2',
+        'us-east-2': 'ami-0afbf1ab3268ddf17'
+    },
+    'Arm': {
+        'us-east-1': 'ami-00936b73c712e5a11',
+        'us-east-2': 'ami-00420b06b90527d69'
+    }
 }
-if AWS_REGION not in AMI_PER_REGION:
+
+if AWS_REGION not in AMI_PER_REGION['x86']:
     logger.warning("Secure Tibanna AMI for region %s is not available." % AWS_REGION)
     raise Exception('')
-AMI_ID = AMI_PER_REGION.get(AWS_REGION, '')
 
 
 def BUCKET_NAME(env, filetype):

@@ -13,7 +13,7 @@ from .vars import (
     BUCKET_NAME,
     GLOBAL_ENV_BUCKET,
     AWSF_IMAGE,
-    AMI_ID
+    AMI_PER_REGION
 )
 
 
@@ -34,8 +34,6 @@ class API(_API):
     run_task_lambda = RUN_TASK_LAMBDA_NAME
     check_task_lambda = CHECK_TASK_LAMBDA_NAME
     update_cost_lambda = UPDATE_COST_LAMBDA_NAME
-
-    ami_id = AMI_ID
 
     @property
     def do_not_delete(self):
@@ -90,7 +88,7 @@ class API(_API):
         if 'log_bucket' not in data['config']:
             data['config']['log_bucket'] = BUCKET_NAME(env, 'log')
 
-        data['config']['ami_id'] = self.ami_id
+        data['config']['ami_per_region'] = AMI_PER_REGION
 
         return super().run_workflow(input_json=data, sfn=sfn, env=env, jobid=jobid,
                                     sleep=sleep, verbose=verbose, open_browser=open_browser)
