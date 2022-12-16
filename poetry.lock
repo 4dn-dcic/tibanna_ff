@@ -75,14 +75,14 @@ python-versions = ">=3.5,<4.0"
 
 [[package]]
 name = "boto3"
-version = "1.26.26"
+version = "1.26.31"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 
 [package.dependencies]
-botocore = ">=1.29.26,<1.30.0"
+botocore = ">=1.29.31,<1.30.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -91,7 +91,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.26"
+version = "1.29.31"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -797,7 +797,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "tibanna"
-version = "3.0.1b0"
+version = "3.1.0"
 description = "Tibanna runs portable pipelines (in CWL/WDL) on the AWS Cloud."
 category = "main"
 optional = false
@@ -934,7 +934,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.9"
-content-hash = "7e48ce9a81867d377ec8ca68041cede432027d351851bcc39fc6cd3eeff78d56"
+content-hash = "040f201f79358719a3017542999fef19b81dd3b37b98e283316dbb5c0dc3c2b8"
 
 [metadata.files]
 alabaster = [
@@ -964,12 +964,12 @@ benchmark-4dn = [
     {file = "benchmark_4dn-0.5.19-py3-none-any.whl", hash = "sha256:6ebb2f2349005dc23c0cd5cbba13851fd6e258dc4705c050bf98d9663f0b3899"},
 ]
 boto3 = [
-    {file = "boto3-1.26.26-py3-none-any.whl", hash = "sha256:b1d2521bd2239c4d2d8ee2a79d932bc64bf4779521ecc60c1074ae8a5d88adaa"},
-    {file = "boto3-1.26.26.tar.gz", hash = "sha256:a2349d436db6f6aa1e0def5501e4884572eb6f008f35063a359a6fa8ba3539b7"},
+    {file = "boto3-1.26.31-py3-none-any.whl", hash = "sha256:4cef9ebc9c15fd0abd5097d6fa2676a8785c7b80d3e9242a783480b6192df2ea"},
+    {file = "boto3-1.26.31.tar.gz", hash = "sha256:5a37503ad456a6beae2740d2367c0a514b07ef0e134cdcc2b77cc8481832751b"},
 ]
 botocore = [
-    {file = "botocore-1.29.26-py3-none-any.whl", hash = "sha256:2ca26983156fe0846a87b9325205af6bc56268fb99b8b4b9decccf50203ff3b4"},
-    {file = "botocore-1.29.26.tar.gz", hash = "sha256:f71220fe5a5d393c391ed81a291c0d0985f147568c56da236453043f93727a34"},
+    {file = "botocore-1.29.31-py3-none-any.whl", hash = "sha256:2e3cacf13d0997fd931e3a3f7d819bf200df8dcc74609a027ebc9dff2c0980d7"},
+    {file = "botocore-1.29.31.tar.gz", hash = "sha256:2ef360b7323f94128943a40297e457832384141577ded0b807e6d6a794fba636"},
 ]
 certifi = [
     {file = "certifi-2022.12.7-py3-none-any.whl", hash = "sha256:4ad3232f5e926d6718ec31cfc1fcadfde020920e278684144551c91769c7bc18"},
@@ -1327,8 +1327,8 @@ tblib = [
     {file = "tblib-1.7.0.tar.gz", hash = "sha256:059bd77306ea7b419d4f76016aef6d7027cc8a0785579b5aad198803435f882c"},
 ]
 tibanna = [
-    {file = "tibanna-3.0.1b0-py3-none-any.whl", hash = "sha256:e83997aaf04faf9f11418dbe51446a32da258bcffcefbbd6980a80e5a20b2813"},
-    {file = "tibanna-3.0.1b0.tar.gz", hash = "sha256:4c499c41c68c4f4ed5358ebdc1764a79e1f6e345d49eef5b6c5667b94cefd569"},
+    {file = "tibanna-3.1.0-py3-none-any.whl", hash = "sha256:4d3a8cd40acd9cd59290f2088ce8ca2aef2e99341dcfde0300a7b70182f4cbae"},
+    {file = "tibanna-3.1.0.tar.gz", hash = "sha256:4978bd118e966d34bbee270b6b37e8532fe56c98d0fbcf7275ed961000b48658"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
