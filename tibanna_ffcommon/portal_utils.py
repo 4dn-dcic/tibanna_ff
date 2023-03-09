@@ -368,7 +368,7 @@ def ensure_list(val):
 
 class TibannaSettings(SerializableObject):
 
-    def __init__(self, env=None, ff_keys=None, sbg_keys=None, settings=None):
+    def __init__(self, env=None, ff_keys=None, sbg_keys=None, settings=None, **kwargs):
         if not env:
             self.env = None
             self.s3 = None

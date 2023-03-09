@@ -135,7 +135,7 @@ class InputFileForWFRMeta(object):
     defined in the InputFilesForWFRMeta class.
     """
     def __init__(self, workflow_argument_name=None, value=None, ordinal=None,
-                       format_if_extra=None, dimension=None):
+                       format_if_extra=None, dimension=None, **kwargs):
         """dimension is '0' for a singleton argument,
         '0', '1', '2' ... for a 1d-list argument,
         '0-0', '0-1', ... , '1-0', '1-1', ... for a 2d-list argument, and so on.
