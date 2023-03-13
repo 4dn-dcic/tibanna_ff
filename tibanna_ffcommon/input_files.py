@@ -93,7 +93,7 @@ class FFInputFile(SerializableObject):
 
     def __init__(self, uuid=None, workflow_argument_name=None, object_key=None,
                  bucket_name=None, rename='', unzip='', mount=False,
-                 format_if_extra='', ff_key=None, ff_env=None):
+                 format_if_extra='', ff_key=None, ff_env=None, **kwargs):
         # uuid and workflow_argument_name are required
         if not uuid or not workflow_argument_name:
             raise MalFormattedFFInputException("malformed input, check input_files in your input json")

@@ -23,7 +23,7 @@ class QCArgument(SerializableObject):
     def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to, qc_type=None,
                  qc_zipped=False, qc_html=False, qc_json=False, qc_table=False,
                  qc_zipped_html=None, qc_zipped_tables=None, qc_acl='public-read',
-                 qc_unzip_from_ec2=False):
+                 qc_unzip_from_ec2=False, **kwargs):
         if argument_type != 'Output QC file':
             raise Exception("QC Argument must be an Output QC file: %s" % argument_type)
         self.workflow_argument_name = workflow_argument_name
