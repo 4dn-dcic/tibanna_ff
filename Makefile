@@ -2,6 +2,9 @@ clean:
 	rm -rf *.egg-info
 	rm -rf .eggs
 
+configure:
+	pip install poetry==1.3.2
+
 lint:
 	flake8 tibanna_cgap
 
@@ -25,6 +28,7 @@ help:
 
 info:
 	@: $(info Here are some 'make' options:)
+	   $(info - Use 'make configure' to install poetry.)
 	   $(info - Use 'make lint' to check style with flake8.)
 	   $(info - Use 'make install' to install dependencies using poetry.)
 	   $(info - Use 'make publish-pypi' to publish this library to Pypi)
