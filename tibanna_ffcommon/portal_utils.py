@@ -35,7 +35,15 @@ from tibanna.vars import (
     DYNAMODB_TABLE,
     DYNAMODB_KEYNAME,
 )
-from .vars import BUCKET_NAME
+from .vars import (
+    BUCKET_NAME,
+    OUTPUT_PROCESSED_FILE,
+    OUTPUT_REPORT_FILE,
+    OUTPUT_QC_FILE,
+    GENERIC_QC_FILE,
+    OUTPUT_TO_BE_EXTRA_INPUT_FILE,
+    INPUT_FILE
+)
 from .config import (
     higlass_config
 )
@@ -58,11 +66,17 @@ from .extra_files import (
 from .qc import (
     QCArgumentsByTarget
 )
+from .generic_qc_utils import (
+    check_qc_workflow_args,
+    filter_workflow_args_by_property,
+    post_qc_and_link_file
+)
 from .exceptions import (
     TibannaStartException,
     FdnConnectionException,
     MalFormattedFFInputException,
-    MalFormattedWorkflowMetadataException
+    MalFormattedWorkflowMetadataException,
+    GenericQcException
 )
 from .vars import AWSF_IMAGE
 
@@ -74,6 +88,14 @@ logger = create_logger(__name__)
 import pkg_resources
 logger.debug(pkg_resources.get_distribution('dcicutils').version)
 
+OUTPUT_ARG_TYPE_LIST = [OUTPUT_PROCESSED_FILE,
+                        OUTPUT_REPORT_FILE,
+                        OUTPUT_QC_FILE,
+                        GENERIC_QC_FILE,
+                        OUTPUT_TO_BE_EXTRA_INPUT_FILE]
+
+# File types that are uploaded to the portal (and S3)
+PROCESSED_FILE_TYPES = [OUTPUT_PROCESSED_FILE, GENERIC_QC_FILE]
 
 class FFInputAbstract(SerializableObject):
     # the following attribute works as a cache for metadata -
@@ -239,9 +261,9 @@ class FFInputAbstract(SerializableObject):
         args['secondary_output_target'] = dict()
         for of in ff_meta.output_files:
             arg_name = of.get('workflow_argument_name')
-            if of.get('type') == 'Output processed file':
+            if of.get('type') in PROCESSED_FILE_TYPES:
                 args['output_target'][arg_name] = of.get('upload_key')
-            elif of.get('type') == 'Output to-be-extra-input file':
+            elif of.get('type') == OUTPUT_TO_BE_EXTRA_INPUT_FILE:
                 target_inf = ff_meta.input_files[0]  # assume only one input for now
                 target_key = self.output_target_for_input_extra(target_inf['value'], of)
                 args['output_target'][arg_name] = target_key
@@ -422,10 +444,6 @@ class FourfrontStarterAbstract(object):
     InputClass = FFInputAbstract
     ProcessedFileMetadata = ProcessedFileMetadataAbstract
     WorkflowRunMetadata = WorkflowRunMetadataAbstract
-    output_arg_type_list = ['Output processed file',
-                            'Output report file',
-                            'Output QC file',
-                            'Output to-be-extra-input file']
 
     def __init__(self, **kwargs):
         self.inp = self.InputClass(**kwargs)
@@ -465,7 +483,7 @@ class FourfrontStarterAbstract(object):
 
     @property
     def output_args(self):
-        return [arg for arg in self.args if arg.get('argument_type') in self.output_arg_type_list]
+        return [arg for arg in self.args if arg.get('argument_type') in OUTPUT_ARG_TYPE_LIST]
 
     @property
     def output_argnames(self):
@@ -521,7 +539,7 @@ class FourfrontStarterAbstract(object):
             res = self.get_meta(self.user_supplied_output_files(argname)[0]['uuid'])
             return self.ProcessedFileMetadata(**res)
         arg = self.arg(argname)
-        if arg.get('argument_type') != 'Output processed file':
+        if arg.get('argument_type') not in PROCESSED_FILE_TYPES:
             return None
         if 'argument_format' not in arg:
             raise Exception("file format for processed file must be provided")
@@ -569,7 +587,7 @@ class FourfrontStarterAbstract(object):
 
     def ff_outfile(self, argname):
         arg = self.arg(argname)
-        if arg.get('argument_type') == 'Output processed file':
+        if arg.get('argument_type') in PROCESSED_FILE_TYPES:
             if argname not in self.pfs:
                 raise Exception("processed file objects must be ready before creating ff_outfile")
             try:
@@ -622,7 +640,7 @@ class FourfrontStarterAbstract(object):
 class InputExtraArgumentInfo(SerializableObject):
     def __init__(self, argument_type, workflow_argument_name, argument_to_be_attached_to,
                  extra_file_use_for=None, **kwargs):
-        if argument_type != 'Output to-be-extra-input file':
+        if argument_type != OUTPUT_TO_BE_EXTRA_INPUT_FILE:
             raise Exception("InputExtraArgumentInfo is not Output to-be-extra-input file: %s" % argument_type)
         self.workflow_argument_name = workflow_argument_name
         self.argument_to_be_attached_to = argument_to_be_attached_to
@@ -805,7 +823,7 @@ class FourfrontUpdaterAbstract(object):
         uuids = []
         for of in self.ff_output_files:
             if argname == of['workflow_argument_name']:
-                if of['type'] == 'Output processed file':
+                if of['type'] in PROCESSED_FILE_TYPES:
                     uuids.append(of['value'])
         return uuids
 
@@ -869,7 +887,7 @@ class FourfrontUpdaterAbstract(object):
     def workflow_input_extra_arguments(self):
         """dictionary of InputExtraArgumentInfo object list as value and
         argument_to_be_attached_to as key"""
-        ie_args = [InputExtraArgumentInfo(**ie) for ie in self.workflow_arguments('Output to-be-extra-input file')]
+        ie_args = [InputExtraArgumentInfo(**ie) for ie in self.workflow_arguments(OUTPUT_TO_BE_EXTRA_INPUT_FILE)]
         ie_args_per_attach = dict()
         for iearg in ie_args:
             if iearg.argument_to_be_attached_to not in ie_args_per_attach:
@@ -967,6 +985,11 @@ class FourfrontUpdaterAbstract(object):
     def read(self, argname):
         """This function is useful for reading md5 report of qc report"""
         return self.s3(argname).read_s3(self.file_key(argname)).decode('utf-8', 'backslashreplace')
+    
+    def read_json_from_s3(self, argname):
+        """This function is useful for reading generic QC files"""
+        file_content = self.s3(argname).read_s3(self.file_key(argname)).decode('utf-8')
+        return json.loads(file_content)
 
     def s3_file_size(self, argname, secondary_format=None):
         return self.s3(argname).get_file_size(self.file_key(argname, secondary_format=secondary_format),
@@ -1068,7 +1091,7 @@ class FourfrontUpdaterAbstract(object):
         accessions = []
         # argname is output
         v = self.ff_output_file(argname)
-        if v and v['type'] == 'Output processed file':
+        if v and v['type'] in PROCESSED_FILE_TYPES:
             file_name = v['upload_key'].split('/')[-1]
             accession = file_name.split('.')[0].strip('/')
             accessions.append(accession)
@@ -1220,10 +1243,77 @@ class FourfrontUpdaterAbstract(object):
                     self.update_patch_items(ip['uuid'], {'higlass_uid': higlass_uid})
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
+
+    def update_generic_qc(self):
+
+        input_file_args = self.workflow_arguments(INPUT_FILE)
+        generic_qc_args = self.workflow_arguments(GENERIC_QC_FILE)
+
+        if len(generic_qc_args) == 0:
+            return
+        
+        # Basic sanity checks of the workflow arguments
+        check_qc_workflow_args(input_file_args, generic_qc_args)
+
+        ff_key = self.tibanna_settings.ff_keys
+        ff_env = self.tibanna_settings.env
+        
+        for input_file_arg in input_file_args:
+            # Get the associated QC args
+            input_wf_arg_name = input_file_arg['workflow_argument_name']
+            input_file_accession = self.accessions(input_wf_arg_name)[0]
+
+            qc_args = filter_workflow_args_by_property(generic_qc_args, "argument_to_be_attached_to", input_wf_arg_name)
+            if len(qc_args) == 0:
+                continue
+
+            qc_args_json = filter_workflow_args_by_property(qc_args, "qc_json", True) 
+            qc_arg_json = qc_args_json[0] # After running check_qc_workflow_args, we know that this contains exactly one element
+            qc_arg_json_name = qc_arg_json['workflow_argument_name']
+            try:
+                qc_json = self.read_json_from_s3(qc_arg_json_name)
+            except Exception as e:
+                logger.error(str(e))
+                raise GenericQcException(f"Could not get {qc_arg_json_name} from S3. Error: {str(e)}")
+
+            # Get the link to the zipped report. This will be added to the QualityMetricGeneric item
+            qc_args_zipped = filter_workflow_args_by_property(qc_args, "qc_zipped", True) # After running check_qc_workflow_args, we know that this contains zero or one elements
+            qc_arg_zipped = qc_args_zipped[0] if len(qc_args_zipped) == 1 else None
+            qc_arg_zipped_s3_url = f"https://{self.outbucket}.s3.amazonaws.com/{self.file_key(qc_arg_zipped['workflow_argument_name'])}" if qc_arg_zipped else None
+
+            #post_qc_and_link_file(input_file_arg, qc_json, qc_arg_zipped_s3_url)
+ 
+            # The folling will create a new QualityMetricGeneric item in the portal
+            try:
+                post_dict = qc_json
+                post_dict['url'] = qc_arg_zipped_s3_url
+                qmc_item = post_metadata(post_dict, "quality_metric_generic", key=ff_key, ff_env=ff_env)
+            except Exception as e:
+                raise GenericQcException(f"Could not post quality_metric_generic item for  {qc_arg_json_name}. The JSON was: {json.dumps(post_dict)}. Error: {str(e)}")
+
+            # This QualityMetricGeneric item will now be linked to the corresponding input file.
+            try:
+                input_file_metadata = self.get_metadata(input_file_accession)
+                input_file_quality_metrics = input_file_metadata.get('quality_metrics', [])
+                input_file_quality_metrics_uuids = map(lambda qm: qm['uuid'], input_file_quality_metrics)
+                input_file_quality_metrics_uuids.append(qmc_item['uuid'])
+                patch_dict = {
+                    'quality_metrics': input_file_quality_metrics_uuids
+                }
+                patch_metadata(patch_dict, input_file_accession, key=ff_key, ff_env=ff_env)
+            except Exception as e:
+                raise GenericQcException(f"Could not patch quality_metrics of file {input_file_accession}. Error: {str(e)}")
+
+
+
+
+
+
+
     # update functions for QC
     def update_qc(self):
         # all qc arguments in the workflow (could be more than one)
-        wf_qc_arguments = self.workflow_arguments('Output QC file')
+        wf_qc_arguments = self.workflow_arguments(OUTPUT_QC_FILE)
         # put all qc arguments into QCArgumentsByTarget class object to
         # cluster them by target (argument_to_be_attached_to).
         qca_by_target = QCArgumentsByTarget(wf_qc_arguments)
@@ -1365,7 +1455,7 @@ class FourfrontUpdaterAbstract(object):
         if self.app_name != 'rna-strandedness':
             return
         report_arg = self.output_argnames[0]  # assume one output arg
-        if self.ff_output_file(report_arg)['type'] != 'Output report file':
+        if self.ff_output_file(report_arg)['type'] != OUTPUT_REPORT_FILE:
             return
         if self.status(report_arg) == 'FAILED':
             self.ff_meta.run_status = 'error'
@@ -1393,7 +1483,7 @@ class FourfrontUpdaterAbstract(object):
         if self.app_name != 'fastq-first-line':
             return
         report_arg = self.output_argnames[0]  # assume one output arg
-        if self.ff_output_file(report_arg)['type'] != 'Output report file':
+        if self.ff_output_file(report_arg)['type'] != OUTPUT_REPORT_FILE:
             return
         if self.status(report_arg) == 'FAILED':
             self.ff_meta.run_status = 'error'
@@ -1420,7 +1510,7 @@ class FourfrontUpdaterAbstract(object):
         if self.app_name != 're_checker_workflow':
             return
         report_arg = self.output_argnames[0]  # assume one output arg
-        if self.ff_output_file(report_arg)['type'] != 'Output report file':
+        if self.ff_output_file(report_arg)['type'] != OUTPUT_REPORT_FILE:
             return
         if self.status(report_arg) == 'FAILED':
             self.ff_meta.run_status = 'error'
@@ -1453,7 +1543,7 @@ class FourfrontUpdaterAbstract(object):
             return
         md5_report_arg = self.output_argnames[0]  # assume one output arg
         logger.debug("md5 report arg = %s" % md5_report_arg)
-        if self.ff_output_file(md5_report_arg)['type'] != 'Output report file':
+        if self.ff_output_file(md5_report_arg)['type'] != OUTPUT_REPORT_FILE:
             return
         logger.debug("md5 report arg type = %s" % self.ff_output_file(md5_report_arg)['type'])
         logger.debug("md5 report arg status = %s" % self.status(md5_report_arg))
@@ -1539,6 +1629,7 @@ class FourfrontUpdaterAbstract(object):
         self.update_fastq_first_line()
         self.update_file_processed_format_re_check()
         logger.info("updating qc...")
+        self.update_generic_qc()
         self.update_qc()
         self.update_input_extras()
         self.create_wfr_qc()
