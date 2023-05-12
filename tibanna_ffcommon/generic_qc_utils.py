@@ -10,9 +10,9 @@ def check_qc_workflow_args(input_file_args, generic_qc_args):
     workflow_argument_name_inputs = list(map(lambda inp:inp["workflow_argument_name"], input_file_args))
     for generic_qc_arg in generic_qc_args:
         wf_arg_name = generic_qc_arg['workflow_argument_name']
-        arg_to_be_attached_to = generic_qc_arg['argument_to_be_attached_to']
-        qc_json = generic_qc_arg['qc_json']
-        qc_zipped = generic_qc_arg['qc_zipped']
+        arg_to_be_attached_to = generic_qc_arg.get('argument_to_be_attached_to', None)
+        qc_json = generic_qc_arg.get('qc_json', False)
+        qc_zipped = generic_qc_arg.get('qc_zipped', False)
 
         if not arg_to_be_attached_to:
             raise GenericQcException(f"{wf_arg_name} does not have argument_to_be_attached_to specified.")
@@ -42,6 +42,6 @@ def check_qc_workflow_args(input_file_args, generic_qc_args):
            
 
 def filter_workflow_args_by_property(workflow_args, property, property_value):
-    return [arg for arg in workflow_args if arg[property] == property_value]
+    return [arg for arg in workflow_args if arg.get(property, None) == property_value]
     
 

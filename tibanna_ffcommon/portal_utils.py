@@ -68,8 +68,7 @@ from .qc import (
 )
 from .generic_qc_utils import (
     check_qc_workflow_args,
-    filter_workflow_args_by_property,
-    post_qc_and_link_file
+    filter_workflow_args_by_property
 )
 from .exceptions import (
     TibannaStartException,
@@ -1246,8 +1245,8 @@ class FourfrontUpdaterAbstract(object):
 
     def update_generic_qc(self):
 
-        input_file_args = self.workflow_arguments(INPUT_FILE)
-        generic_qc_args = self.workflow_arguments(GENERIC_QC_FILE)
+        input_file_args = self.workflow_arguments([INPUT_FILE])
+        generic_qc_args = self.workflow_arguments([GENERIC_QC_FILE])
 
         if len(generic_qc_args) == 0:
             return
@@ -1280,8 +1279,6 @@ class FourfrontUpdaterAbstract(object):
             qc_args_zipped = filter_workflow_args_by_property(qc_args, "qc_zipped", True) # After running check_qc_workflow_args, we know that this contains zero or one elements
             qc_arg_zipped = qc_args_zipped[0] if len(qc_args_zipped) == 1 else None
             qc_arg_zipped_s3_url = f"https://{self.outbucket}.s3.amazonaws.com/{self.file_key(qc_arg_zipped['workflow_argument_name'])}" if qc_arg_zipped else None
-
-            #post_qc_and_link_file(input_file_arg, qc_json, qc_arg_zipped_s3_url)
  
             # The folling will create a new QualityMetricGeneric item in the portal
             try:
