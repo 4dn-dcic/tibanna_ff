@@ -1250,24 +1250,24 @@ class FourfrontUpdaterAbstract(object):
 
         if len(generic_qc_args) == 0:
             return
-        
+
         # Basic sanity checks of the workflow arguments
         check_qc_workflow_args(input_file_args, generic_qc_args)
 
         ff_key = self.tibanna_settings.ff_keys
         ff_env = self.tibanna_settings.env
-        
+
         for input_file_arg in input_file_args:
             # Get the associated QC args
             input_wf_arg_name = input_file_arg['workflow_argument_name']
             input_file_accession = self.accessions(input_wf_arg_name)[0]
-
             qc_args = filter_workflow_args_by_property(generic_qc_args, "argument_to_be_attached_to", input_wf_arg_name)
-            if len(qc_args) == 0:
+            if len(qc_args) == 0: # Input file has no corresponding Generic QC files
                 continue
 
-            qc_args_json = filter_workflow_args_by_property(qc_args, "qc_json", True) 
-            qc_arg_json = qc_args_json[0] # After running check_qc_workflow_args, we know that this contains exactly one element
+            qc_args_json = filter_workflow_args_by_property(qc_args, "qc_json", True)
+            # After running check_qc_workflow_args, we know that this contains exactly one element
+            qc_arg_json = qc_args_json[0]
             qc_arg_json_name = qc_arg_json['workflow_argument_name']
             try:
                 qc_json = self.read_json_from_s3(qc_arg_json_name)
@@ -1276,35 +1276,39 @@ class FourfrontUpdaterAbstract(object):
                 raise GenericQcException(f"Could not get {qc_arg_json_name} from S3. Error: {str(e)}")
 
             # Get the link to the zipped report. This will be added to the QualityMetricGeneric item
-            qc_args_zipped = filter_workflow_args_by_property(qc_args, "qc_zipped", True) # After running check_qc_workflow_args, we know that this contains zero or one elements
+            # After running check_qc_workflow_args, we know that this contains zero or one elements
+            qc_args_zipped = filter_workflow_args_by_property(qc_args, "qc_zipped", True)
             qc_arg_zipped = qc_args_zipped[0] if len(qc_args_zipped) == 1 else None
             qc_arg_zipped_s3_url = f"https://{self.outbucket}.s3.amazonaws.com/{self.file_key(qc_arg_zipped['workflow_argument_name'])}" if qc_arg_zipped else None
- 
+
             # The folling will create a new QualityMetricGeneric item in the portal
+            qmg_uuid = str(uuid4())
             try:
-                post_dict = qc_json
-                post_dict['url'] = qc_arg_zipped_s3_url
-                qmc_item = post_metadata(post_dict, "quality_metric_generic", key=ff_key, ff_env=ff_env)
+                post_dict = {
+                    'uuid': qmg_uuid,
+                    'institution': self.ff_meta.institution,
+                    'project': self.ff_meta.project,
+                    'url':  qc_arg_zipped_s3_url,
+                }
+                post_dict.update(qc_json)
+                qmg_item = post_metadata(post_dict, "quality_metric_generic", key=ff_key, ff_env=ff_env)
+                logger.debug(f"Successfully created quality_metric_generic item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:
-                raise GenericQcException(f"Could not post quality_metric_generic item for  {qc_arg_json_name}. The JSON was: {json.dumps(post_dict)}. Error: {str(e)}")
+                raise GenericQcException(
+                    f"Could not post quality_metric_generic item for  {qc_arg_json_name}. The JSON was: {json.dumps(post_dict)}. Error: {str(e)}")
 
             # This QualityMetricGeneric item will now be linked to the corresponding input file.
             try:
                 input_file_metadata = self.get_metadata(input_file_accession)
                 input_file_quality_metrics = input_file_metadata.get('quality_metrics', [])
-                input_file_quality_metrics_uuids = map(lambda qm: qm['uuid'], input_file_quality_metrics)
-                input_file_quality_metrics_uuids.append(qmc_item['uuid'])
+                input_file_quality_metrics.append(qmg_uuid)
                 patch_dict = {
-                    'quality_metrics': input_file_quality_metrics_uuids
+                    'quality_metrics': input_file_quality_metrics
                 }
                 patch_metadata(patch_dict, input_file_accession, key=ff_key, ff_env=ff_env)
             except Exception as e:
-                raise GenericQcException(f"Could not patch quality_metrics of file {input_file_accession}. Error: {str(e)}")
-
-
-
-
-
+                raise GenericQcException(
+                    f"Could not patch quality_metrics of file {input_file_accession}. Error: {str(e)}")
 
 
     # update functions for QC
