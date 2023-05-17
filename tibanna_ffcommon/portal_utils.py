@@ -1288,8 +1288,9 @@ class FourfrontUpdaterAbstract(object):
                     'uuid': qmg_uuid,
                     'institution': self.ff_meta.institution,
                     'project': self.ff_meta.project,
-                    'url':  qc_arg_zipped_s3_url,
                 }
+                if qc_arg_zipped_s3_url:
+                    post_dict['url'] = qc_arg_zipped_s3_url
                 post_dict.update(qc_json)
                 qmg_item = post_metadata(post_dict, "quality_metric_generic", key=ff_key, ff_env=ff_env)
                 logger.debug(f"Successfully created quality_metric_generic item {qmg_uuid}: {str(qmg_item)}")
