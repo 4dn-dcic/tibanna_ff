@@ -1,9 +1,10 @@
 from .exceptions import (
     GenericQcException
 )
+from typing import Any, List
 
 
-def check_qc_workflow_args(input_file_args, generic_qc_args):
+def check_qc_workflow_args(input_file_args: List[Any], generic_qc_args: List[Any]):
     """This function performs basic sanity checks on the QC and input files
 
     Args:
@@ -54,7 +55,18 @@ def check_qc_workflow_args(input_file_args, generic_qc_args):
                 raise GenericQcException(f"There are more than 2 Generic QC files for input {input_wf_arg_name}")
            
 
-def filter_workflow_args_by_property(workflow_args, property, property_value):
+def filter_workflow_args_by_property(workflow_args: List[Any], property: str, property_value: Any) -> List[Any]:
+    """Takes a list of dictionaries and returns a filtered list of those dicts where
+    dict[property]==property_value
+
+    Args:
+        workflow_args (list): List of workflow arguments
+        property (str): property to filter for
+        property_value (any): property value to filter for
+
+    Returns:
+        list: Filtered list of dictionaries
+    """
     return [arg for arg in workflow_args if arg.get(property, None) == property_value]
     
 

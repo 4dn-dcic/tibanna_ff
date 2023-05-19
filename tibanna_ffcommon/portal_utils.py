@@ -992,11 +992,11 @@ class FourfrontUpdaterAbstract(object):
         """This function is useful for reading md5 report of qc report"""
         return self.s3(argname).read_s3(self.file_key(argname)).decode('utf-8', 'backslashreplace')
 
-    def read_json_from_s3(self, argname):
+    def read_json_from_s3(self, argname: str):
         """This function reads JSON files from S3 and returns their corresponding Python object
 
         Args:
-            argname (string): workflow argument name
+            argname (str): workflow argument name
 
         Returns:
             Object: Object corresponding to the JSON on S3
