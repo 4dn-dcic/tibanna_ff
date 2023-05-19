@@ -2,10 +2,23 @@ from .exceptions import (
     GenericQcException
 )
 
+
 def check_qc_workflow_args(input_file_args, generic_qc_args):
+    """This function performs basic sanity checks on the QC and input files
+
+    Args:
+        input_file_args (list): List of workflow arguments (input files)
+        generic_qc_args (list): List of workflow arguments (Generic QC files)
+
+    Raises:
+        GenericQcException: workflow argument does not have argument_to_be_attached_to specified.
+        GenericQcException: workflow argument's argument_to_be_attached_to does not exist.
+        GenericQcException: Exactly one of qc_json or qc_zipped must be true.
+        GenericQcException: There is no QC JSON associated with input workflow argument
+        GenericQcException: There are 2 Generic QC files associated with input workflow argument. One must have `qc_json` and the other `qc_zipped` set to true.
+        GenericQcException: There are more than 2 Generic QC files for input workflow argument
     """
-    This function performs basic sanity checks on the QC and input files
-    """
+    
 
     workflow_argument_name_inputs = list(map(lambda inp:inp["workflow_argument_name"], input_file_args))
     for generic_qc_arg in generic_qc_args:

@@ -335,6 +335,12 @@ class FFInputAbstract(SerializableObject):
         return target_key
 
 
+class QualityMetricsGenericMetadataAbstract(SerializableObject):
+
+    def __init__(self, **kwargs):
+        self.uuid = str(uuid4())
+
+
 class ProcessedFileMetadataAbstract(SerializableObject):
 
     # actual values go here for inherited classes
@@ -654,6 +660,7 @@ class FourfrontUpdaterAbstract(object):
     # replace the following with actual classes and values for inherited class
     WorkflowRunMetadata = WorkflowRunMetadataAbstract
     ProcessedFileMetadata = ProcessedFileMetadataAbstract
+    QualityMetricsGenericMetadata = QualityMetricsGenericMetadataAbstract
     default_email_sender = ''
     higlass_buckets = []
 
@@ -984,11 +991,22 @@ class FourfrontUpdaterAbstract(object):
     def read(self, argname):
         """This function is useful for reading md5 report of qc report"""
         return self.s3(argname).read_s3(self.file_key(argname)).decode('utf-8', 'backslashreplace')
-    
+
     def read_json_from_s3(self, argname):
-        """This function is useful for reading generic QC files"""
-        file_content = self.s3(argname).read_s3(self.file_key(argname)).decode('utf-8')
-        return json.loads(file_content)
+        """This function reads JSON files from S3 and returns their corresponding Python object
+
+        Args:
+            argname (string): workflow argument name
+
+        Returns:
+            Object: Object corresponding to the JSON on S3
+        """
+        
+        try:
+            file_content = self.s3(argname).read_s3(self.file_key(argname)).decode('utf-8')
+            return json.loads(file_content)
+        except ValueError as e:
+            raise Exception(f"The file corresponding to argument {argname} does not contain valid JSON: {str(e)}")
 
     def s3_file_size(self, argname, secondary_format=None):
         return self.s3(argname).get_file_size(self.file_key(argname, secondary_format=secondary_format),
@@ -1244,6 +1262,15 @@ class FourfrontUpdaterAbstract(object):
 
 
     def update_generic_qc(self):
+        """This function goes through the input files and checks for associated Generic QC files.
+        If QC files exist, it will create a QualityMetricGeneric item on the portal and attach it to the
+        input file metadata.
+
+        Raises:
+            GenericQcException: Could not get qc_json from S3
+            GenericQcException: Could not post quality_metric_generic item
+            GenericQcException: Could not patch quality_metrics of file {input_file_accession}.
+        """
 
         input_file_args = self.workflow_arguments([INPUT_FILE])
         generic_qc_args = self.workflow_arguments([GENERIC_QC_FILE])
@@ -1269,6 +1296,7 @@ class FourfrontUpdaterAbstract(object):
             # After running check_qc_workflow_args, we know that this contains exactly one element
             qc_arg_json = qc_args_json[0]
             qc_arg_json_name = qc_arg_json['workflow_argument_name']
+            qc_json_file_accession = self.accessions(qc_arg_json_name)[0]
             try:
                 qc_json = self.read_json_from_s3(qc_arg_json_name)
             except Exception as e:
@@ -1282,21 +1310,18 @@ class FourfrontUpdaterAbstract(object):
             qc_arg_zipped_s3_url = f"https://{self.outbucket}.s3.amazonaws.com/{self.file_key(qc_arg_zipped['workflow_argument_name'])}" if qc_arg_zipped else None
 
             # The folling will create a new QualityMetricGeneric item in the portal
-            qmg_uuid = str(uuid4())
             try:
-                post_dict = {
-                    'uuid': qmg_uuid,
-                    'institution': self.ff_meta.institution,
-                    'project': self.ff_meta.project,
-                }
+                qc_json_file_metadata = self.get_metadata(qc_json_file_accession)
+                qmg_metadata = vars(self.QualityMetricsGenericMetadata(**qc_json_file_metadata))
+                qmg_uuid = qmg_metadata["uuid"]
                 if qc_arg_zipped_s3_url:
-                    post_dict['url'] = qc_arg_zipped_s3_url
-                post_dict.update(qc_json)
-                qmg_item = post_metadata(post_dict, "quality_metric_generic", key=ff_key, ff_env=ff_env)
+                    qmg_metadata['url'] = qc_arg_zipped_s3_url
+                qmg_metadata.update(qc_json)
+                qmg_item = post_metadata(qmg_metadata, "quality_metric_generic", key=ff_key, ff_env=ff_env)
                 logger.debug(f"Successfully created quality_metric_generic item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:
                 raise GenericQcException(
-                    f"Could not post quality_metric_generic item for  {qc_arg_json_name}. The JSON was: {json.dumps(post_dict)}. Error: {str(e)}")
+                    f"Could not post quality_metric_generic item for  {qc_arg_json_name}. The JSON was: {json.dumps(qmg_metadata)}. Error: {str(e)}")
 
             # This QualityMetricGeneric item will now be linked to the corresponding input file.
             try:
