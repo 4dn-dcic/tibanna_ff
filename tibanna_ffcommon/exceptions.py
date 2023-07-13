@@ -25,6 +25,10 @@ class MalFormattedWorkflowMetadataException(Exception):
     """There is an error with pony/zebra workflow metadata"""
     pass
 
+class GenericQcException(Exception):
+    """There is an error with the generic QC functionality"""
+    pass
+
 
 def exception_coordinator(lambda_name, metadata_only_func):
     '''
