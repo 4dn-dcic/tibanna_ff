@@ -12,6 +12,7 @@ packages = [
   { include="tibanna_ffcommon", from="." },
   { include="tibanna_4dn", from="." },
   { include="tibanna_cgap", from="." },
+  { include="tibanna_smaht", from="." }
 ]
 # The following is needed so that we can extract the version at runtime
 include = ["pyproject.toml"]
@@ -58,6 +59,7 @@ sphinx-rtd-theme = "0.5.0"  # Do we have a good reason to pin this? -kmp 9-Nov-2
 [tool.poetry.scripts]
 tibanna_4dn = "tibanna_4dn.__main__:main"
 tibanna_cgap = "tibanna_cgap.__main__:main"
+tibanna_smaht = "tibanna_smaht.__main__:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -65,7 +67,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.coverage.run]
 omit = [".*", "*/site-packages/*", "*/__pycache__/*", "*/tests/*", "*/dist/*", "*/.eggs/*"]
-include = ["*/tibanna_4dn/*", "*/tibanna_cgap/*", "*/tibanna_ffcommon/*"]
+include = ["*/tibanna_4dn/*", "*/tibanna_cgap/*", "*/tibanna_ffcommon/*", "*/tibanna_smaht/*"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
