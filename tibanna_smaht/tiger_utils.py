@@ -23,6 +23,7 @@ from tibanna_ffcommon.portal_utils import (
     ProcessedFileMetadataAbstract,
     FourfrontStarterAbstract,
     FourfrontUpdaterAbstract,
+    QualityMetricsGenericMetadataAbstract,
     FFInputAbstract,
 )
 
@@ -47,9 +48,17 @@ class ProcessedFileMetadata(ProcessedFileMetadataAbstract):
     accession_prefix = ACCESSION_PREFIX
 
     def __init__(self, **kwargs):
-        self.submission_center = kwargs.get('submission_center', DEFAULT_SUBMISSION_CENTER)
-        self.consortium = kwargs.get('consortium', DEFAULT_CONSORTIUM)
+        self.submission_center = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])[0]
+        self.consortium = kwargs.get('consortia', [DEFAULT_CONSORTIUM])[0]
         self.source_samples = kwargs.get('source_samples', None)
+        super().__init__(**kwargs)
+
+
+class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
+
+    def __init__(self, **kwargs):
+        self.submission_center = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])[0]
+        self.consortium = kwargs.get('consortia', [DEFAULT_CONSORTIUM])[0]
         super().__init__(**kwargs)
 
 
