@@ -28,6 +28,15 @@ _BUCKET_NAME_LOG = dict()
 _BUCKET_NAME_CWL = dict()
 
 
+# Workflow argument file types
+OUTPUT_PROCESSED_FILE = 'Output processed file'
+OUTPUT_REPORT_FILE = 'Output report file'
+OUTPUT_QC_FILE = 'Output QC file'
+GENERIC_QC_FILE = 'Generic QC file'
+OUTPUT_TO_BE_EXTRA_INPUT_FILE = 'Output to-be-extra-input file'
+INPUT_FILE = 'Input file'
+
+
 # Secure Tibanna AMI
 # Note that this means only these regions will work (replicate AMI in main account as needed)
 # Note additionally that these AMI's all must be configured to be launchable by our AWS

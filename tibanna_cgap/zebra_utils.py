@@ -21,6 +21,7 @@ from tibanna_ffcommon.wfr import (
 )
 from tibanna_ffcommon.portal_utils import (
     ProcessedFileMetadataAbstract,
+    QualityMetricsGenericMetadataAbstract,
     FourfrontStarterAbstract,
     FourfrontUpdaterAbstract,
     FFInputAbstract,
@@ -50,6 +51,14 @@ class ProcessedFileMetadata(ProcessedFileMetadataAbstract):
         self.institution = kwargs.get('institution', DEFAULT_INSTITUTION)
         self.project = kwargs.get('project', DEFAULT_PROJECT)
         self.source_samples = kwargs.get('source_samples', None)
+        super().__init__(**kwargs)
+
+
+class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
+
+    def __init__(self, **kwargs):
+        self.institution = kwargs.get('institution', DEFAULT_INSTITUTION)
+        self.project = kwargs.get('project', DEFAULT_PROJECT)
         super().__init__(**kwargs)
 
 
@@ -116,6 +125,7 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     WorkflowRunMetadata = WorkflowRunMetadata
     ProcessedFileMetadata = ProcessedFileMetadata
+    QualityMetricsGenericMetadata = QualityMetricsGenericMetadata
     default_email_sender = 'cgap.everyone@gmail.com'
     higlass_buckets = HIGLASS_BUCKETS
 

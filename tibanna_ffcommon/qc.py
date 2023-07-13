@@ -13,7 +13,10 @@ from collections import namedtuple
 from .exceptions import (
     FdnConnectionException
 )
-from .vars import S3_ENCRYPT_KEY_ID
+from .vars import (
+    S3_ENCRYPT_KEY_ID,
+    OUTPUT_QC_FILE
+)
 
 
 class QCArgument(SerializableObject):
@@ -24,7 +27,7 @@ class QCArgument(SerializableObject):
                  qc_zipped=False, qc_html=False, qc_json=False, qc_table=False,
                  qc_zipped_html=None, qc_zipped_tables=None, qc_acl='public-read',
                  qc_unzip_from_ec2=False, **kwargs):
-        if argument_type != 'Output QC file':
+        if argument_type != OUTPUT_QC_FILE:
             raise Exception("QC Argument must be an Output QC file: %s" % argument_type)
         self.workflow_argument_name = workflow_argument_name
         self.argument_to_be_attached_to = argument_to_be_attached_to
@@ -328,7 +331,7 @@ class QCArgumentsByTarget(object):
         self.qca_by_target = dict()
         if wf_arguments:
             qca_list = [QCArgument(**arg) for arg in wf_arguments
-                         if arg['argument_type'] == 'Output QC file']
+                         if arg['argument_type'] == OUTPUT_QC_FILE]
             for arg in set([_.argument_to_be_attached_to for _ in qca_list]):
                 self.qca_by_target.update({arg: QCArgumentsPerTarget([_ for _ in qca_list if _.argument_to_be_attached_to == arg])})
 

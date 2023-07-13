@@ -21,6 +21,7 @@ from tibanna_ffcommon.wfr import (
 )
 from tibanna_ffcommon.portal_utils import (
     ProcessedFileMetadataAbstract,
+    QualityMetricsGenericMetadataAbstract,
     FourfrontUpdaterAbstract,
     FFInputAbstract,
     FourfrontStarterAbstract,
@@ -50,6 +51,14 @@ class ProcessedFileMetadata(ProcessedFileMetadataAbstract):
         self.award = kwargs.get('award', DEFAULT_AWARD)
         self.lab = kwargs.get('lab', DEFAULT_LAB)
         self.source_experiments = kwargs.get('source_experiments', None)
+        super().__init__(**kwargs)
+
+
+class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
+
+    def __init__(self, **kwargs):
+        self.award = kwargs.get('award', DEFAULT_AWARD)
+        self.lab = kwargs.get('lab', DEFAULT_LAB)
         super().__init__(**kwargs)
 
 
@@ -116,6 +125,7 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     WorkflowRunMetadata = WorkflowRunMetadata
     ProcessedFileMetadata = ProcessedFileMetadata
+    QualityMetricsGenericMetadata = QualityMetricsGenericMetadata
     default_email_sender = '4dndcic@gmail.com'
     higlass_buckets = HIGLASS_BUCKETS
 
