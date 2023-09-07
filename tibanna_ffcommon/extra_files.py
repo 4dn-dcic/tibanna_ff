@@ -64,4 +64,4 @@ def get_extra_file_key(infile_format, infile_key, extra_file_format, fe_map):
         errmsg += "extra_file_format %s" % extra_file_format
         errmsg += "(infile extension %s, extra_file_extension %s)" % (infile_extension, extra_file_extension)
         raise Exception(errmsg)
-    return infile_key.replace(infile_extension, extra_file_extension)
+    return infile_key.replace(f".{infile_extension}", f".{extra_file_extension}")
