@@ -17,16 +17,17 @@ Repository & Directory structure
 
     - ``tibanna_4dn`` : code for Pony
     - ``tibanna_cgap`` : code for Zebra
-    - ``tibanna_ffcommon`` : code shared between Pony and Zebra that are not part of Unicorn
+    - ``tibanna_smaht`` : code for Tiger
+    - ``tibanna_ffcommon`` : code shared between Pony, Zebra and Tiger that are not part of Unicorn
 
-Each of the three variants (Unicorn, Pony or Zebra) consists of a core API (``core.py``), CLI (``__main__.py``), lambdas (``/lambdas``) and set of python modules that are used by the former three.
+Each of the four variants (Unicorn, Pony, Zebra or Tiger) consists of a core API (``core.py``), CLI (``__main__.py``), lambdas (``/lambdas``) and set of python modules that are used by the former three.
 
 
 
 AWSEM
 -----
 
-The code in ``awsf`` is not a part of any Python package, but the scripts in the folder is pulled by an AWSEM EC2 instance directly from the public tibanna Github repo. Currently, ``awsf`` is still using Python 2.7, whereas all the other code is based on Python 3.6. The reason ``awsf`` uses Python 2.7 is because it runs on the pre-built Tibanna AMI which is based on Python 2.7 and we haven't updated the AMI yet.
+The code in ``awsf`` is not a part of any Python package, but the scripts in the folder is pulled by an AWSEM EC2 instance directly from the public tibanna Github repo. Currently, ``awsf`` is still using Python 2.7, whereas all the other code is based on Python 3.9. The reason ``awsf`` uses Python 2.7 is because it runs on the pre-built Tibanna AMI which is based on Python 2.7 and we haven't updated the AMI yet.
 
 
 AWS Lambda
