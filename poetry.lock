@@ -208,7 +208,7 @@ toml = ["tomli"]
 
 [[package]]
 name = "dcicutils"
-version = "8.0.0"
+version = "7.12.0.1b1"
 description = "Utility package for interacting with the 4DN Data Portal and other 4DN resources"
 optional = false
 python-versions = "*"
@@ -943,4 +943,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7,<3.12"
-content-hash = "a51aec78a05eea9f2a3006a8535334a33ec249696f3e54f7422768a8594d38e4"
+content-hash = "a3d56c2dc2dce7e8b15e16f2a30879064c29141d07d7ac02525e00f5a63b1143"
