@@ -8,6 +8,9 @@ configure:
 lint:
 	flake8 tibanna_cgap
 
+build: 
+	poetry install
+
 install: 
 	poetry install
 
