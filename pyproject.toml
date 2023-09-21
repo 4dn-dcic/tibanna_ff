@@ -58,6 +58,7 @@ sphinx-click = "^2.5.0"
 sphinx-rtd-theme = "0.5.0"  # Do we have a good reason to pin this? -kmp 9-Nov-2020
 
 [tool.poetry.scripts]
+publish-to-pypi = "dcicutils.scripts.publish_to_pypi:main"
 tibanna_4dn = "tibanna_4dn.__main__:main"
 tibanna_cgap = "tibanna_cgap.__main__:main"
 tibanna_smaht = "tibanna_smaht.__main__:main"
