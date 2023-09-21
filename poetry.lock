@@ -69,6 +69,17 @@ html5lib = ["html5lib"]
 lxml = ["lxml"]
 
 [[package]]
+name = "benchmark-4dn"
+version = "0.5.23"
+description = "Benchmark functions that returns total space, mem, cpu given input size and parameters for the CWL workflows"
+optional = false
+python-versions = ">=3.5,<4.0"
+files = [
+    {file = "Benchmark-4dn-0.5.23.tar.gz", hash = "sha256:f17a02c5cd9669f96ea65cb31603106bb77a0a01775b4fd2983a95ab66ee7b7c"},
+    {file = "benchmark_4dn-0.5.23-py3-none-any.whl", hash = "sha256:bd8aa8c252e868f1d7afa2c2003e1148f409e6dc825af5656f37cd5fec30e2c3"},
+]
+
+[[package]]
 name = "boto3"
 version = "1.28.52"
 description = "The AWS SDK for Python"
@@ -939,6 +950,22 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-lambda-4dn"
+version = "0.12.3"
+description = "FORKED for 4dn-dcic. Use to package and deploy lambda functions."
+optional = false
+python-versions = "*"
+files = [
+    {file = "python-lambda-4dn-0.12.3.tar.gz", hash = "sha256:41765ea05224c035e146c89d60ef23d0d2c043ccc79e380cbeae60143547b1dc"},
+    {file = "python_lambda_4dn-0.12.3-py2.py3-none-any.whl", hash = "sha256:a87fd330fcf6702165904dbe884610df5bf029c55cd2cc176d22f788b04a5f21"},
+]
+
+[package.dependencies]
+boto3 = ">=1.7.42"
+botocore = ">=1.10.42"
+docutils = ">=0.14"
+
+[[package]]
 name = "pytz"
 version = "2023.3.post1"
 description = "World timezone definitions, modern and historical"
@@ -1339,16 +1366,21 @@ files = [
 
 [[package]]
 name = "tibanna"
-version = "4.0.0.1b1"
+version = "4.0.0.1b2"
 description = "Tibanna runs portable pipelines (in CWL/WDL) on the AWS Cloud."
 optional = false
-python-versions = "*"
-files = []
-develop = true
+python-versions = ">=3.8,<3.12"
+files = [
+    {file = "tibanna-4.0.0.1b2-py3-none-any.whl", hash = "sha256:bc7f52cbe53c6b723d1650939afeaa46765893986d1760074d32d4aafe9967e7"},
+    {file = "tibanna-4.0.0.1b2.tar.gz", hash = "sha256:2565aa7da5d2ef55558fda69a02f3dac9dbe559a8f504fca107dbe072eec0d40"},
+]
 
-[package.source]
-type = "directory"
-url = "../tibanna"
+[package.dependencies]
+Benchmark-4dn = ">=0.5.23,<0.6.0"
+boto3 = ">=1.28.51,<2.0.0"
+botocore = ">=1.31.51,<2.0.0"
+python-lambda-4dn = "0.12.3"
+tomlkit = ">=0.11.0,<0.12.0"
 
 [[package]]
 name = "toml"
@@ -1500,4 +1532,4 @@ tests = ["PasteDeploy", "WSGIProxy2", "coverage", "mock", "nose (<1.3.0)", "pyqu
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "4e780dbab2d00d384b1ff4bfa9b1c296a56af7529568c628d89a4ea43dfe866f"
+content-hash = "a2a0558a83ce98b1979e80ab34a3e7789f469f1c38a4f1d662252d77579a0832"
