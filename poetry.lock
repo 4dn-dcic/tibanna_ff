@@ -1366,19 +1366,19 @@ files = [
 
 [[package]]
 name = "tibanna"
-version = "4.0.0.1b2"
+version = "4.0.0.1b4"
 description = "Tibanna runs portable pipelines (in CWL/WDL) on the AWS Cloud."
 optional = false
 python-versions = ">=3.8,<3.12"
 files = [
-    {file = "tibanna-4.0.0.1b2-py3-none-any.whl", hash = "sha256:bc7f52cbe53c6b723d1650939afeaa46765893986d1760074d32d4aafe9967e7"},
-    {file = "tibanna-4.0.0.1b2.tar.gz", hash = "sha256:2565aa7da5d2ef55558fda69a02f3dac9dbe559a8f504fca107dbe072eec0d40"},
+    {file = "tibanna-4.0.0.1b4-py3-none-any.whl", hash = "sha256:f3fde1244f3a52641bdb0cdfd2688f46e3b31197b195b05f7fbb3161df2d4dfb"},
+    {file = "tibanna-4.0.0.1b4.tar.gz", hash = "sha256:6a8a8a4a2daa6c0c079ed9db764dd107ea97b0d1356941b90831f4437b24fbab"},
 ]
 
 [package.dependencies]
 Benchmark-4dn = ">=0.5.23,<0.6.0"
-boto3 = ">=1.28.51,<2.0.0"
-botocore = ">=1.31.51,<2.0.0"
+boto3 = ">=1.28.56,<2.0.0"
+botocore = ">=1.31.56,<2.0.0"
 python-lambda-4dn = "0.12.3"
 tomlkit = ">=0.11.0,<0.12.0"
 
@@ -1532,4 +1532,4 @@ tests = ["PasteDeploy", "WSGIProxy2", "coverage", "mock", "nose (<1.3.0)", "pyqu
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "2b2d194cb08c7f86a9a41ec4fe96d9eb99fe23aa0833fc61195a974c7c936fc7"
+content-hash = "b555c4397c9ff6837d7943586f8174e3bd807523e38c62bb3ed5f9035309536f"
