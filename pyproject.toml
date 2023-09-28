@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tibanna_ff"
-version = "2.0.1.1b9"  # TODO: To become 3.0.0
+version = "2.0.1.1b10"  # TODO: To become 3.0.0
 description = "Tibanna runs portable pipelines (in CWL/WDL) on the AWS Cloud."
 authors = ["4DN-DCIC Team <support@4dnucleome.org>"]
 license = "MIT"
@@ -30,7 +30,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 tibanna = "4.0.0.1b4"
-dcicutils = "7.12.0.2b7"
+dcicutils = "7.12.0.2b9"
 boto3 = "^1.28.56"
 botocore = "^1.31.56"
 requests = "2.27.1" # Pin version as 2.28.* currently leads to warnings then running cwltool
