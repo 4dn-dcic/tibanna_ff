@@ -9,7 +9,7 @@ config = {
     'function_handler': 'handler',
     'handler': 'service.handler',
     'region': AWS_REGION,
-    'runtime': 'python3.8',
+    'runtime': 'python3.11',
     'role': 'lambda_full_s3',
     'description': 'Tibanna tiger start_run',
     'timeout': 300,
