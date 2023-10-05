@@ -1771,13 +1771,13 @@ files = [
 
 [[package]]
 name = "tibanna"
-version = "4.0.0.1b4"
+version = "5.0.0"
 description = "Tibanna runs portable pipelines (in CWL/WDL) on the AWS Cloud."
 optional = false
 python-versions = ">=3.8,<3.12"
 files = [
-    {file = "tibanna-4.0.0.1b4-py3-none-any.whl", hash = "sha256:f3fde1244f3a52641bdb0cdfd2688f46e3b31197b195b05f7fbb3161df2d4dfb"},
-    {file = "tibanna-4.0.0.1b4.tar.gz", hash = "sha256:6a8a8a4a2daa6c0c079ed9db764dd107ea97b0d1356941b90831f4437b24fbab"},
+    {file = "tibanna-5.0.0-py3-none-any.whl", hash = "sha256:be1c4b1817d453f71cb3241c68b1f40ae51fb8b9db4deff9e2e6bc5046cab3a3"},
+    {file = "tibanna-5.0.0.tar.gz", hash = "sha256:3edb53b174df8e9271efc1477824a1ca337e85b7609b4812f911ecd8e9c5c2f3"},
 ]
 
 [package.dependencies]
@@ -1959,4 +1959,4 @@ tests = ["PasteDeploy", "WSGIProxy2", "coverage", "mock", "nose (<1.3.0)", "pyqu
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "7d7b722da43c9f07e4d6deab62e0e8e6481737e9a7f41da51c4c3ce4e7dc96c0"
+content-hash = "6520d602522493878468154e1e7455c473009dc9a1fe2dd3e2021e6906383480"
