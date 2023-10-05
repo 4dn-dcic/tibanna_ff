@@ -745,22 +745,23 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "dcicutils"
-version = "7.12.0.2b9"
+version = "8.0.0"
 description = "Utility package for interacting with the 4DN Data Portal and other 4DN resources"
 optional = false
 python-versions = ">=3.8,<3.12"
 files = [
-    {file = "dcicutils-7.12.0.2b9-py3-none-any.whl", hash = "sha256:12d3e6cd0f26ad7e464a5e8c7c646d28d23f63a1e423ca4fa7ae536f3b9fd4d2"},
-    {file = "dcicutils-7.12.0.2b9.tar.gz", hash = "sha256:ef0da351164cd2495e5570d393c6564fdf8dab1f60a1b613c40dfd405693894e"},
+    {file = "dcicutils-8.0.0-py3-none-any.whl", hash = "sha256:339834dd93a70fdc26d1c552273c1390275ba637583bbec41a4a8035270b0c72"},
+    {file = "dcicutils-8.0.0.tar.gz", hash = "sha256:50aafbe2dce173bb6779184be0db8497d818a41b62bd686851cf64de507c5b76"},
 ]
 
 [package.dependencies]
 aws-requests-auth = ">=0.4.2,<1"
-boto3 = ">=1.28.54,<2.0.0"
-botocore = ">=1.31.54,<2.0.0"
+boto3 = ">=1.28.57,<2.0.0"
+botocore = ">=1.31.57,<2.0.0"
 docker = ">=4.4.4,<5.0.0"
 elasticsearch = "7.13.4"
 gitpython = ">=3.1.2,<4.0.0"
+jsonc-parser = ">=1.1.5,<2.0.0"
 opensearch-py = ">=2.0.1,<3.0.0"
 PyJWT = ">=2.6.0,<3.0.0"
 pyOpenSSL = ">=23.1.1,<24.0.0"
@@ -972,6 +973,17 @@ python-versions = ">=3.7"
 files = [
     {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
     {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
+]
+
+[[package]]
+name = "jsonc-parser"
+version = "1.1.5"
+description = "A lightweight, native tool for parsing .jsonc files"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "jsonc-parser-1.1.5.tar.gz", hash = "sha256:7126d17725b0413cd40af4297d9f6412c4181a62135e4c41cdf8f6a82c5936e6"},
+    {file = "jsonc_parser-1.1.5-py3-none-any.whl", hash = "sha256:abd1db76a4c6d1733ec7bb5340a89c49cbc878a181a1e7947ee6719eedf2c6cc"},
 ]
 
 [[package]]
@@ -1947,4 +1959,4 @@ tests = ["PasteDeploy", "WSGIProxy2", "coverage", "mock", "nose (<1.3.0)", "pyqu
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "2da5a1596ec8096c40834f15b7df3cd94c754199444ef9900cfea1d9b0f48ee0"
+content-hash = "7d7b722da43c9f07e4d6deab62e0e8e6481737e9a7f41da51c4c3ce4e7dc96c0"
