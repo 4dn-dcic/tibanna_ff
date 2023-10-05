@@ -3,12 +3,13 @@ clean:
 	rm -rf .eggs
 
 configure:
-	pip install poetry==1.3.2
+	pip install poetry==1.4.2
 
 lint:
 	flake8 tibanna_cgap
 
 build: 
+	make configure
 	poetry install
 
 install: 
