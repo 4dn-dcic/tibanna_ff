@@ -42,7 +42,9 @@ from .vars import (
     OUTPUT_QC_FILE,
     GENERIC_QC_FILE,
     OUTPUT_TO_BE_EXTRA_INPUT_FILE,
-    INPUT_FILE
+    INPUT_FILE,
+    QC_RULESET,
+    AWSF_IMAGE
 )
 from .config import (
     higlass_config
@@ -67,6 +69,8 @@ from .qc import (
     QCArgumentsByTarget
 )
 from .generic_qc_utils import (
+    validate_qc_rulesets,
+    evaluate_qc_ruleset,
     check_qc_workflow_args,
     filter_workflow_args_by_property
 )
@@ -77,7 +81,6 @@ from .exceptions import (
     MalFormattedWorkflowMetadataException,
     GenericQcException
 )
-from .vars import AWSF_IMAGE
 
 
 logger = create_logger(__name__)
@@ -1281,6 +1284,15 @@ class FourfrontUpdaterAbstract(object):
         # Basic sanity checks of the workflow arguments
         check_qc_workflow_args(input_file_args, generic_qc_args)
 
+        # If QC rulesets has been supplied in the worklfow input,
+        # check the qc_json against that ruleset
+        qc_rulesets = self.workflow_arguments([QC_RULESET]) # defaults to [] if not supplied
+        if len(qc_rulesets) == 1:
+            qc_rulesets = json.loads(qc_rulesets[0])
+            qc_rulesets = validate_qc_rulesets(qc_rulesets)
+        elif len(qc_rulesets) > 1:
+            raise GenericQcException(f"Multiple QC rulesets supplied.")
+
         ff_key = self.tibanna_settings.ff_keys
         ff_env = self.tibanna_settings.env
 
@@ -1302,6 +1314,12 @@ class FourfrontUpdaterAbstract(object):
             except Exception as e:
                 logger.error(str(e))
                 raise GenericQcException(f"Could not get {qc_arg_json_name} from S3. Error: {str(e)}")
+            
+            # If a QC ruleset has been supplied in the worklfow input, check the qc_json against that ruleset
+            # and add QC flags to the qc_json
+            if qc_rulesets:
+                qc_json, overall_quality_status = evaluate_qc_ruleset(input_wf_arg_name, qc_json, qc_rulesets)
+            
 
             # Get the link to the zipped report. This will be added to the QualityMetricGeneric item
             # After running check_qc_workflow_args, we know that this contains zero or one elements
