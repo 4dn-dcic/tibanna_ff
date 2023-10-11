@@ -81,6 +81,8 @@ from .exceptions import (
     MalFormattedWorkflowMetadataException,
     GenericQcException
 )
+from typing import Any, List, Optional
+from pydantic import BaseModel, ConfigDict
 
 
 logger = create_logger(__name__)
@@ -98,6 +100,20 @@ OUTPUT_ARG_TYPE_LIST = [OUTPUT_PROCESSED_FILE,
 
 # File types that are uploaded to the portal (and S3)
 PROCESSED_FILE_TYPES = [OUTPUT_PROCESSED_FILE, GENERIC_QC_FILE]
+
+# This defines the Tibanna internal QualityMetricGeneric schema. These will be used to
+# create the portal specific QualityMetricGeneric items via the QualityMetricsGenericMetadata class
+class QualityMetricGenericQcValueModel(BaseModel):
+    key: str
+    value: Any
+    model_config = ConfigDict(extra="allow")
+
+class QualityMetricGenericModel(BaseModel):
+    name: str
+    url: Optional[str] = None
+    overall_quality_status: str
+    qc_values: List[QualityMetricGenericQcValueModel]
+    
 
 class FFInputAbstract(SerializableObject):
     # the following attribute works as a cache for metadata -
@@ -342,6 +358,9 @@ class QualityMetricsGenericMetadataAbstract(SerializableObject):
 
     def __init__(self, **kwargs):
         self.uuid = str(uuid4())
+
+    def update(self, qmg: QualityMetricGenericModel):
+        pass
 
 
 class ProcessedFileMetadataAbstract(SerializableObject):
@@ -1329,12 +1348,18 @@ class FourfrontUpdaterAbstract(object):
 
             # The folling will create a new QualityMetricGeneric item in the portal
             try:
-                qc_json_file_metadata = self.get_metadata(qc_json_file_accession)
-                qmg_metadata = vars(self.QualityMetricsGenericMetadata(**qc_json_file_metadata))
+                qc_json_file_metadata = self.get_metadata(qc_json_file_accession) # We just get this to populate basic fields of the QualityMetricGeneric item
+                qmg_metadata = self.QualityMetricsGenericMetadata(**qc_json_file_metadata)
+                # We are defining a Tibanna internal model here and convert it to the portal spcific schema in the `update` function below
+                qmg_model = QualityMetricGenericModel({
+                    "name": qc_json["name"],
+                    "url": qc_arg_zipped_s3_url if qc_arg_zipped_s3_url else None,
+                    "overall_quality_status": overall_quality_status,
+                    "qc_values": qc_json["qc_values"],
+                })
+                qmg_metadata.update(qmg_model)
+                qmg_metadata = vars(qmg_metadata)
                 qmg_uuid = qmg_metadata["uuid"]
-                if qc_arg_zipped_s3_url:
-                    qmg_metadata['url'] = qc_arg_zipped_s3_url
-                qmg_metadata.update(qc_json)
                 qmg_item = post_metadata(qmg_metadata, "quality_metric_generic", key=ff_key, ff_env=ff_env)
                 logger.debug(f"Successfully created quality_metric_generic item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:

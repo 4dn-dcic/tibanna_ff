@@ -2,6 +2,11 @@ from collections import deque
 
 class LogicalExpressionParser:
     def __init__(self, expression: str):
+        """Class that contains functions to evaluate a logical expression string.
+
+        Args:
+            expression (str): Logical expression string. E.g., "True and not (False or not True)"
+        """
         # Convert to internal representation
         self.expression = (
             expression.lower()
@@ -13,7 +18,7 @@ class LogicalExpressionParser:
             .replace(" ", "")
         )
 
-    def evalulate(self):
+    def evaluate(self) -> bool:
         """Evalutes a logical expression string. Supported operators 'and', 'or' and 'not', 
         e.g., "True and not (False or not True)"
 

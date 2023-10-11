@@ -1,8 +1,12 @@
 from .exceptions import GenericQcException
-from collections import deque
 from typing import Any, List, Union, Optional
 from pydantic import BaseModel, ConfigDict, ValidationError, RootModel
 from misc_utils import LogicalExpressionParser
+
+# Tibanna interal QC flags
+PASS = "pass"
+WARN = "warn"
+FAIL = "fail"
 
 
 class QC_threshold(BaseModel):
@@ -61,16 +65,66 @@ def validate_qc_rulesets(qc_rulesets):
     return validated_qc_rulesets
 
 
+def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
+    """Checks if the given metric (defined in the qc_threshold model, value extracted from qc_json)
+    satisfies the QC targets.
+
+    Args:
+        qc_threshold (QC_threshold): Pydantic model
+        qc_json (QC_json): Pydantic model
+
+    Raises:
+        GenericQcException: QC metric {metric} in ruleset not found in QC json
+        GenericQcException: The ruleset contains an unsupported operator
+
+    Returns:
+        str: pass, warn or fail
+    """
+    metric = qc_threshold.metric
+    qc_json_value = next(
+        (item for item in qc_json.qc_values if item.key == metric), None
+    )
+
+    if not qc_json_value:
+        raise GenericQcException(f"QC metric {metric} in ruleset not found in QC json")
+
+    def evaluate_target(value, operator, target):
+        if operator == ">":
+            return value > target
+        elif operator == ">=":
+            return value >= target
+        elif operator == "<":
+            return value < target
+        elif operator == "<=":
+            return value <= target
+        else:
+            raise GenericQcException(
+                f"The ruleset contains an unsupported operator: {operator}"
+            )
+        
+    if evaluate_target(qc_json_value.value, qc_threshold.operator, qc_threshold.pass_target):
+        if qc_threshold.use_as_qc_flag:
+            qc_json_value["flag"] = PASS # Update individual QC flags. This will be patched to the portal
+        return PASS
+    elif evaluate_target(qc_json_value.value, qc_threshold.operator, qc_threshold.warn_target):
+        if qc_threshold.use_as_qc_flag:
+            qc_json_value["flag"] = WARN # Update individual QC flags. This will be patched to the portal
+        return WARN
+    else:
+        return FAIL
+
+
 def evaluate_qc_ruleset(input_wf_arg_name, qc_json_, qc_rulesets: QC_rulesets):
-    """_summary_
+    """For given input file, calculated qc metrics and user defined ruleset,
+     returns an updated qc_json with indivifual QC flags set and the overall QC flag
 
     Args:
         input_wf_arg_name (string): input workflow argument that the QCs are validated for
-        qc_json_ (Dict): _description_
-        qc_ruleset_ (QC_rulesets): _description_
+        qc_json_ (Dict): qc json that has been persisted as file
+        qc_ruleset_ (QC_rulesets): ruleset that is defined in the workflow
 
     Raises:
-        GenericQcException: _description_
+        GenericQcException: The overall_quality_status_rule contains metric IDs that are not defined in the rulset.
     """
 
     # Find the rule set that is relevant for the current input file
@@ -88,22 +142,26 @@ def evaluate_qc_ruleset(input_wf_arg_name, qc_json_, qc_rulesets: QC_rulesets):
             f"The contents of the QC json file has the wrong format: {e}"
         )
 
-    # for qc_value in qc_json.qc_values:
+    evaluated_qc_thresholds = {}
+    for qct in qc_ruleset.qc_thresholds:
+        evaluated_qc_thresholds[qct.id] = evaluate_qc_threshold(qct, qc_json)
 
-    overall_quality_status = True
+    # Insert the evaluated QC thresholds in the logical expression for the overall quality. Then evaluate it.
+    for metric_id in evaluated_qc_thresholds:
+        eqt_bool_str = "True" if evaluated_qc_thresholds[metric_id] in [PASS, WARN] else "False"
+        qc_ruleset.overall_quality_status_rule = qc_ruleset.overall_quality_status_rule.replace(f"{{{metric_id}}}", eqt_bool_str)
+
+    # Not all "{metric_id}"" have been replaced in the logical expression string. This would also fail
+    # during evaluation but we want to return a more useful error message here.
+    if "{" in qc_ruleset.overall_quality_status_rule:
+        raise GenericQcException(
+            f"The overall_quality_status_rule contains metric IDs that are not defined in the rulset."
+        )
+
+    Lep = LogicalExpressionParser(qc_ruleset.overall_quality_status_rule)
+    overall_quality_status = Lep.evaluate()
 
     return dict(qc_json), overall_quality_status
-
-
-def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
-    # Get the relevant metric from the QC Json
-    metric = qc_threshold.metric
-    metric_value = next(
-        (item.value for item in qc_json.qc_values if item.key == metric), None
-    )
-
-    if not metric_value:
-        raise GenericQcException(f"QC metric {metric} in ruleset not found in QC json")
 
 
 def check_qc_workflow_args(input_file_args: List[Any], generic_qc_args: List[Any]):
