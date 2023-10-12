@@ -1307,7 +1307,8 @@ class FourfrontUpdaterAbstract(object):
         # check the qc_json against that ruleset
         qc_rulesets = self.workflow_arguments([QC_RULESET]) # defaults to [] if not supplied
         if len(qc_rulesets) == 1:
-            qc_rulesets = json.loads(qc_rulesets[0])
+            qc_rulesets = qc_rulesets[0]
+            qc_rulesets = json.loads(qc_rulesets.value)
             qc_rulesets = validate_qc_rulesets(qc_rulesets)
         elif len(qc_rulesets) > 1:
             raise GenericQcException(f"Multiple QC rulesets supplied.")
@@ -1336,9 +1337,11 @@ class FourfrontUpdaterAbstract(object):
             
             # If a QC ruleset has been supplied in the worklfow input, check the qc_json against that ruleset
             # and add QC flags to the qc_json
-            if qc_rulesets:
-                qc_json, overall_quality_status = evaluate_qc_ruleset(input_wf_arg_name, qc_json, qc_rulesets)
-            
+            qc_json, overall_quality_status = (
+                evaluate_qc_ruleset(input_wf_arg_name, qc_json, qc_rulesets)
+                if qc_rulesets
+                else (qc_json, None)
+            )
 
             # Get the link to the zipped report. This will be added to the QualityMetricGeneric item
             # After running check_qc_workflow_args, we know that this contains zero or one elements

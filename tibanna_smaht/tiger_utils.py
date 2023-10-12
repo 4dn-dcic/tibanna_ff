@@ -25,6 +25,7 @@ from tibanna_ffcommon.portal_utils import (
     FourfrontUpdaterAbstract,
     QualityMetricsGenericMetadataAbstract,
     FFInputAbstract,
+    QualityMetricGenericModel
 )
 
 
@@ -60,6 +61,28 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
         self.submission_center = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])[0]
         self.consortium = kwargs.get('consortia', [DEFAULT_CONSORTIUM])[0]
         super().__init__(**kwargs)
+
+    def update(self, qmg: QualityMetricGenericModel):
+        if qmg.overall_quality_status:
+            self.overall_quality_status = qmg.overall_quality_status.capitalize()  # This is, e.g., "Pass" as in the SMaHT data model
+        if qmg.url:
+            self.url = qmg.url
+        self.name = qmg.name
+        qc_values = []
+        for qcv in qmg.qc_values:
+            qc_value = {
+                "key": qcv.key,
+                "value": str(qcv.value)
+            }
+            available_keys = list(qcv.model_dump().keys()) # There does not seem to be a better way to get all keys (including extra fields) from a Pydantic model
+            if "flag" in available_keys:
+                qc_value["flag"] = qcv.flag.capitalize() # This is, e.g., "Pass" as in the SMaHT data model
+            if "tooltip" in available_keys:
+                qc_value["tooltip"] = qcv.tooltip
+
+            qc_values.append(qc_value)
+
+        self.qc_values = qc_values
 
 
 class FourfrontStarter(FourfrontStarterAbstract):

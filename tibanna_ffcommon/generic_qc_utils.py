@@ -1,7 +1,7 @@
 from .exceptions import GenericQcException
 from typing import Any, List, Union, Optional
 from pydantic import BaseModel, ConfigDict, ValidationError, RootModel
-from misc_utils import LogicalExpressionParser
+from .misc_utils import LogicalExpressionParser
 
 # Tibanna interal QC flags
 PASS = "pass"
@@ -86,9 +86,10 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
     )
 
     if not qc_json_value:
-        raise GenericQcException(f"QC metric {metric} in ruleset not found in QC json")
+        raise GenericQcException(f"QC metric '{metric}' in ruleset not found in QC json")
 
     def evaluate_target(value, operator, target):
+        print(value, operator, target)
         if operator == ">":
             return value > target
         elif operator == ">=":
@@ -102,16 +103,15 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
                 f"The ruleset contains an unsupported operator: {operator}"
             )
         
+    result = FAIL
     if evaluate_target(qc_json_value.value, qc_threshold.operator, qc_threshold.pass_target):
-        if qc_threshold.use_as_qc_flag:
-            qc_json_value["flag"] = PASS # Update individual QC flags. This will be patched to the portal
-        return PASS
+        result = PASS
     elif evaluate_target(qc_json_value.value, qc_threshold.operator, qc_threshold.warn_target):
-        if qc_threshold.use_as_qc_flag:
-            qc_json_value["flag"] = WARN # Update individual QC flags. This will be patched to the portal
-        return WARN
-    else:
-        return FAIL
+        result = WARN
+
+    if qc_threshold.use_as_qc_flag:
+            qc_json_value.flag = result # Update individual QC flags. This will be patched to the portal
+    return result
 
 
 def evaluate_qc_ruleset(input_wf_arg_name, qc_json_, qc_rulesets: QC_rulesets):
@@ -161,7 +161,7 @@ def evaluate_qc_ruleset(input_wf_arg_name, qc_json_, qc_rulesets: QC_rulesets):
     Lep = LogicalExpressionParser(qc_ruleset.overall_quality_status_rule)
     overall_quality_status = Lep.evaluate()
 
-    return dict(qc_json), overall_quality_status
+    return qc_json.model_dump(), overall_quality_status
 
 
 def check_qc_workflow_args(input_file_args: List[Any], generic_qc_args: List[Any]):
