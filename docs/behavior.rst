@@ -231,7 +231,7 @@ Custom fields
 In case we want to pass one custom fields to ``WorkflowRun``, ``FileProcessed`` or ``QualityMetric`` objects that are created by a workflow run, we can do that by adding custom fields to the input json. Common examples of custom field would be ``lab`` and ``award`` for pony and ``project`` and ``institution`` for zebra. One could also set ``genome_assembly`` to be passed to a ``FileProcessed`` object.
 
 
-Common Cutsom fields
+Common Custom fields
 ~~~~~~~~~~~~~~~~~~~~
 
 Common custom fields can be specified in the ``common_fields`` field of the input json and the contents will be passed to all created items including ``WorkflowRun``, ``FileProcessed`` and ``QualityMetric``, including ``QualityMetricWorkflowrun`` and ``QualityMetricQclist``. This can be used for ``lab`` and ``award`` for pony and ``project`` and ``institution`` for zebra. More specific custom fields can be defined using ``wfr_meta``, ``custom_pf_fields`` and ``custom_qc_fields``.

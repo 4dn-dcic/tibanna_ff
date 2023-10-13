@@ -89,7 +89,6 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
         raise GenericQcException(f"QC metric '{metric}' in ruleset not found in QC json")
 
     def evaluate_target(value, operator, target):
-        print(value, operator, target)
         if operator == ">":
             return value > target
         elif operator == ">=":
@@ -98,6 +97,10 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
             return value < target
         elif operator == "<=":
             return value <= target
+        elif operator == "==":
+            return value == target
+        elif operator == "!=":
+            return value != target
         else:
             raise GenericQcException(
                 f"The ruleset contains an unsupported operator: {operator}"
@@ -114,7 +117,7 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
     return result
 
 
-def evaluate_qc_ruleset(input_wf_arg_name, qc_json_, qc_rulesets: QC_rulesets):
+def evaluate_qc_ruleset(input_wf_arg_name: str, qc_json_, qc_rulesets: QC_rulesets):
     """For given input file, calculated qc metrics and user defined ruleset,
      returns an updated qc_json with indivifual QC flags set and the overall QC flag
 
@@ -147,7 +150,9 @@ def evaluate_qc_ruleset(input_wf_arg_name, qc_json_, qc_rulesets: QC_rulesets):
         evaluated_qc_thresholds[qct.id] = evaluate_qc_threshold(qct, qc_json)
 
     # Insert the evaluated QC thresholds in the logical expression for the overall quality. Then evaluate it.
+    are_all_qc_pass = True # Keep track if any of the evaluated QCs is not PASS.
     for metric_id in evaluated_qc_thresholds:
+        are_all_qc_pass = (are_all_qc_pass and (evaluated_qc_thresholds[metric_id] == PASS))
         eqt_bool_str = "True" if evaluated_qc_thresholds[metric_id] in [PASS, WARN] else "False"
         qc_ruleset.overall_quality_status_rule = qc_ruleset.overall_quality_status_rule.replace(f"{{{metric_id}}}", eqt_bool_str)
 
@@ -160,6 +165,14 @@ def evaluate_qc_ruleset(input_wf_arg_name, qc_json_, qc_rulesets: QC_rulesets):
 
     Lep = LogicalExpressionParser(qc_ruleset.overall_quality_status_rule)
     overall_quality_status = Lep.evaluate()
+    # If the supplied logical expression evalutes to true, set the overall status to PASS only if all of the
+    # individual QCs are also PASS. If not set it to WARN
+    if overall_quality_status and are_all_qc_pass:
+        overall_quality_status = PASS
+    elif overall_quality_status and not are_all_qc_pass:
+        overall_quality_status = WARN
+    else: 
+        overall_quality_status = FAIL
 
     return qc_json.model_dump(), overall_quality_status
 
