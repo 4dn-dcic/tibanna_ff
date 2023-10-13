@@ -2,9 +2,9 @@
 Job Description JSON Schema
 ===========================
 
-The Job Description json for Tibanna Pony and Zebra are different from the json for Tibanna, but it's the same in that it defines an individual execution. The ``config`` part is largely the same. The Pony/Zebra input json does not have ``args`` but has its own set of fields.
+The Job Description json for Tibanna Pony, Zebra and Tiger are different from the json for Tibanna, but it's the same in that it defines an individual execution. The ``config`` part is largely the same. The Pony/Zebra input json does not have ``args`` but has its own set of fields.
 
-The first step of the Pony/Zebra step function converts this input json to a Unicorn input json and pass it to the second step (``run_task``).
+The first step of the Pony/Zebra/Tiger step function converts this input json to a Unicorn input json and pass it to the second step (``run_task``).
 
 
 Example job description
