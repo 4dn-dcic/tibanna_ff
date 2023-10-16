@@ -45,6 +45,7 @@ Contents:
    installation
    cli
    behavior
+   qc_smaht
    execution_json
    permissions
    tests
