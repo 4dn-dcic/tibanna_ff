@@ -13,8 +13,8 @@ class QC_threshold(BaseModel):
     id: str
     metric: str
     operator: str
-    pass_target: Union[float, int]
-    warn_target: Union[float, int]
+    pass_target: Union[float, int, str]
+    warn_target: Union[float, int, str]
     use_as_qc_flag: Optional[bool] = None
 
 
