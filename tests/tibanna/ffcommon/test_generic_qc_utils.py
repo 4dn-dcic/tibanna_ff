@@ -5,12 +5,12 @@ from tibanna_ffcommon.vars import GENERIC_QC_FILE, INPUT_FILE
 from tibanna_ffcommon.generic_qc_utils import (
     filter_workflow_args_by_property,
     check_qc_workflow_args,
-    validate_qc_rulesets,
+    validate_qc_ruleset,
     evaluate_qc_threshold,
     evaluate_qc_ruleset,
     QC_threshold,
     QC_json,
-    QC_rulesets,
+    QC_ruleset,
     PASS,
     WARN,
     FAIL,
@@ -180,9 +180,8 @@ def test_filter_workflow_args_by_property(wf_arg_set_1):
 
 
 @pytest.fixture
-def valid_ruleset():
-    return [
-        {
+def valid_ruleset_1a():
+    return {
             "qc_thresholds": [
                 {
                     "id": "c1",
@@ -236,10 +235,13 @@ def valid_ruleset():
                     "warn_target": 10,
                 },
             ],
-            "overall_quality_status_rule": "{c1} and {ts}",
-            "applies_to": ["input_1"],
-        },
-        {
+            "overall_quality_status_rule": "{c1} and {ts}"
+        }
+
+
+@pytest.fixture
+def valid_ruleset_1b():
+    return {
             "qc_thresholds": [
                 {
                     "id": "c1",
@@ -250,16 +252,13 @@ def valid_ruleset():
                     "use_as_qc_flag": True,
                 },
             ],
-            "overall_quality_status_rule": "{c1}",
-            "applies_to": ["input_2"],
-        },
-    ]
+            "overall_quality_status_rule": "{c1}"
+        }
 
 
 @pytest.fixture
-def valid_ruleset_2():
-    return [
-        {
+def valid_ruleset_2a():
+    return {
             "qc_thresholds": [
                 {
                     "id": "c1",
@@ -277,10 +276,13 @@ def valid_ruleset_2():
                     "warn_target": 527993296,
                 },
             ],
-            "overall_quality_status_rule": "{c1} and {ts}",
-            "applies_to": ["input_1"],
-        },
-        {
+            "overall_quality_status_rule": "{c1} and {ts}"
+        }
+
+
+@pytest.fixture
+def valid_ruleset_2b():
+    return {
             "qc_thresholds": [
                 {
                     "id": "c1",
@@ -291,10 +293,13 @@ def valid_ruleset_2():
                     "use_as_qc_flag": True,
                 },
             ],
-            "overall_quality_status_rule": "{c1}",
-            "applies_to": ["input_2"],
-        },
-        {
+            "overall_quality_status_rule": "{c1}"
+        }
+
+
+@pytest.fixture
+def valid_ruleset_2c():
+    return {
             "qc_thresholds": [
                 {
                     "id": "c1",
@@ -305,16 +310,14 @@ def valid_ruleset_2():
                     "use_as_qc_flag": True,
                 },
             ],
-            "overall_quality_status_rule": "{c1} and {ts}",  # invalid since ts not defined
-            "applies_to": ["input_3"],
-        },
-    ]
+            "overall_quality_status_rule": "{c1} and {ts}",  # invalid since ts not define
+        }
+
 
 
 @pytest.fixture
 def invalid_ruleset():
-    return [
-        {
+    return {
             "qc_thresholds": [
                 {
                     "id": "c1",
@@ -325,8 +328,7 @@ def invalid_ruleset():
             ],
             "overall_quality_status_rule": "{c1}",
             "applies_to": ["input_1"],
-        },
-    ]
+        }
 
 
 @pytest.fixture
@@ -352,21 +354,24 @@ def qc_json():
     }
 
 
-def test_validate_qc_rulesets(valid_ruleset):
-    validate_qc_rulesets(valid_ruleset)  # Asserts that there is no error
+def test_validate_qc_ruleset_1a(valid_ruleset_1a):
+    validate_qc_ruleset(valid_ruleset_1a)  # Asserts that there is no error
+
+def test_validate_qc_ruleset_1b(valid_ruleset_1b):
+    validate_qc_ruleset(valid_ruleset_1b)  # Asserts that there is no error
 
 
-def test_validate_qc_rulesets_2(invalid_ruleset):
+def test_validate_qc_ruleset_2(invalid_ruleset):
     with pytest.raises(
         GenericQcException, match="The supplied QC ruleset has the wrong format"
     ):
-        validate_qc_rulesets(invalid_ruleset)
+        validate_qc_ruleset(invalid_ruleset)
 
 
-def test_evaluate_qc_threshold(valid_ruleset, qc_json):
+def test_evaluate_qc_threshold(valid_ruleset_1a, qc_json):
     qc_json_model = QC_json(**qc_json)
-    ruleset = QC_rulesets(valid_ruleset)
-    qc_thresholds = ruleset[0].qc_thresholds
+    ruleset = QC_ruleset(**valid_ruleset_1a)
+    qc_thresholds = ruleset.qc_thresholds
     qc_threshold = next((item for item in qc_thresholds if item.id == "c1"))
     result = evaluate_qc_threshold(qc_threshold, qc_json_model)
     assert result == "pass"
@@ -383,10 +388,10 @@ def test_evaluate_qc_threshold(valid_ruleset, qc_json):
     assert qc_json_model.qc_values[1].flag == "fail"
 
 
-def test_evaluate_qc_threshold_2(valid_ruleset, qc_json):
+def test_evaluate_qc_threshold_2(valid_ruleset_1b, qc_json):
     qc_json_model = QC_json(**qc_json)
-    ruleset = QC_rulesets(valid_ruleset)
-    qc_thresholds = ruleset[1].qc_thresholds
+    ruleset = QC_ruleset(**valid_ruleset_1b)
+    qc_thresholds = ruleset.qc_thresholds
     qc_threshold = next((item for item in qc_thresholds if item.id == "c1"))
     with pytest.raises(
         GenericQcException, match="QC metric 'coverage' in ruleset not found in QC json"
@@ -394,10 +399,10 @@ def test_evaluate_qc_threshold_2(valid_ruleset, qc_json):
         evaluate_qc_threshold(qc_threshold, qc_json_model)
 
 
-def test_evaluate_qc_threshold_3(valid_ruleset, qc_json):
+def test_evaluate_qc_threshold_3(valid_ruleset_1a, qc_json):
     qc_json_model = QC_json(**qc_json)
-    ruleset = QC_rulesets(valid_ruleset)
-    qc_thresholds = ruleset[0].qc_thresholds
+    ruleset = QC_ruleset(**valid_ruleset_1a)
+    qc_thresholds = ruleset.qc_thresholds
     qc_threshold = next((item for item in qc_thresholds if item.id == "test0"))
     result = evaluate_qc_threshold(qc_threshold, qc_json_model)
     assert result == "pass"
@@ -417,8 +422,8 @@ def test_evaluate_qc_threshold_3(valid_ruleset, qc_json):
         result = evaluate_qc_threshold(qc_threshold, qc_json_model)
 
 
-def test_evaluate_qc_ruleset(valid_ruleset, qc_json):
-    ruleset = QC_rulesets(valid_ruleset)
+def test_evaluate_qc_ruleset(valid_ruleset_1a, qc_json):
+    ruleset = QC_ruleset(**valid_ruleset_1a)
     with pytest.raises(
         GenericQcException,
         match="QC metric 'read_length' in ruleset not found in QC json",
@@ -426,8 +431,8 @@ def test_evaluate_qc_ruleset(valid_ruleset, qc_json):
         evaluate_qc_ruleset("input_1", qc_json, ruleset)
 
 
-def test_evaluate_qc_ruleset_2(valid_ruleset_2, qc_json):
-    ruleset = QC_rulesets(valid_ruleset_2)
+def test_evaluate_qc_ruleset_2a(valid_ruleset_2a, qc_json):
+    ruleset = QC_ruleset(**valid_ruleset_2a)
 
     qc_json_new, overall_quality_status = evaluate_qc_ruleset(
         "input_1", qc_json, ruleset
@@ -435,18 +440,26 @@ def test_evaluate_qc_ruleset_2(valid_ruleset_2, qc_json):
     assert overall_quality_status == PASS
     assert qc_json_new["qc_values"][1]["flag"] == PASS
 
-    ruleset[0].qc_thresholds[1].pass_target = 547993296
+    ruleset.qc_thresholds[1].pass_target = 547993296
     qc_json_new, overall_quality_status = evaluate_qc_ruleset(
         "input_1", qc_json, ruleset
     )
     assert overall_quality_status == WARN
     assert qc_json_new["qc_values"][1]["flag"] == PASS
 
+   
+def test_evaluate_qc_ruleset_2b(valid_ruleset_2b, qc_json):
+    ruleset = QC_ruleset(**valid_ruleset_2b)
+
     qc_json_new, overall_quality_status = evaluate_qc_ruleset(
         "input_2", qc_json, ruleset
     )
     assert overall_quality_status == WARN
     assert qc_json_new["qc_values"][1]["flag"] == WARN
+
+
+def test_evaluate_qc_ruleset_2c(valid_ruleset_2c, qc_json):
+    ruleset = QC_ruleset(**valid_ruleset_2c)
 
     with pytest.raises(
         GenericQcException,

@@ -69,7 +69,7 @@ from .qc import (
     QCArgumentsByTarget
 )
 from .generic_qc_utils import (
-    validate_qc_rulesets,
+    validate_qc_ruleset,
     evaluate_qc_ruleset,
     check_qc_workflow_args,
     filter_workflow_args_by_property
@@ -1305,12 +1305,11 @@ class FourfrontUpdaterAbstract(object):
 
         # If QC rulesets has been supplied in the worklfow input,
         # check the qc_json against that ruleset
-        qc_rulesets = self.workflow_arguments([QC_RULESET]) # defaults to [] if not supplied
-        if len(qc_rulesets) == 1:
-            qc_rulesets = qc_rulesets[0]
-            qc_rulesets = json.loads(qc_rulesets.value)
-            qc_rulesets = validate_qc_rulesets(qc_rulesets)
-        elif len(qc_rulesets) > 1:
+        qc_ruleset = self.workflow_arguments([QC_RULESET]) # defaults to [] if not supplied
+        if len(qc_ruleset) == 1:
+            qc_ruleset = qc_ruleset[0]
+            qc_ruleset = validate_qc_ruleset(qc_ruleset)
+        elif len(qc_ruleset) > 1:
             raise GenericQcException(f"Multiple QC rulesets supplied.")
 
         ff_key = self.tibanna_settings.ff_keys
@@ -1338,8 +1337,8 @@ class FourfrontUpdaterAbstract(object):
             # If a QC ruleset has been supplied in the worklfow input, check the qc_json against that ruleset
             # and add QC flags to the qc_json
             qc_json, overall_quality_status = (
-                evaluate_qc_ruleset(input_wf_arg_name, qc_json, qc_rulesets)
-                if qc_rulesets
+                evaluate_qc_ruleset(input_wf_arg_name, qc_json, qc_ruleset)
+                if qc_ruleset
                 else (qc_json, None)
             )
 
@@ -1353,7 +1352,7 @@ class FourfrontUpdaterAbstract(object):
             try:
                 qc_json_file_metadata = self.get_metadata(qc_json_file_accession) # We just get this to populate basic fields of the QualityMetricGeneric item
                 qmg_metadata = self.QualityMetricsGenericMetadata(**qc_json_file_metadata)
-                # We are defining a Tibanna internal model here and convert it to the portal spcific schema in the `update` function below
+                # We are defining a Tibanna internal model here and convert it to the portal specific schema in the `update` function below
                 qmg_model = QualityMetricGenericModel({
                     "name": qc_json["name"],
                     "url": qc_arg_zipped_s3_url if qc_arg_zipped_s3_url else None,

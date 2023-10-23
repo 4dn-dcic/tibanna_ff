@@ -21,17 +21,6 @@ class QC_threshold(BaseModel):
 class QC_ruleset(BaseModel):
     qc_thresholds: List[QC_threshold]
     overall_quality_status_rule: str
-    applies_to: List[str]
-
-
-class QC_rulesets(RootModel):
-    root: List[QC_ruleset]
-
-    def __iter__(self):
-        return iter(self.root)
-
-    def __getitem__(self, item):
-        return self.root[item]
 
 
 class QC_json_value(BaseModel):
@@ -46,23 +35,23 @@ class QC_json(BaseModel):
     qc_values: List[QC_json_value]
 
 
-def validate_qc_rulesets(qc_rulesets):
-    """Validate the user supplied QC rule sets again the schema and return a Pydantic model.
+def validate_qc_ruleset(qc_ruleset):
+    """Validate the user supplied QC rule set again the schema and return a Pydantic model.
 
     Args:
-        qc_rulesets (List): List of QC rule sets
+        qc_ruleset (dict): QC rule set
 
     Raises:
         GenericQcException: The supplied QC ruleset has the wrong format
 
     Returns:
-        QC_rulesets: Pydantic model
+        QC_ruleset: Pydantic model
     """
     try:
-        validated_qc_rulesets = QC_rulesets(qc_rulesets)
+        validated_qc_ruleset = QC_ruleset(**qc_ruleset)
     except ValidationError as e:
         raise GenericQcException(f"The supplied QC ruleset has the wrong format: {e}")
-    return validated_qc_rulesets
+    return validated_qc_ruleset
 
 
 def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
@@ -117,7 +106,7 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
     return result
 
 
-def evaluate_qc_ruleset(input_wf_arg_name: str, qc_json_, qc_rulesets: QC_rulesets):
+def evaluate_qc_ruleset(input_wf_arg_name: str, qc_json_, qc_ruleset: QC_ruleset):
     """For given input file, calculated qc metrics and user defined ruleset,
      returns an updated qc_json with indivifual QC flags set and the overall QC flag
 
@@ -129,14 +118,6 @@ def evaluate_qc_ruleset(input_wf_arg_name: str, qc_json_, qc_rulesets: QC_rulese
     Raises:
         GenericQcException: The overall_quality_status_rule contains metric IDs that are not defined in the rulset.
     """
-
-    # Find the rule set that is relevant for the current input file
-    qc_ruleset = next(
-        (item for item in qc_rulesets if input_wf_arg_name in item.applies_to), None
-    )
-
-    if not qc_ruleset:  # No rules have been defined for this file - do nothing
-        return qc_json_, None
 
     try:
         qc_json = QC_json(**qc_json_)
