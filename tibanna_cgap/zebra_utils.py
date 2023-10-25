@@ -129,6 +129,15 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
     default_email_sender = 'cgap.everyone@gmail.com'
     higlass_buckets = HIGLASS_BUCKETS
 
+    def get_portal_specific_item_name(self, item):
+        # Note: Updates to this function probably need to be made in the other portal versions as well
+        mapping = {
+            "quality_metric": "quality_metric_generic"
+        }
+        if item not in mapping:
+            raise Exception(f"Could not find the item name for '{item}'")
+        return mapping[item]
+
     def qc_template_generator(self, add_custom_qc_fields=False):
         while(True):
             res = next(super().qc_template_generator(add_custom_qc_fields=add_custom_qc_fields))

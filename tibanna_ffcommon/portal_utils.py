@@ -250,6 +250,18 @@ class FFInputAbstract(SerializableObject):
             else:
                 args['cwl_version'] = 'draft3'
 
+        # SMaHT workflows don't have workflow language specific fields. Handle this here
+        if self.wf_meta.get('language', '') in ['WDL', 'CWL']: # workflow_language is called language in SMaHT
+            lang = str(self.wf_meta.get('language')).lower()
+            args['language'] = lang
+            if f'{lang}_directory_url' not in args and 'directory_url' in self.wf_meta:
+                args[f'{lang}_directory_url'] = self.wf_meta.get('directory_url', '')
+            if f'{lang}_main_filename' not in args and 'main_file_name' in self.wf_meta:
+                args[f'{lang}_main_filename'] = self.wf_meta.get('main_file_name', '')
+            if f'{lang}_child_filenames' not in args and 'child_file_names' in self.wf_meta:
+                args[f'{lang}_child_filenames'] = self.wf_meta.get('child_file_names', '')
+        
+
         args['input_parameters'] = self.parameters_
         args['additional_benchmarking_parameters'] = self.additional_benchmarking_parameters
         args['output_S3_bucket'] = self.output_bucket
@@ -1260,6 +1272,18 @@ class FourfrontUpdaterAbstract(object):
                     self.update_patch_items(ip['uuid'], {'higlass_uid': higlass_uid})
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
+    def get_portal_specific_item_name(self, item: str) -> str:
+        """This function gets the portal specific item names for a given item name. This is necessary because
+        the nameing of similar items can vary across portals, e.g. "quality_metric_generic" (CGAP) vs 
+        "quality_metric" (SMaHT)
+
+        Args:
+            item (str): Name of the item
+
+        Raises:
+            NotImplementedError: This method need to be implemented in the portal specific layers of this class
+        """
+        raise NotImplementedError("This method need to be implemented in the portal specific layers of this class")
 
     def update_generic_qc(self):
         """This function goes through the input files and checks for associated Generic QC files.
@@ -1317,11 +1341,12 @@ class FourfrontUpdaterAbstract(object):
                 if qc_arg_zipped_s3_url:
                     qmg_metadata['url'] = qc_arg_zipped_s3_url
                 qmg_metadata.update(qc_json)
-                qmg_item = post_metadata(qmg_metadata, "quality_metric_generic", key=ff_key, ff_env=ff_env)
-                logger.debug(f"Successfully created quality_metric_generic item {qmg_uuid}: {str(qmg_item)}")
+                qm_item_name_in_schema = self.get_portal_specific_item_name("quality_metric")
+                qmg_item = post_metadata(qmg_metadata, qm_item_name_in_schema, key=ff_key, ff_env=ff_env)
+                logger.debug(f"Successfully created {qm_item_name_in_schema} item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:
                 raise GenericQcException(
-                    f"Could not post quality_metric_generic item for  {qc_arg_json_name}. The JSON was: {json.dumps(qmg_metadata)}. Error: {str(e)}")
+                    f"Could not post {qm_item_name_in_schema} item for  {qc_arg_json_name}. The JSON was: {json.dumps(qmg_metadata)}. Error: {str(e)}")
 
             # This QualityMetricGeneric item will now be linked to the corresponding input file.
             try:
@@ -1645,6 +1670,7 @@ class FourfrontUpdaterAbstract(object):
         return md5a and md5b and md5a != md5b
 
     # update all,high-level function
+    # SMaHT has its own implementation of this function
     def update_metadata(self):
         for arg in self.output_argnames:
             if self.status(arg) != 'COMPLETED':
