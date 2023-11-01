@@ -29,6 +29,7 @@ from tibanna_ffcommon.portal_utils import (
     FourfrontUpdaterAbstract,
     QualityMetricsGenericMetadataAbstract,
     FFInputAbstract,
+    PROCESSED_FILE_TYPES
 )
 from tibanna import create_logger
 
@@ -68,8 +69,8 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         We have to accept kwargs here, as this class is instantiated with variables 
         that are not in the schema (portal_utils:create_ff) for backwards compatibility
         """ 
-        self.submission_center = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])
-        self.consortium = kwargs.get('consortia', [DEFAULT_CONSORTIUM])
+        self.submission_centers = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])
+        self.consortia = kwargs.get('consortia', [DEFAULT_CONSORTIUM])
 
         if not workflow:
             logger.warning("workflow is missing. %s may not behave as expected" % self.__class__.__name__)
@@ -100,11 +101,14 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
 class ProcessedFileMetadata(ProcessedFileMetadataAbstract):
 
     def __init__(self, **kwargs):
-        self.submission_center = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])
-        self.consortium = kwargs.get('consortia', [DEFAULT_CONSORTIUM])
+        self.submission_centers = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])
+        self.consortia = kwargs.get('consortia', [DEFAULT_CONSORTIUM])
 
-        self.data_category = kwargs.get('data_category', "") # TODO: CHECK
-        self.data_type = kwargs.get('data_type', "") # TODO: CHECK
+        if 'data_category' not in kwargs or 'data_type' not in kwargs:
+            raise Exception("data_category and data_type are required for output files")
+
+        self.data_category = kwargs.get('data_category') 
+        self.data_type = kwargs.get('data_type')
 
         super().__init__(**kwargs)
 
@@ -116,8 +120,8 @@ class ProcessedFileMetadata(ProcessedFileMetadataAbstract):
 class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
 
     def __init__(self, **kwargs):
-        self.submission_center = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])
-        self.consortium = kwargs.get('consortia', [DEFAULT_CONSORTIUM])
+        self.submission_centers = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])
+        self.consortia = kwargs.get('consortia', [DEFAULT_CONSORTIUM])
         super().__init__(**kwargs)
 
 
@@ -126,10 +130,6 @@ class FourfrontStarter(FourfrontStarterAbstract):
     InputClass = TigerInput
     ProcessedFileMetadata = ProcessedFileMetadata
     WorkflowRunMetadata = WorkflowRunMetadata
-
-    # TODD: Remove
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def create_ff(self):
         self.ff = self.WorkflowRunMetadata(
@@ -142,6 +142,32 @@ class FourfrontStarter(FourfrontStarterAbstract):
             parameters=self.inp.parameters,
             job_id=self.inp.jobid
         )
+
+    # def pf(self, argname, **kwargs):
+    #     if self.user_supplied_output_files(argname):
+    #         res = self.get_meta(self.user_supplied_output_files(argname)[0]['uuid'])
+    #         return self.ProcessedFileMetadata(**res)
+    #     arg = self.arg(argname)
+    #     if arg.get('argument_type') not in PROCESSED_FILE_TYPES:
+    #         return None
+    #     required_keys = set(['argument_format', 'data_category', 'data_type'])
+    #     if not required_keys.issubset(arg.keys()):
+    #         raise Exception(f"{', '.join(list(required_keys))} are required for an output file")
+    #     if 'secondary_file_formats' in arg:
+    #         extra_files = self.pf_extra_files(arg.get('secondary_file_formats', []),
+    #                                           arg.get('processed_extra_file_use_for', {}))
+    #     else:
+    #         extra_files = None
+    #     logger.debug("appending %s to pfs" % arg.get('workflow_argument_name'))
+    #     other_fields = self.parse_custom_fields(self.inp.custom_pf_fields, self.inp.common_fields, argname)
+    #     return self.ProcessedFileMetadata(
+    #         file_format=arg.get('argument_format'),
+    #         data_category=arg.get('data_category'),
+    #         data_type=arg.get('data_type'),
+    #         extra_files=extra_files,
+    #         other_fields=other_fields,
+    #         **kwargs
+    #     )
 
  
 class FourfrontUpdater(FourfrontUpdaterAbstract):
@@ -188,9 +214,9 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
 
 def post_random_file(bucket, ff_key,
-                     file_format='pairs', extra_file_format='pairs_px2',
-                     file_extension='pairs.gz', extra_file_extension='pairs.gz.px2',
-                     schema='file_processed', extra_status=None):
+                     file_format='bam', extra_file_format='bam_bai',
+                     file_extension='bam', extra_file_extension='bam.bai',
+                     schema='output_file', extra_status=None):
     """Generates a fake file with random uuid and accession
     and posts it to smaht-portal. The content is unique since it contains
     its own uuid. The file metadata does not contain md5sum or

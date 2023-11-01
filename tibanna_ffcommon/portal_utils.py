@@ -566,10 +566,11 @@ class FourfrontStarterAbstract(object):
         else:
             extra_files = None
         logger.debug("appending %s to pfs" % arg.get('workflow_argument_name'))
+        other_fields = self.parse_custom_fields(self.inp.custom_pf_fields, self.inp.common_fields, argname)
         return self.ProcessedFileMetadata(
             file_format=arg.get('argument_format'),
             extra_files=extra_files,
-            other_fields=self.parse_custom_fields(self.inp.custom_pf_fields, self.inp.common_fields, argname),
+            other_fields=other_fields,
             **kwargs
         )
 
