@@ -77,6 +77,9 @@ class WorkflowRunMetadataAbstract(SerializableObject):
             for k, v in iter(extra_meta.items()):
                 self.__dict__[k] = v
 
+    def set_postrun_json_url(self, url):
+        self.awsem_postrun_json = url
+
     def append_outputfile(self, outjson):
         self.output_files.append(outjson)
 

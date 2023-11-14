@@ -249,19 +249,7 @@ class FFInputAbstract(SerializableObject):
                 args['cwl_version'] = 'v1'
             else:
                 args['cwl_version'] = 'draft3'
-
-        # SMaHT workflows don't have workflow language specific fields. Handle this here
-        if self.wf_meta.get('language', '') in ['WDL', 'CWL']: # workflow_language is called language in SMaHT
-            lang = str(self.wf_meta.get('language')).lower()
-            args['language'] = lang
-            if f'{lang}_directory_url' not in args and 'directory_url' in self.wf_meta:
-                args[f'{lang}_directory_url'] = self.wf_meta.get('directory_url', '')
-            if f'{lang}_main_filename' not in args and 'main_file_name' in self.wf_meta:
-                args[f'{lang}_main_filename'] = self.wf_meta.get('main_file_name', '')
-            if f'{lang}_child_filenames' not in args and 'child_file_names' in self.wf_meta:
-                args[f'{lang}_child_filenames'] = self.wf_meta.get('child_file_names', '')
         
-
         args['input_parameters'] = self.parameters_
         args['additional_benchmarking_parameters'] = self.additional_benchmarking_parameters
         args['output_S3_bucket'] = self.output_bucket
@@ -705,9 +693,14 @@ class FourfrontUpdaterAbstract(object):
             except Exception as e:
                 raise TibannaStartException("%s" % e)
         if config and jobid:
-            self.ff_meta.awsem_postrun_json = self.get_postrunjson_url(config, jobid, metadata_only)
+            postrun_json_url = self.get_postrunjson_url(config, jobid, metadata_only)
+            self.ff_meta.set_postrun_json_url(postrun_json_url)
         self.patch_items = dict()  # a collection of patch jsons (key = uuid)
         self.post_items = dict()  # a collection of patch jsons (key = uuid)
+
+        self.ff_output_files = self.set_ff_output_files()
+        self.ff_input_files = self.set_ff_input_files()
+        self.ff_files = self.ff_input_files + self.ff_output_files
 
     def get_postrunjson(self, postrunjson_in_input, strict=True):
         if not postrunjson_in_input:
@@ -774,27 +767,20 @@ class FourfrontUpdaterAbstract(object):
 
     # postrunjson-related basic functionalities
     @property
-    def awsem_output_files(self):
+    def postrunjson_output_files(self):
         """this used to be called output_info"""
         return self.postrunjson.Job.Output.output_files
 
     @property
-    def awsem_input_files(self):
+    def postrunjson_input_files(self):
         return self.postrunjson.Job.Input.Input_files_data
 
     # workflowrun-ralated basic functionalities
-    @property
-    def ff_output_files(self):
-        """this used to be called output_files_meta"""
+    def set_ff_output_files(self):
         return self.ff_meta.output_files
-
-    @property
-    def ff_input_files(self):
+    
+    def set_ff_input_files(self):
         return self.ff_meta.input_files
-
-    @property
-    def ff_files(self):
-        return self.ff_input_files + self.ff_output_files
 
     def ff_output_file(self, argname=None, pf_uuid=None):
         if argname:
@@ -816,11 +802,11 @@ class FourfrontUpdaterAbstract(object):
 
     @property
     def input_argnames(self):
-        return list(self.awsem_input_files.keys())
+        return list(self.postrunjson_input_files.keys())
 
     @property
     def output_argnames(self):
-        return list(self.awsem_output_files.keys())
+        return list(self.postrunjson_output_files.keys())
 
     def output_type(self, argname):
         for x in self.ff_output_files:
@@ -993,10 +979,10 @@ class FourfrontUpdaterAbstract(object):
             argname = self.pf2argname(pf_uuid)
         else:
             raise Exception("At least argname or pf_uuid must be provided to get md5sum")
-        if argname in self.awsem_output_files:
+        if argname in self.postrunjson_output_files:
             return self.outbucket
-        elif argname in self.awsem_input_files:
-            return self.awsem_input_files[argname].dir_
+        elif argname in self.postrunjson_input_files:
+            return self.postrunjson_input_files[argname].dir_
 
     def s3(self, argname):
         return s3Utils(self.bucket(argname), self.bucket(argname), self.bucket(argname))
@@ -1034,11 +1020,11 @@ class FourfrontUpdaterAbstract(object):
         else:
             raise Exception("At least argname or pf_uuid must be provided to get md5sum")
         if secondary_key:
-            for sf in self.awsem_output_files[argname].secondaryFiles:
+            for sf in self.postrunjson_output_files[argname].secondaryFiles:
                 if sf.target == secondary_key:
                     return sf.md5sum
             return None
-        return self.awsem_output_files[argname].md5sum
+        return self.postrunjson_output_files[argname].md5sum
 
     def filesize(self, argname=None, pf_uuid=None, secondary_key=None):
         if argname:
@@ -1048,11 +1034,11 @@ class FourfrontUpdaterAbstract(object):
         else:
             raise Exception("At least argname or pf_uuid must be provided to get filesize")
         if secondary_key:
-            for sf in self.awsem_output_files[argname].secondaryFiles:
+            for sf in self.postrunjson_output_files[argname].secondaryFiles:
                 if sf.target == secondary_key:
                     return sf.size
             return None
-        return self.awsem_output_files[argname].size
+        return self.postrunjson_output_files[argname].size
 
     def file_format(self, argname, secondary_key=None):
         for pf in self.ff_output_files:
@@ -1100,10 +1086,10 @@ class FourfrontUpdaterAbstract(object):
         Getting a file key through argname is mainly for getting non-processed files
         like md5 or qc reports"""
         if argname:
-            if argname in self.awsem_output_files:
-                return self.awsem_output_files[argname].target
-            elif argname in self.awsem_input_files:
-                return self.awsem_input_files[argname].path
+            if argname in self.postrunjson_output_files:
+                return self.postrunjson_output_files[argname].target
+            elif argname in self.postrunjson_input_files:
+                return self.postrunjson_input_files[argname].path
         elif pf_uuid:
             of = self.ff_output_file(pf_uuid=pf_uuid)
             if of:
@@ -1127,9 +1113,9 @@ class FourfrontUpdaterAbstract(object):
             accessions.append(accession)
         # argname is input
         else:
-            if argname not in self.awsem_input_files:
+            if argname not in self.postrunjson_input_files:
                 return []
-            paths = copy.deepcopy(self.awsem_input_files[argname].path)
+            paths = copy.deepcopy(self.postrunjson_input_files[argname].path)
             if not isinstance(paths, list):
                 paths = [paths]
             for path in paths:

@@ -87,7 +87,7 @@ def BUCKET_NAME(env, filetype):
         _BUCKET_NAME_LOG[env] = s3.tibanna_output_bucket
         _BUCKET_NAME_CWL[env] = s3.tibanna_cwls_bucket
 
-    if filetype == 'FileProcessed':
+    if filetype in ['FileProcessed', 'OutputFile']:
         return _BUCKET_NAME_PROCESSED_FILES[env]
     elif filetype in ['FileFastq', 'FileReference', 'FileMicroscopy', 'FileSubmitted']:
         return _BUCKET_NAME_RAW_FILES[env]

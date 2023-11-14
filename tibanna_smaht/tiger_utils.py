@@ -1,9 +1,12 @@
 import boto3
 import gzip
+import json
+import copy
 from uuid import uuid4
 import datetime
 from dcicutils.ff_utils import (
     get_metadata,
+    patch_metadata,
     post_metadata,
     generate_rand_accession,
 )
@@ -13,11 +16,16 @@ from tibanna_ffcommon.file_format import (
 from tibanna.nnested_array import (
     flatten,
 )
+from tibanna_ffcommon.wfr import (
+    WorkflowRunOutputFiles
+)
 from .vars import (
     DEFAULT_SUBMISSION_CENTER,
     DEFAULT_CONSORTIUM,
     ACCESSION_PREFIX,
-    HIGLASS_BUCKETS
+    HIGLASS_BUCKETS,
+    OUTPUT_PROCESSED_FILE,
+    BUCKET_NAME
 )
 from tibanna_ffcommon.wfr import (
     WorkflowRunMetadataAbstract,
@@ -39,18 +47,39 @@ class TigerInput(FFInputAbstract):
     
     def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
                  _tibanna=None, push_error_to_end=True, **kwargs):
-        # Some Tibanna configurations have been renamed in SMaHT deal with it here
+        # Some Tibanna configurations have been renamed in SMaHT. Deal with it here.
         mapping = {
-            "behavior_on_capacity" : "behavior_on_capacity_limit",
             "ebs_optimized" : "EBS_optimized",
             "memory" : "mem",
         }
         for new_name, old_name in mapping.items():
-            config[old_name] = new_name
-            config.pop(new_name)
+            if new_name in config:
+                config[old_name] = config[new_name]
+                config.pop(new_name)
+
 
         super().__init__(workflow_uuid, output_bucket, config, jobid,
                  _tibanna, push_error_to_end, **kwargs)
+        
+    @property
+    def wf_meta(self):
+        wf = self.get_metadata(self.workflow_uuid)
+    
+        # SMaHT workflows don't have workflow language specific fields. Handle this here
+        if wf.get('language', '') in ['WDL', 'CWL']: # workflow_language is called language in SMaHT
+            lang = str(wf.get('language')).lower()
+            wf['workflow_language'] = lang
+            if 'directory_url' in wf:
+                wf[f'{lang}_directory_url'] = wf['directory_url']
+            if 'main_file_name' in wf:
+                wf[f'{lang}_main_filename'] = wf['main_file_name']
+            if 'child_file_names' in wf:
+                wf[f'{lang}_child_filenames'] = wf['child_file_names']
+            if lang == "cwl":
+                wf['cwl_directory_url_v1'] = wf['cwl_directory_url'] # This makes sure CWL v1 is used
+
+        logger.warning(f"Workflow metadata used for Tibanna: {json.dumps(wf)}")
+        return wf
     
 
 
@@ -61,7 +90,7 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
 
     def __init__(self, workflow=None, input_files=[], output_files=None, postrun_json=None, 
                  run_status='started', run_url='', job_id=None, uuid=None, parameters=[], aliases=None,
-                 title='', name='', **kwargs):
+                 title='', **kwargs):
         """
         Class for WorkflowRun that matches the SMaHT Metadata schema
         Workflow (uuid of the workflow to run) has to be given.
@@ -82,8 +111,7 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         self.workflow = workflow
         if run_url:
             self.run_url = run_url
-        self.name = name
-        self.title = title + " run " + str(datetime.datetime.now())
+        self.title = title
         if aliases:
             self.aliases = aliases
         self.input_files = input_files
@@ -92,23 +120,55 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         if postrun_json:
             self.postrun_json = postrun_json
 
+    def set_postrun_json_url(self, url):
+        self.postrun_json = url
+
     def post(self, key, type_name=None):
         type_name = type_name or 'workflow_run'
-        logger.debug("Posting workflow_run: self.as_dict()= " + str(self.as_dict()))
-        return post_metadata(self.as_dict(), type_name, key=key)
+        patch_dict = self.as_dict()
+        patch_dict = self.restrict_output_file_properties(patch_dict)
+        logger.debug("Posting workflow_run: patch_dict= " + str(patch_dict))
+        return post_metadata(patch_dict, type_name, key=key)
+    
+    def patch(self, key, type_name=None):
+        patch_dict = self.as_dict()
+        patch_dict = self.restrict_output_file_properties(patch_dict)
+        logger.debug("Patching workflow_run: patch_dict= " + str(patch_dict))
+        return patch_metadata(patch_dict, key=key)
+    
+    def restrict_output_file_properties(self, patch_dict):
+        output_files = copy.deepcopy(patch_dict["output_files"])
+        restricted_output_files = []
+        for of in output_files:
+            restricted_output_files.append({
+                "workflow_argument_name": of["workflow_argument_name"],
+                "value": of["value"],
+            })
+        patch_dict["output_files"] = restricted_output_files
+        return patch_dict
+
 
 
 class ProcessedFileMetadata(ProcessedFileMetadataAbstract):
 
+    accession_prefix = ACCESSION_PREFIX
+
     def __init__(self, **kwargs):
         self.submission_centers = kwargs.get('submission_centers', [DEFAULT_SUBMISSION_CENTER])
         self.consortia = kwargs.get('consortia', [DEFAULT_CONSORTIUM])
+        
+        # data_category and data_type come in through other_fields when the file is first posted,
+        # in the UpdateFFMeta step they come in through kwargs
+        self.data_category = kwargs.get('data_category', [])
+        self.data_type = kwargs.get('data_type', [])
 
-        if 'data_category' not in kwargs or 'data_type' not in kwargs:
-            raise Exception("data_category and data_type are required for output files")
-
-        self.data_category = kwargs.get('data_category') 
-        self.data_type = kwargs.get('data_type')
+        other_fields = kwargs.get('other_fields', {})
+        if 'data_category' in other_fields and 'data_type' in other_fields:
+            # Convert to array if these were passed as strings
+            dc = other_fields['data_category']
+            other_fields['data_category'] = [dc] if type(dc) is str else dc
+            dt = other_fields['data_type']
+            other_fields['data_type'] = [dt] if type(dt) is str else dt
 
         super().__init__(**kwargs)
 
@@ -135,13 +195,28 @@ class FourfrontStarter(FourfrontStarterAbstract):
         self.ff = self.WorkflowRunMetadata(
             workflow=self.inp.workflow_uuid,
             title=self.inp.wf_meta['title'],
-            name=self.inp.wf_meta['name'],
             input_files=self.inp.input_files.create_input_files_for_wfrmeta(),
             run_url=self.tbn.settings.get('url', ''),
             output_files=self.create_ff_output_files(),
             parameters=self.inp.parameters,
             job_id=self.inp.jobid
         )
+
+    # def ff_outfile(self, argname):
+    #     arg = self.arg(argname)
+    #     if arg.get('argument_type') in PROCESSED_FILE_TYPES:
+    #         if argname not in self.pfs:
+    #             raise Exception("processed file objects must be ready before creating ff_outfile")
+    #         try:
+    #             resp = self.get_meta(self.pfs[argname].uuid)
+    #         except Exception as e:
+    #             raise Exception("processed file must be posted before creating ff_outfile: %s" % str(e))
+    #         return WorkflowRunOutputFiles(workflow_argument_name=arg.get('workflow_argument_name'),
+    #                                       argument_type=arg.get('argument_type'),
+    #                                       uuid=resp.get('uuid', None)).as_dict()
+    #     else:
+    #         return WorkflowRunOutputFiles(arg.get('workflow_argument_name'),
+    #                                       argument_type=arg.get('argument_type')).as_dict()
 
     # def pf(self, argname, **kwargs):
     #     if self.user_supplied_output_files(argname):
@@ -191,7 +266,7 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
     
     @property
     def app_name(self):
-        return self.ff_meta.name
+        return self.ff_meta.title
     
     def update_metadata(self):
         for arg in self.output_argnames:
@@ -211,6 +286,24 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
         self.ff_meta.run_status = 'complete'
         logger.info("Patching workflow run metadata...")
         self.patch_ffmeta()
+
+    def set_ff_output_files(self):
+        output_files = []
+        for of in self.ff_meta.output_files:
+            # We need additional infos from the portal
+            uuid = of["value"]
+            of_metadata = self.get_metadata(uuid)
+
+            output_files.append({
+                "workflow_argument_name": of["workflow_argument_name"],
+                "type": of["type"],
+                "upload_key": of_metadata["upload_key"],
+                "format": of_metadata["file_format"],
+                "extra_files": of_metadata["extra_files"] if "extra_files" in of_metadata else [],
+                "value": uuid
+            })
+
+        return output_files
 
 
 def post_random_file(bucket, ff_key,
