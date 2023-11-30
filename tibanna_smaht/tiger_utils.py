@@ -13,6 +13,10 @@ from dcicutils.ff_utils import (
 from tibanna_ffcommon.file_format import (
     parse_formatstr,
 )
+from tibanna_ffcommon.input_files import (
+    FFInputFiles,
+    FFInputFile
+)
 from tibanna.nnested_array import (
     flatten,
 )
@@ -43,7 +47,39 @@ from tibanna import create_logger
 
 logger = create_logger(__name__)
 
+class TigerInputFile(FFInputFile):
+
+    def get_file_format_from_uuid(self, uuid):
+        """returns parsed (cleaned) version of file format (e.g. 'bam')"""
+        file_format_uuid = parse_formatstr(self.get_metadata(uuid)['file_format'])
+        file_format = self.get_metadata(file_format_uuid)['identifier']
+        return file_format
+    
+    def get_extra_file_formats_from_uuid(self, uuid):
+        """returns parsed (cleaned) version of file format (e.g. 'bai') for extra files"""
+        extra_files = self.get_extra_files_from_uuid(uuid)
+        if not extra_files:
+            return None
+        file_formats = []
+        for exf in extra_files:
+            file_format_uuid = parse_formatstr(exf['file_format'])
+            file_formats.append(self.get_metadata(file_format_uuid)['identifier'])
+        return file_formats
+
+
+class TigerInputFiles(FFInputFiles):
+    
+    def __init__(self, input_files, ff_key=None, ff_env=None):
+        """input_files : list of dictionaries provided as part of
+        Pony/Zebra input json as the field 'input_files'
+        """
+        self.input_files = [TigerInputFile(**inpf, ff_key=ff_key, ff_env=ff_env) for inpf in input_files]
+        self.ff_key = ff_key
+        self.ff_env = ff_env
+
 class TigerInput(FFInputAbstract):
+
+    InputFiles = TigerInputFiles
     
     def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
                  _tibanna=None, push_error_to_end=True, **kwargs):
@@ -80,7 +116,6 @@ class TigerInput(FFInputAbstract):
 
         logger.warning(f"Workflow metadata used for Tibanna: {json.dumps(wf)}")
         return wf
-    
 
 
 class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
@@ -126,15 +161,24 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
     def post(self, key, type_name=None):
         type_name = type_name or 'workflow_run'
         patch_dict = self.as_dict()
+        patch_dict = self.restrict_parameters(patch_dict)
         patch_dict = self.restrict_output_file_properties(patch_dict)
         logger.debug("Posting workflow_run: patch_dict= " + str(patch_dict))
         return post_metadata(patch_dict, type_name, key=key)
     
     def patch(self, key, type_name=None):
         patch_dict = self.as_dict()
+        patch_dict = self.restrict_parameters(patch_dict)
         patch_dict = self.restrict_output_file_properties(patch_dict)
         logger.debug("Patching workflow_run: patch_dict= " + str(patch_dict))
         return patch_metadata(patch_dict, key=key)
+
+    def restrict_parameters(self, patch_dict):
+        # If there are no parameters remove the key, 
+        # so that we don't try to patch an empty list to the portal
+        if not patch_dict['parameters']:
+            del patch_dict['parameters']
+        return patch_dict
     
     def restrict_output_file_properties(self, patch_dict):
         output_files = copy.deepcopy(patch_dict["output_files"])

@@ -101,6 +101,7 @@ class FFInputAbstract(SerializableObject):
     # do not modify or access it directly, but use self.get_metadata
     # instead
     _metadata = dict()
+    InputFiles = FFInputFiles
 
     def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
                  _tibanna=None, push_error_to_end=True, **kwargs):
@@ -128,11 +129,11 @@ class FFInputAbstract(SerializableObject):
         # this object handles input file-related operations including format conversions
         # to unicorn input files and input files for workflow run metadata.
         if self.tibanna_settings:
-            self.input_files = FFInputFiles(kwargs.get('input_files', []),
+            self.input_files = self.InputFiles(kwargs.get('input_files', []),
                                             ff_key=self.tibanna_settings.ff_keys,
                                             ff_env=self.tibanna_settings.env)
         else:
-            self.input_files = FFInputFiles(kwargs.get('input_files', []))
+            self.input_files = self.InputFiles(kwargs.get('input_files', []))
 
         self.workflow_uuid = workflow_uuid
         self.output_bucket = output_bucket
