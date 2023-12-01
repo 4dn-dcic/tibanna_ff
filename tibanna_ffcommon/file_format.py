@@ -29,7 +29,9 @@ class FormatExtensionMap(object):
         self.fe_dict = dict()
         logger.debug("**ffe_all = " + str(ffe_all))
         for k in ffe_all:
+            # It is `file_format` for CGAP and 4DN; `identifier` for SMaHT
             file_format = k.get('file_format') or k.get('identifier')
+            # It is `extrafile_formats` for CGAP and 4DN; `extra_file_formats` for SMaHT
             extra_file_formats = k.get('extrafile_formats', []) or k.get('extra_file_formats', [])
             self.fe_dict[file_format] = \
                 {'standard_extension': k['standard_file_extension'],
