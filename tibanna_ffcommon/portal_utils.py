@@ -776,12 +776,12 @@ class FourfrontUpdaterAbstract(object):
     def postrunjson_input_files(self):
         return self.postrunjson.Job.Input.Input_files_data
 
-    # workflowrun-ralated basic functionalities
+    # workflowrun-related basic functionalities
     def set_ff_output_files(self):
-        return self.ff_meta.output_files
+        return self.ff_meta.output_files or []
     
     def set_ff_input_files(self):
-        return self.ff_meta.input_files
+        return self.ff_meta.input_files or []
 
     def ff_output_file(self, argname=None, pf_uuid=None):
         if argname:
