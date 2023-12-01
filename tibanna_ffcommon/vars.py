@@ -65,7 +65,7 @@ def BUCKET_NAME(env, filetype):
     global _BUCKET_NAME_CWL
 
     processed_file_types = ['FileProcessed', 'OutputFile']
-    raw_file_types = ['FileFastq', 'FileReference', 'ReferenceFile' 'FileMicroscopy', 'FileSubmitted']
+    raw_file_types = ['FileFastq', 'FileReference', 'ReferenceFile', 'SubmittedFile', 'FileMicroscopy', 'FileSubmitted']
 
     # use cache
     if filetype in processed_file_types and env in _BUCKET_NAME_PROCESSED_FILES:
