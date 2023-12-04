@@ -101,6 +101,7 @@ class FFInputAbstract(SerializableObject):
     # do not modify or access it directly, but use self.get_metadata
     # instead
     _metadata = dict()
+    InputFiles = FFInputFiles
 
     def __init__(self, workflow_uuid=None, output_bucket=None, config=None, jobid='',
                  _tibanna=None, push_error_to_end=True, **kwargs):
@@ -128,11 +129,11 @@ class FFInputAbstract(SerializableObject):
         # this object handles input file-related operations including format conversions
         # to unicorn input files and input files for workflow run metadata.
         if self.tibanna_settings:
-            self.input_files = FFInputFiles(kwargs.get('input_files', []),
+            self.input_files = self.InputFiles(kwargs.get('input_files', []),
                                             ff_key=self.tibanna_settings.ff_keys,
                                             ff_env=self.tibanna_settings.env)
         else:
-            self.input_files = FFInputFiles(kwargs.get('input_files', []))
+            self.input_files = self.InputFiles(kwargs.get('input_files', []))
 
         self.workflow_uuid = workflow_uuid
         self.output_bucket = output_bucket
@@ -249,7 +250,7 @@ class FFInputAbstract(SerializableObject):
                 args['cwl_version'] = 'v1'
             else:
                 args['cwl_version'] = 'draft3'
-
+        
         args['input_parameters'] = self.parameters_
         args['additional_benchmarking_parameters'] = self.additional_benchmarking_parameters
         args['output_S3_bucket'] = self.output_bucket
@@ -554,10 +555,11 @@ class FourfrontStarterAbstract(object):
         else:
             extra_files = None
         logger.debug("appending %s to pfs" % arg.get('workflow_argument_name'))
+        other_fields = self.parse_custom_fields(self.inp.custom_pf_fields, self.inp.common_fields, argname)
         return self.ProcessedFileMetadata(
             file_format=arg.get('argument_format'),
             extra_files=extra_files,
-            other_fields=self.parse_custom_fields(self.inp.custom_pf_fields, self.inp.common_fields, argname),
+            other_fields=other_fields,
             **kwargs
         )
 
@@ -692,9 +694,14 @@ class FourfrontUpdaterAbstract(object):
             except Exception as e:
                 raise TibannaStartException("%s" % e)
         if config and jobid:
-            self.ff_meta.awsem_postrun_json = self.get_postrunjson_url(config, jobid, metadata_only)
+            postrun_json_url = self.get_postrunjson_url(config, jobid, metadata_only)
+            self.ff_meta.set_postrun_json_url(postrun_json_url)
         self.patch_items = dict()  # a collection of patch jsons (key = uuid)
         self.post_items = dict()  # a collection of patch jsons (key = uuid)
+
+        self.ff_output_files = self.set_ff_output_files()
+        self.ff_input_files = self.set_ff_input_files()
+        self.ff_files = self.ff_input_files + self.ff_output_files
 
     def get_postrunjson(self, postrunjson_in_input, strict=True):
         if not postrunjson_in_input:
@@ -761,27 +768,20 @@ class FourfrontUpdaterAbstract(object):
 
     # postrunjson-related basic functionalities
     @property
-    def awsem_output_files(self):
+    def postrunjson_output_files(self):
         """this used to be called output_info"""
         return self.postrunjson.Job.Output.output_files
 
     @property
-    def awsem_input_files(self):
+    def postrunjson_input_files(self):
         return self.postrunjson.Job.Input.Input_files_data
 
-    # workflowrun-ralated basic functionalities
-    @property
-    def ff_output_files(self):
-        """this used to be called output_files_meta"""
-        return self.ff_meta.output_files
-
-    @property
-    def ff_input_files(self):
-        return self.ff_meta.input_files
-
-    @property
-    def ff_files(self):
-        return self.ff_input_files + self.ff_output_files
+    # workflowrun-related basic functionalities
+    def set_ff_output_files(self):
+        return self.ff_meta.output_files or []
+    
+    def set_ff_input_files(self):
+        return self.ff_meta.input_files or []
 
     def ff_output_file(self, argname=None, pf_uuid=None):
         if argname:
@@ -803,11 +803,11 @@ class FourfrontUpdaterAbstract(object):
 
     @property
     def input_argnames(self):
-        return list(self.awsem_input_files.keys())
+        return list(self.postrunjson_input_files.keys())
 
     @property
     def output_argnames(self):
-        return list(self.awsem_output_files.keys())
+        return list(self.postrunjson_output_files.keys())
 
     def output_type(self, argname):
         for x in self.ff_output_files:
@@ -980,10 +980,10 @@ class FourfrontUpdaterAbstract(object):
             argname = self.pf2argname(pf_uuid)
         else:
             raise Exception("At least argname or pf_uuid must be provided to get md5sum")
-        if argname in self.awsem_output_files:
+        if argname in self.postrunjson_output_files:
             return self.outbucket
-        elif argname in self.awsem_input_files:
-            return self.awsem_input_files[argname].dir_
+        elif argname in self.postrunjson_input_files:
+            return self.postrunjson_input_files[argname].dir_
 
     def s3(self, argname):
         return s3Utils(self.bucket(argname), self.bucket(argname), self.bucket(argname))
@@ -1021,11 +1021,11 @@ class FourfrontUpdaterAbstract(object):
         else:
             raise Exception("At least argname or pf_uuid must be provided to get md5sum")
         if secondary_key:
-            for sf in self.awsem_output_files[argname].secondaryFiles:
+            for sf in self.postrunjson_output_files[argname].secondaryFiles:
                 if sf.target == secondary_key:
                     return sf.md5sum
             return None
-        return self.awsem_output_files[argname].md5sum
+        return self.postrunjson_output_files[argname].md5sum
 
     def filesize(self, argname=None, pf_uuid=None, secondary_key=None):
         if argname:
@@ -1035,11 +1035,11 @@ class FourfrontUpdaterAbstract(object):
         else:
             raise Exception("At least argname or pf_uuid must be provided to get filesize")
         if secondary_key:
-            for sf in self.awsem_output_files[argname].secondaryFiles:
+            for sf in self.postrunjson_output_files[argname].secondaryFiles:
                 if sf.target == secondary_key:
                     return sf.size
             return None
-        return self.awsem_output_files[argname].size
+        return self.postrunjson_output_files[argname].size
 
     def file_format(self, argname, secondary_key=None):
         for pf in self.ff_output_files:
@@ -1087,10 +1087,10 @@ class FourfrontUpdaterAbstract(object):
         Getting a file key through argname is mainly for getting non-processed files
         like md5 or qc reports"""
         if argname:
-            if argname in self.awsem_output_files:
-                return self.awsem_output_files[argname].target
-            elif argname in self.awsem_input_files:
-                return self.awsem_input_files[argname].path
+            if argname in self.postrunjson_output_files:
+                return self.postrunjson_output_files[argname].target
+            elif argname in self.postrunjson_input_files:
+                return self.postrunjson_input_files[argname].path
         elif pf_uuid:
             of = self.ff_output_file(pf_uuid=pf_uuid)
             if of:
@@ -1114,9 +1114,9 @@ class FourfrontUpdaterAbstract(object):
             accessions.append(accession)
         # argname is input
         else:
-            if argname not in self.awsem_input_files:
+            if argname not in self.postrunjson_input_files:
                 return []
-            paths = copy.deepcopy(self.awsem_input_files[argname].path)
+            paths = copy.deepcopy(self.postrunjson_input_files[argname].path)
             if not isinstance(paths, list):
                 paths = [paths]
             for path in paths:
@@ -1260,6 +1260,18 @@ class FourfrontUpdaterAbstract(object):
                     self.update_patch_items(ip['uuid'], {'higlass_uid': higlass_uid})
             self.update_patch_items(ip['uuid'], {'extra_files': ip['extra_files']})
 
+    def get_portal_specific_item_name(self, item: str) -> str:
+        """This function gets the portal specific item names for a given item name. This is necessary because
+        the nameing of similar items can vary across portals, e.g. "quality_metric_generic" (CGAP) vs 
+        "quality_metric" (SMaHT)
+
+        Args:
+            item (str): Name of the item
+
+        Raises:
+            NotImplementedError: This method need to be implemented in the portal specific layers of this class
+        """
+        raise NotImplementedError("This method need to be implemented in the portal specific layers of this class")
 
     def update_generic_qc(self):
         """This function goes through the input files and checks for associated Generic QC files.
@@ -1317,11 +1329,12 @@ class FourfrontUpdaterAbstract(object):
                 if qc_arg_zipped_s3_url:
                     qmg_metadata['url'] = qc_arg_zipped_s3_url
                 qmg_metadata.update(qc_json)
-                qmg_item = post_metadata(qmg_metadata, "quality_metric_generic", key=ff_key, ff_env=ff_env)
-                logger.debug(f"Successfully created quality_metric_generic item {qmg_uuid}: {str(qmg_item)}")
+                qm_item_name_in_schema = self.get_portal_specific_item_name("quality_metric")
+                qmg_item = post_metadata(qmg_metadata, qm_item_name_in_schema, key=ff_key, ff_env=ff_env)
+                logger.debug(f"Successfully created {qm_item_name_in_schema} item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:
                 raise GenericQcException(
-                    f"Could not post quality_metric_generic item for  {qc_arg_json_name}. The JSON was: {json.dumps(qmg_metadata)}. Error: {str(e)}")
+                    f"Could not post {qm_item_name_in_schema} item for  {qc_arg_json_name}. The JSON was: {json.dumps(qmg_metadata)}. Error: {str(e)}")
 
             # This QualityMetricGeneric item will now be linked to the corresponding input file.
             try:
@@ -1645,6 +1658,7 @@ class FourfrontUpdaterAbstract(object):
         return md5a and md5b and md5a != md5b
 
     # update all,high-level function
+    # SMaHT has its own implementation of this function
     def update_metadata(self):
         for arg in self.output_argnames:
             if self.status(arg) != 'COMPLETED':

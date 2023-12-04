@@ -64,10 +64,13 @@ def BUCKET_NAME(env, filetype):
     global _BUCKET_NAME_LOG
     global _BUCKET_NAME_CWL
 
+    processed_file_types = ['FileProcessed', 'OutputFile']
+    raw_file_types = ['FileFastq', 'FileReference', 'ReferenceFile', 'SubmittedFile', 'FileMicroscopy', 'FileSubmitted']
+
     # use cache
-    if filetype == 'FileProcessed' and env in _BUCKET_NAME_PROCESSED_FILES:
+    if filetype in processed_file_types and env in _BUCKET_NAME_PROCESSED_FILES:
         return _BUCKET_NAME_PROCESSED_FILES[env]
-    if filetype in ['FileFastq', 'FileReference', 'FileMicroscopy', 'FileSubmitted'] and env in _BUCKET_NAME_RAW_FILES:
+    if filetype in raw_file_types and env in _BUCKET_NAME_RAW_FILES:
         return _BUCKET_NAME_RAW_FILES[env]
     if filetype == 'system' and env in _BUCKET_NAME_SYS:  # log bucket
         return _BUCKET_NAME_SYS[env]
@@ -87,9 +90,9 @@ def BUCKET_NAME(env, filetype):
         _BUCKET_NAME_LOG[env] = s3.tibanna_output_bucket
         _BUCKET_NAME_CWL[env] = s3.tibanna_cwls_bucket
 
-    if filetype == 'FileProcessed':
+    if filetype in processed_file_types:
         return _BUCKET_NAME_PROCESSED_FILES[env]
-    elif filetype in ['FileFastq', 'FileReference', 'FileMicroscopy', 'FileSubmitted']:
+    elif filetype in raw_file_types:
         return _BUCKET_NAME_RAW_FILES[env]
     elif filetype == 'system':
         return _BUCKET_NAME_SYS[env]

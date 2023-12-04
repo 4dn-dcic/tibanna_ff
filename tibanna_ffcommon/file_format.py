@@ -3,6 +3,7 @@ from dcicutils.ff_utils import (
     search_metadata,
 )
 from tibanna import create_logger
+import json
 
 
 logger = create_logger(__name__)
@@ -28,11 +29,14 @@ class FormatExtensionMap(object):
         self.fe_dict = dict()
         logger.debug("**ffe_all = " + str(ffe_all))
         for k in ffe_all:
-            file_format = k['file_format']
+            # It is `file_format` for CGAP and 4DN; `identifier` for SMaHT
+            file_format = k.get('file_format') or k.get('identifier')
+            # It is `extrafile_formats` for CGAP and 4DN; `extra_file_formats` for SMaHT
+            extra_file_formats = k.get('extrafile_formats', []) or k.get('extra_file_formats', [])
             self.fe_dict[file_format] = \
                 {'standard_extension': k['standard_file_extension'],
                  'other_allowed_extensions': k.get('other_allowed_extensions', []),
-                 'extrafile_formats': k.get('extrafile_formats', [])
+                 'extrafile_formats': extra_file_formats
                  }
 
     def get_extension(self, file_format):
