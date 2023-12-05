@@ -428,21 +428,21 @@ def test_evaluate_qc_ruleset(valid_ruleset_1a, qc_json):
         GenericQcException,
         match="QC metric 'read_length' in ruleset not found in QC json",
     ):
-        evaluate_qc_ruleset("input_1", qc_json, ruleset)
+        evaluate_qc_ruleset(qc_json, ruleset)
 
 
 def test_evaluate_qc_ruleset_2a(valid_ruleset_2a, qc_json):
     ruleset = QC_ruleset(**valid_ruleset_2a)
 
     qc_json_new, overall_quality_status = evaluate_qc_ruleset(
-        "input_1", qc_json, ruleset
+        qc_json, ruleset
     )
     assert overall_quality_status == PASS
     assert qc_json_new["qc_values"][1]["flag"] == PASS
 
     ruleset.qc_thresholds[1].pass_target = 547993296
     qc_json_new, overall_quality_status = evaluate_qc_ruleset(
-        "input_1", qc_json, ruleset
+        qc_json, ruleset
     )
     assert overall_quality_status == WARN
     assert qc_json_new["qc_values"][1]["flag"] == PASS
@@ -452,7 +452,7 @@ def test_evaluate_qc_ruleset_2b(valid_ruleset_2b, qc_json):
     ruleset = QC_ruleset(**valid_ruleset_2b)
 
     qc_json_new, overall_quality_status = evaluate_qc_ruleset(
-        "input_2", qc_json, ruleset
+        qc_json, ruleset
     )
     assert overall_quality_status == WARN
     assert qc_json_new["qc_values"][1]["flag"] == WARN
@@ -465,5 +465,5 @@ def test_evaluate_qc_ruleset_2c(valid_ruleset_2c, qc_json):
         GenericQcException,
         match="The overall_quality_status_rule contains metric IDs that are not defined in the rulset.",
     ):
-        evaluate_qc_ruleset("input_3", qc_json, ruleset)
+        evaluate_qc_ruleset(qc_json, ruleset)
 

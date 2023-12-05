@@ -302,6 +302,7 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     WorkflowRunMetadata = WorkflowRunMetadata
     ProcessedFileMetadata = ProcessedFileMetadata
+    QualityMetricsGenericMetadata = QualityMetricsGenericMetadata
     default_email_sender = "smaht.everyone@gmail.com"
     higlass_buckets = HIGLASS_BUCKETS
 

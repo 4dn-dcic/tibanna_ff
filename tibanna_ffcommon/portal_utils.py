@@ -1349,7 +1349,7 @@ class FourfrontUpdaterAbstract(object):
             # If a QC ruleset has been supplied in the worklfow input, check the qc_json against that ruleset
             # and add QC flags to the qc_json
             qc_json, overall_quality_status = (
-                evaluate_qc_ruleset(input_wf_arg_name, qc_json, qc_ruleset)
+                evaluate_qc_ruleset(qc_json, qc_ruleset)
                 if qc_ruleset
                 else (qc_json, None)
             )

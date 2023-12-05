@@ -106,7 +106,7 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
     return result
 
 
-def evaluate_qc_ruleset(input_wf_arg_name: str, qc_json_, qc_ruleset: QC_ruleset):
+def evaluate_qc_ruleset(qc_json_, qc_ruleset: QC_ruleset):
     """For given input file, calculated qc metrics and user defined ruleset,
      returns an updated qc_json with indivifual QC flags set and the overall QC flag
 
@@ -141,7 +141,7 @@ def evaluate_qc_ruleset(input_wf_arg_name: str, qc_json_, qc_ruleset: QC_ruleset
     # during evaluation but we want to return a more useful error message here.
     if "{" in qc_ruleset.overall_quality_status_rule:
         raise GenericQcException(
-            f"The overall_quality_status_rule contains metric IDs that are not defined in the rulset."
+            f"The overall_quality_status_rule contains metric IDs that are not defined in the ruleset."
         )
 
     Lep = LogicalExpressionParser(qc_ruleset.overall_quality_status_rule)

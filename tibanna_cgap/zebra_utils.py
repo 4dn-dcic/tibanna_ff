@@ -76,7 +76,7 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
             }
             available_keys = list(qcv.model_dump().keys()) # There does not seem to be a better way to get all keys (including extra fields) from a Pydantic model
             if "flag" in available_keys:
-                qc_value["flag"] = qcv.flag # This is lowercase as in the CGAP data model
+                qc_value["flag"] = qcv.flag # This is lowercase like in the CGAP data model
             if "tooltip" in available_keys:
                 qc_value["tooltip"] = qcv.tooltip
 
