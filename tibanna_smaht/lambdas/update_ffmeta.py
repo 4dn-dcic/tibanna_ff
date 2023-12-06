@@ -8,7 +8,7 @@ config = {
     'function_handler': 'handler',
     'handler': 'service.handler',
     'region': AWS_REGION,
-    'runtime': 'python3.11',
+    'runtime': 'python3.10',
     'role': 'lambda_full_s3',
     'description': 'Tibanna tiger update_ffmeta',
     'timeout': 600,  # for BAMSNAP
