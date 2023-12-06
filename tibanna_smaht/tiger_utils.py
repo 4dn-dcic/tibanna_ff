@@ -233,7 +233,7 @@ class ProcessedFileMetadata(ProcessedFileMetadataAbstract):
         self.data_type = kwargs.get("data_type", [])
 
         other_fields = kwargs.get("other_fields", {})
-        if "data_category" in other_fields and "data_type" in other_fields:
+        if other_fields and "data_category" in other_fields and "data_type" in other_fields:
             # Convert to array if these were passed as strings
             dc = other_fields["data_category"]
             other_fields["data_category"] = [dc] if type(dc) is str else dc
