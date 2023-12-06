@@ -260,7 +260,7 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
             self.overall_quality_status = qmg.overall_quality_status.capitalize()  # This is, e.g., "Pass" as in the SMaHT data model
         if qmg.url:
             self.url = qmg.url
-        self.name = qmg.name
+        #self.name = qmg.name
         qc_values = []
         for qcv in qmg.qc_values:
             qc_value = {
