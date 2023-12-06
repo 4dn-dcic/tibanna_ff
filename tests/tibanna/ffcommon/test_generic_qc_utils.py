@@ -463,7 +463,7 @@ def test_evaluate_qc_ruleset_2c(valid_ruleset_2c, qc_json):
 
     with pytest.raises(
         GenericQcException,
-        match="The overall_quality_status_rule contains metric IDs that are not defined in the rulset.",
+        match="The overall_quality_status_rule contains metric IDs that are not defined in the ruleset.",
     ):
         evaluate_qc_ruleset(qc_json, ruleset)
 
