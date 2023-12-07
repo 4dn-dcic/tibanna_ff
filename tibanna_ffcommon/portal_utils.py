@@ -1376,9 +1376,6 @@ class FourfrontUpdaterAbstract(object):
                 qmg_metadata.update(qmg_model)
                 qmg_metadata = vars(qmg_metadata)
                 qmg_uuid = qmg_metadata["uuid"]
-                if qc_arg_zipped_s3_url:
-                    qmg_metadata['url'] = qc_arg_zipped_s3_url
-                qmg_metadata.update(qc_json)
                 qmg_item = post_metadata(qmg_metadata, qm_item_name_in_schema, key=ff_key, ff_env=ff_env)
                 logger.debug(f"Successfully created {qm_item_name_in_schema} item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:
