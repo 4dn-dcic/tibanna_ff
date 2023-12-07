@@ -1361,6 +1361,7 @@ class FourfrontUpdaterAbstract(object):
             qc_arg_zipped_s3_url = f"https://{self.outbucket}.s3.amazonaws.com/{self.file_key(qc_arg_zipped['workflow_argument_name'])}" if qc_arg_zipped else None
 
             # The folling will create a new QualityMetricGeneric item in the portal
+            qm_item_name_in_schema = self.get_portal_specific_item_name("quality_metric")
             try:
                 qc_json_file_metadata = self.get_metadata(qc_json_file_accession) # We just get this to populate basic fields of the QualityMetricGeneric item
                 qmg_metadata = self.QualityMetricsGenericMetadata(**qc_json_file_metadata)
@@ -1377,7 +1378,6 @@ class FourfrontUpdaterAbstract(object):
                 if qc_arg_zipped_s3_url:
                     qmg_metadata['url'] = qc_arg_zipped_s3_url
                 qmg_metadata.update(qc_json)
-                qm_item_name_in_schema = self.get_portal_specific_item_name("quality_metric")
                 qmg_item = post_metadata(qmg_metadata, qm_item_name_in_schema, key=ff_key, ff_env=ff_env)
                 logger.debug(f"Successfully created {qm_item_name_in_schema} item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:
