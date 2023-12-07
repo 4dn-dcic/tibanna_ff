@@ -1367,7 +1367,7 @@ class FourfrontUpdaterAbstract(object):
                 qmg_metadata = self.QualityMetricsGenericMetadata(**qc_json_file_metadata)
                 # We are defining a Tibanna internal model here and convert it to the portal specific schema in the `update` function below
                 qmg_model = QualityMetricGenericModel({
-                    "name": qc_json["name"],
+                    #"name": qc_json["name"],
                     "url": qc_arg_zipped_s3_url if qc_arg_zipped_s3_url else None,
                     "overall_quality_status": overall_quality_status,
                     "qc_values": qc_json["qc_values"],
