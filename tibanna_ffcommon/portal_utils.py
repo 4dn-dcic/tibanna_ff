@@ -111,8 +111,9 @@ class QualityMetricGenericQcValueModel(BaseModel):
 class QualityMetricGenericModel(BaseModel):
     #name: str
     url: Optional[str] = None
-    overall_quality_status: str
+    overall_quality_status: Optional[str] = None
     qc_values: List[QualityMetricGenericQcValueModel]
+
     
 
 class FFInputAbstract(SerializableObject):
