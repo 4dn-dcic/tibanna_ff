@@ -1360,7 +1360,7 @@ class FourfrontUpdaterAbstract(object):
             qc_arg_zipped = qc_args_zipped[0] if len(qc_args_zipped) == 1 else None
             qc_arg_zipped_s3_url = f"https://{self.outbucket}.s3.amazonaws.com/{self.file_key(qc_arg_zipped['workflow_argument_name'])}" if qc_arg_zipped else None
 
-            # The folling will create a new QualityMetricGeneric item in the portal
+            # The following will create a new QualityMetricGeneric item in the portal
             qm_item_name_in_schema = self.get_portal_specific_item_name("quality_metric")
             try:
                 qc_json_file_metadata = self.get_metadata(qc_json_file_accession) # We just get this to populate basic fields of the QualityMetricGeneric item
