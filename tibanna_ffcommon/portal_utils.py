@@ -1382,7 +1382,7 @@ class FourfrontUpdaterAbstract(object):
                 logger.debug(f"Successfully created {qm_item_name_in_schema} item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:
                 raise GenericQcException(
-                    f"Could not post {qm_item_name_in_schema} item for  {qc_arg_json_name}. The JSON was: {json.dumps(qmg_metadata)}. Error: {str(e)}")
+                    f"Could not post {qm_item_name_in_schema} item for  {qc_arg_json_name}. Error: {str(e)}")
 
             # This QualityMetricGeneric item will now be linked to the corresponding input file.
             try:
