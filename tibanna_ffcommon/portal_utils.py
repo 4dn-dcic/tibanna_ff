@@ -1390,6 +1390,8 @@ class FourfrontUpdaterAbstract(object):
                 patch_dict = {
                     'quality_metrics': input_file_quality_metrics
                 }
+                logger.debug(f"Quality Metrics accession {input_file_accession}")
+                logger.debug(f"Quality Metrics patch dict {json.dumps(patch_dict)}")
                 patch_metadata(patch_dict, input_file_accession, key=ff_key, ff_env=ff_env)
             except Exception as e:
                 raise GenericQcException(
