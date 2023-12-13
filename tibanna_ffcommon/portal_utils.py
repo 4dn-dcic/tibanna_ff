@@ -1331,7 +1331,7 @@ class FourfrontUpdaterAbstract(object):
         for parameter in parameters:
             p_name = parameter['workflow_argument_name']
             if p_name == "qc_ruleset":
-                qc_ruleset = validate_qc_ruleset(parameter['value'])
+                qc_ruleset = validate_qc_ruleset(json.loads(parameter['value']))
 
 
         ff_key = self.tibanna_settings.ff_keys
