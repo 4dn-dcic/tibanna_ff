@@ -31,7 +31,7 @@ class QC_json_value(BaseModel):
 
 
 class QC_json(BaseModel):
-    name: str
+    #name: str
     qc_values: List[QC_json_value]
 
 
