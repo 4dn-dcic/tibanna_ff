@@ -3,6 +3,7 @@ import json
 import boto3
 import copy
 import random
+import ast
 from uuid import uuid4
 import requests
 import traceback
@@ -1319,19 +1320,19 @@ class FourfrontUpdaterAbstract(object):
         # If QC rulesets has been supplied in the worklfow input,
         # check the qc_json against that ruleset
         qc_ruleset = self.workflow_arguments([QC_RULESET]) # defaults to [] if not supplied
-        if len(qc_ruleset) == 1:
-            qc_ruleset = qc_ruleset[0]
-            qc_ruleset = validate_qc_ruleset(qc_ruleset)
-        elif len(qc_ruleset) > 1:
-            raise GenericQcException(f"Multiple QC rulesets supplied.")
+        # if len(qc_ruleset) == 1:
+        #     qc_ruleset = qc_ruleset[0]
+        #     qc_ruleset = validate_qc_ruleset(qc_ruleset)
+        # elif len(qc_ruleset) > 1:
+        #     raise GenericQcException(f"Multiple QC rulesets supplied.")
 
         # TEMPORARY
-        # parameters = self.ff_meta.parameters
-        # logger.debug(f"Generic QC paramters: {json.dumps(parameters)}")
-        # for parameter in parameters:
-        #     p_name = parameter['workflow_argument_name']
-        #     if p_name == "qc_ruleset":
-        #         qc_ruleset = validate_qc_ruleset(json.loads(parameter['value']))
+        parameters = self.ff_meta.parameters
+        logger.debug(f"Generic QC paramters: {json.dumps(parameters)}")
+        for parameter in parameters:
+            p_name = parameter['workflow_argument_name']
+            if p_name == "qc_ruleset":
+                qc_ruleset = validate_qc_ruleset(ast.literal_eval(parameter['value']))
 
 
         ff_key = self.tibanna_settings.ff_keys
