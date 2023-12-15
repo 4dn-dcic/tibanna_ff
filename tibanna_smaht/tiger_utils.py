@@ -265,7 +265,7 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
         for qcv in qmg.qc_values:
             qc_value = {
                 "key": qcv.key,
-                "value": str(qcv.value)
+                "value": qcv.value
             }
             available_keys = list(qcv.model_dump().keys()) # There does not seem to be a better way to get all keys (including extra fields) from a Pydantic model
             if "flag" in available_keys:
