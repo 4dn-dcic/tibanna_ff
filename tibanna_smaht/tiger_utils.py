@@ -272,6 +272,8 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
                 qc_value["flag"] = qcv.flag.capitalize() # This is, e.g., "Pass" as in the SMaHT data model
             if "tooltip" in available_keys:
                 qc_value["tooltip"] = qcv.tooltip
+            if "derived_from" in available_keys:
+                qc_value["derived_from"] = qcv.derived_from
 
             qc_values.append(qc_value)
 
