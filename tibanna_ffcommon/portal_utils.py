@@ -44,7 +44,6 @@ from .vars import (
     GENERIC_QC_FILE,
     OUTPUT_TO_BE_EXTRA_INPUT_FILE,
     INPUT_FILE,
-    QC_RULESET,
     AWSF_IMAGE
 )
 from .config import (
@@ -1317,23 +1316,13 @@ class FourfrontUpdaterAbstract(object):
         # Basic sanity checks of the workflow arguments
         check_qc_workflow_args(input_file_args, generic_qc_args)
 
-        # If QC rulesets has been supplied in the worklfow input,
-        # check the qc_json against that ruleset
-        qc_ruleset = self.workflow_arguments([QC_RULESET]) # defaults to [] if not supplied
-        # if len(qc_ruleset) == 1:
-        #     qc_ruleset = qc_ruleset[0]
-        #     qc_ruleset = validate_qc_ruleset(qc_ruleset)
-        # elif len(qc_ruleset) > 1:
-        #     raise GenericQcException(f"Multiple QC rulesets supplied.")
-
-        # TEMPORARY
+        qc_ruleset = []
+        # Rulesets come in as parameter with workflow_argument_name "qc_ruleset"
         parameters = self.ff_meta.parameters
-        logger.debug(f"Generic QC paramters: {json.dumps(parameters)}")
         for parameter in parameters:
             p_name = parameter['workflow_argument_name']
             if p_name == "qc_ruleset":
                 qc_ruleset = validate_qc_ruleset(ast.literal_eval(parameter['value']))
-
 
         ff_key = self.tibanna_settings.ff_keys
         ff_env = self.tibanna_settings.env

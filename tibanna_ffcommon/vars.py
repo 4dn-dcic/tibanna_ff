@@ -36,9 +36,6 @@ GENERIC_QC_FILE = 'Generic QC file'
 OUTPUT_TO_BE_EXTRA_INPUT_FILE = 'Output to-be-extra-input file'
 INPUT_FILE = 'Input file'
 
-# Other workflow argument input types
-QC_RULESET = 'QC ruleset'
-
 
 # Secure Tibanna AMI
 # Note that this means only these regions will work (replicate AMI in main account as needed)
