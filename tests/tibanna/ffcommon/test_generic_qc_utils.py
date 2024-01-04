@@ -334,7 +334,6 @@ def invalid_ruleset():
 @pytest.fixture
 def qc_json():
     return {
-        "name": "BAM Quality Metrics",
         "qc_values": [
             {
                 "key": "Total Sequences [Samtools]",

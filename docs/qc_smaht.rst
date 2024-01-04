@@ -13,7 +13,6 @@ The ``qc_json`` property is set to ``true`` in the workflow argument. The file i
 ::
 
   {
-    "name": "BAM Quality Metrics", # Required
     "qc_values": [
       {
         "key": "Total Sequences [Samtools]",         # Required
@@ -37,9 +36,9 @@ The ``qc_zipped`` property is set to ``true`` in the workflow argument. These fi
 Validation of QC metrics
 ------------------------
 
-The ``QualityMetric`` (in CGAP this this is called ``QualityMetricGeneric``) item has the property ``overall_quality_status``. By default this property is set to ``Pass``. Furthermore, the individual QC metrics, i.e., the ``qc_values`` within the ``QualityMetric`` item that is created by Tibanna based on the QC JSON file decribed above, each have a QC flag that can be ``Pass``, ``Warn`` or ``Fail``. No default flag is set.
+The ``QualityMetric`` (in CGAP this this is called ``QualityMetricGeneric``) item has the property ``overall_quality_status``. By default this property is not set. Furthermore, the individual QC metrics, i.e., the ``qc_values`` within the ``QualityMetric`` item that is created by Tibanna based on the QC JSON file decribed above, each have a QC flag that can be ``Pass``, ``Warn`` or ``Fail``. No default flag is set.
 
-Tibanna has the functionality to determine the correct QC flags of individual metrics and the overall QC workflow. In order to activate this functionality the appropirate thresholds and rules that are to be used have to be present in the workflow. If a QC JSON file is present in the workflow, Tibanna is also looking for the presence of a workflow argument of name ``qc_ruleset`` (type ``parameter``). This is a string that encodes a JSON object of the following form
+Tibanna has the functionality to determine the correct QC flags of individual metrics and the overall QC workflow. In order to activate this functionality the appropirate thresholds and rules that are to be used have to be present in the workflow. If a QC JSON file is present in the workflow, Tibanna is also looking for the presence of a workflow argument of name ``qc_ruleset`` (type ``parameter``). This is an object of the following form
 
 ::
 
@@ -73,6 +72,6 @@ Tibanna has the functionality to determine the correct QC flags of individual me
     "overall_quality_status_rule": "{ts1} and {ts2} and {qcf}"
   }
 
-The items in ``qc_thresholds`` define the thresholds for the individual QC metrics. Each of the metrics used here, need to be present in the QC JSON. The ``metric`` property needs to be exactly the same as the ``key`` property in the QC JSON. Operators that are currently supported are ``<=``, ``<``, ``>=``, ``>``, ``==`` and ``!=``. ``pass_target`` determines the threshold to obtain a ``Pass`` flag, ``warn_target`` determines the threshold to obtain a ``Warn`` flag for that metrics. Currently, ``pass_target`` and ``warn_target`` can be of type ``float``, ``int`` or ``str``. For ``str`` values only the operators  ``==`` and ``!=`` should be used. The property ``use_as_qc_flag`` indicates that this threshold is to be used as QC flag for this metrics in the ``QualityMetric`` item.
+The items in ``qc_thresholds`` define the thresholds for the individual QC metrics. Each of the metrics used here, needs to be present in the QC JSON. The ``metric`` property needs to be exactly the same as the ``key`` property in the QC JSON. Operators that are currently supported are ``<=``, ``<``, ``>=``, ``>``, ``==`` and ``!=``. ``pass_target`` determines the threshold to obtain a ``Pass`` flag, ``warn_target`` determines the threshold to obtain a ``Warn`` flag for that metrics. Currently, ``pass_target`` and ``warn_target`` can be of type ``float``, ``int`` or ``str``. For ``str`` values only the operators  ``==`` and ``!=`` should be used. The property ``use_as_qc_flag`` indicates that this threshold is to be used as QC flag for this metrics in the ``QualityMetric`` item.
 
 The overall status flag for the QC workflow is determined by the logical expression in ``overall_quality_status_rule``. The values in the braces refer to the IDs of the individual QC thresholds. The logical expression supports the operators ``and``, ``or`` and ``not`` as well as round brackets for grouping (e.g., ``{qc1} and ({qc2} or {qc3}) and not {qc4}``). Thus, complex QC requirements can be handled by Tibanna. The overall status will obtain a ``Pass`` flag, if all metrics that are referenced in ``overall_quality_status_rule`` have a ``Pass`` flag and the expression in ``overall_quality_status_rule`` evaluates to ``True``. The overall status will obtain a ``WARN`` flag, if all metrics that are referenced in ``overall_quality_status_rule`` have a ``Pass`` or ``Warn`` flag and the expression in ``overall_quality_status_rule`` evaluates to ``True``. The overall status will obtain a ``Fail`` flag, if the ``overall_quality_status_rule`` evaluates to ``False``.
