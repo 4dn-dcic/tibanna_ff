@@ -69,7 +69,7 @@ from .qc import (
     QCArgumentsByTarget
 )
 from .generic_qc_utils import (
-    validate_qc_ruleset,
+    get_qc_ruleset_model,
     evaluate_qc_ruleset,
     check_qc_workflow_args,
     filter_workflow_args_by_property
@@ -1321,7 +1321,7 @@ class FourfrontUpdaterAbstract(object):
         for parameter in parameters:
             p_name = parameter['workflow_argument_name']
             if p_name == "qc_ruleset":
-                qc_ruleset = validate_qc_ruleset(ast.literal_eval(parameter['value']))
+                qc_ruleset = get_qc_ruleset_model(ast.literal_eval(parameter['value']))
 
         ff_key = self.tibanna_settings.ff_keys
         ff_env = self.tibanna_settings.env

@@ -34,7 +34,7 @@ class QC_json(BaseModel):
     qc_values: List[QC_json_value]
 
 
-def validate_qc_ruleset(qc_ruleset) -> QC_ruleset:
+def get_qc_ruleset_model(qc_ruleset) -> QC_ruleset:
     """Validate the user supplied QC rule set again the schema and return a Pydantic model.
 
     Args:

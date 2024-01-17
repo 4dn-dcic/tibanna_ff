@@ -7,7 +7,7 @@ config = {
     'function_handler': 'handler',
     'handler': 'service.handler',
     'region': AWS_REGION,
-    'runtime': 'python3.10',
+    'runtime': 'python3.11',
     'role': 'tibanna_lambda_init_role',
     'description': 'update costs of a workflow run',
     'timeout': 300,
