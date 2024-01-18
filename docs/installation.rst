@@ -5,16 +5,15 @@ Installation and dependencies
 Installation
 ++++++++++++
 
-To install ``tibanna_4dn`` and ``tibanna_cgap``,
+To install ``tibanna_4dn``, ``tibanna_cgap`` and ``tibanna_smaht``,
 
 ::
 
-    pip install tibanna_ff
-    # or pip install tibanna-ff
+    pip install tibanna-ff
 
-If you install ``tibanna_ff``, ``tibanna`` will also be installed as its dependency. (no need to install ``tibanna`` separately)
+If you install ``tibanna-ff``, ``tibanna`` will also be installed as its dependency. (no need to install ``tibanna`` separately)
 
-If ``tibanna_ff`` is installed correctly, you can do the following.
+If ``tibanna-ff`` is installed correctly, you can do the following.
 
 ::
 
@@ -30,6 +29,7 @@ If ``tibanna_ff`` is installed correctly, you can do the following.
     tibanna -h
     tibanna_4dn -h
     tibanna_cgap -h
+    tibanna_smaht -h
 
 
 

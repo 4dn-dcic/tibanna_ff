@@ -9,6 +9,7 @@ CLI entrypoints for unicorn, pony and zebra are as follows. With ``-h`` option, 
     tibanna -h
     tibanna_4dn -h
     tibanna_cgap -h
+    tibanna_smaht -h
 
 
 Tibanna Deployment
@@ -27,6 +28,10 @@ Tibanna Deployment
 ::
 
     tibanna_cgap deploy_zebra [options]
+
+::
+
+    tibanna_smaht deploy_tiger [options]
 
 
 
@@ -49,6 +54,10 @@ Even for deploying a single lambda function, we should use the right entry point
 
     tibanna_cgap deploy_core -n <lambda_name> [options]
 
+::
+
+    tibanna_samht deploy_core -n <lambda_name> [options]
+
 
 
 
@@ -70,11 +79,9 @@ Running Workflow
     tibanna_cgap run_workflow -i <input_json> --sfn=<stepfunctionname>
 
 
-
-The above three can be used interchageably, as long as the correct step function name is used. i.e. the following command still works and would submit a job to ``tibanna_pony`` even if the entry point ``tibanna_cgap`` was used.
-
-
 ::
 
-    tibanna_cgap run_workflow -i <input_json> --sfn=tibanna_pony
+    tibanna_smaht run_workflow -i <input_json> --sfn=<stepfunctionname>
+
+
 

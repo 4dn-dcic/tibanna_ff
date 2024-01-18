@@ -28,6 +28,7 @@ from tibanna_ffcommon.portal_utils import (
     FourfrontUpdaterAbstract,
     QualityMetricsGenericMetadataAbstract,
     FFInputAbstract,
+    QualityMetricGenericModel
 )
 from tibanna import create_logger
 
@@ -232,7 +233,7 @@ class ProcessedFileMetadata(ProcessedFileMetadataAbstract):
         self.data_type = kwargs.get("data_type", [])
 
         other_fields = kwargs.get("other_fields", {})
-        if "data_category" in other_fields and "data_type" in other_fields:
+        if other_fields and "data_category" in other_fields and "data_type" in other_fields:
             # Convert to array if these were passed as strings
             dc = other_fields["data_category"]
             other_fields["data_category"] = [dc] if type(dc) is str else dc
@@ -253,6 +254,30 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
         )
         self.consortia = kwargs.get("consortia", [DEFAULT_CONSORTIUM])
         super().__init__(**kwargs)
+
+    def update(self, qmg: QualityMetricGenericModel):
+        if qmg.overall_quality_status:
+            self.overall_quality_status = qmg.overall_quality_status.capitalize()  # This is, e.g., "Pass" as in the SMaHT data model
+        if qmg.url:
+            self.url = qmg.url
+        #self.name = qmg.name
+        qc_values = []
+        for qcv in qmg.qc_values:
+            qc_value = {
+                "key": qcv.key,
+                "value": qcv.value
+            }
+            available_keys = list(qcv.model_dump().keys()) # There does not seem to be a better way to get all keys (including extra fields) from a Pydantic model
+            if "flag" in available_keys:
+                qc_value["flag"] = qcv.flag.capitalize() # This is, e.g., "Pass" as in the SMaHT data model
+            if "tooltip" in available_keys:
+                qc_value["tooltip"] = qcv.tooltip
+            if "derived_from" in available_keys:
+                qc_value["derived_from"] = qcv.derived_from
+
+            qc_values.append(qc_value)
+
+        self.qc_values = qc_values
 
 
 class FourfrontStarter(FourfrontStarterAbstract):
@@ -279,6 +304,7 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     WorkflowRunMetadata = WorkflowRunMetadata
     ProcessedFileMetadata = ProcessedFileMetadata
+    QualityMetricsGenericMetadata = QualityMetricsGenericMetadata
     default_email_sender = "smaht.everyone@gmail.com"
     higlass_buckets = HIGLASS_BUCKETS
 

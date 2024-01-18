@@ -3,6 +3,7 @@ import json
 import boto3
 import copy
 import random
+import ast
 from uuid import uuid4
 import requests
 import traceback
@@ -42,7 +43,8 @@ from .vars import (
     OUTPUT_QC_FILE,
     GENERIC_QC_FILE,
     OUTPUT_TO_BE_EXTRA_INPUT_FILE,
-    INPUT_FILE
+    INPUT_FILE,
+    AWSF_IMAGE
 )
 from .config import (
     higlass_config
@@ -67,6 +69,8 @@ from .qc import (
     QCArgumentsByTarget
 )
 from .generic_qc_utils import (
+    get_qc_ruleset_model,
+    evaluate_qc_ruleset,
     check_qc_workflow_args,
     filter_workflow_args_by_property
 )
@@ -77,7 +81,8 @@ from .exceptions import (
     MalFormattedWorkflowMetadataException,
     GenericQcException
 )
-from .vars import AWSF_IMAGE
+from typing import Any, List, Optional
+from pydantic import BaseModel, ConfigDict
 
 
 logger = create_logger(__name__)
@@ -95,6 +100,20 @@ OUTPUT_ARG_TYPE_LIST = [OUTPUT_PROCESSED_FILE,
 
 # File types that are uploaded to the portal (and S3)
 PROCESSED_FILE_TYPES = [OUTPUT_PROCESSED_FILE, GENERIC_QC_FILE]
+
+# This defines the Tibanna internal QualityMetricGeneric schema. These will be used to
+# create the portal specific QualityMetricGeneric items via the QualityMetricsGenericMetadata class
+class QualityMetricGenericQcValueModel(BaseModel):
+    key: str
+    value: Any
+    model_config = ConfigDict(extra="allow")
+
+class QualityMetricGenericModel(BaseModel):
+    url: Optional[str] = None
+    overall_quality_status: Optional[str] = None
+    qc_values: List[QualityMetricGenericQcValueModel]
+
+    
 
 class FFInputAbstract(SerializableObject):
     # the following attribute works as a cache for metadata -
@@ -340,6 +359,9 @@ class QualityMetricsGenericMetadataAbstract(SerializableObject):
 
     def __init__(self, **kwargs):
         self.uuid = str(uuid4())
+
+    def update(self, qmg: QualityMetricGenericModel):
+        pass
 
 
 class ProcessedFileMetadataAbstract(SerializableObject):
@@ -1293,6 +1315,14 @@ class FourfrontUpdaterAbstract(object):
         # Basic sanity checks of the workflow arguments
         check_qc_workflow_args(input_file_args, generic_qc_args)
 
+        qc_ruleset = []
+        # Rulesets come in as parameter with workflow_argument_name "qc_ruleset"
+        parameters = self.ff_meta.parameters
+        for parameter in parameters:
+            p_name = parameter['workflow_argument_name']
+            if p_name == "qc_ruleset":
+                qc_ruleset = get_qc_ruleset_model(ast.literal_eval(parameter['value']))
+
         ff_key = self.tibanna_settings.ff_keys
         ff_env = self.tibanna_settings.env
 
@@ -1314,6 +1344,14 @@ class FourfrontUpdaterAbstract(object):
             except Exception as e:
                 logger.error(str(e))
                 raise GenericQcException(f"Could not get {qc_arg_json_name} from S3. Error: {str(e)}")
+            
+            # If a QC ruleset has been supplied in the worklfow input, check the qc_json against that ruleset
+            # and add QC flags to the qc_json
+            qc_json, overall_quality_status = (
+                evaluate_qc_ruleset(qc_json, qc_ruleset)
+                if qc_ruleset
+                else (qc_json, None)
+            )
 
             # Get the link to the zipped report. This will be added to the QualityMetricGeneric item
             # After running check_qc_workflow_args, we know that this contains zero or one elements
@@ -1321,20 +1359,26 @@ class FourfrontUpdaterAbstract(object):
             qc_arg_zipped = qc_args_zipped[0] if len(qc_args_zipped) == 1 else None
             qc_arg_zipped_s3_url = f"https://{self.outbucket}.s3.amazonaws.com/{self.file_key(qc_arg_zipped['workflow_argument_name'])}" if qc_arg_zipped else None
 
-            # The folling will create a new QualityMetricGeneric item in the portal
+            # The following block will create a new QualityMetricGeneric item in the portal
+            qm_item_name_in_schema = self.get_portal_specific_item_name("quality_metric")
             try:
-                qc_json_file_metadata = self.get_metadata(qc_json_file_accession)
-                qmg_metadata = vars(self.QualityMetricsGenericMetadata(**qc_json_file_metadata))
+                qc_json_file_metadata = self.get_metadata(qc_json_file_accession) # We just get this to populate basic fields of the QualityMetricGeneric item
+                qmg_metadata = self.QualityMetricsGenericMetadata(**qc_json_file_metadata)
+                # We are defining a Tibanna internal model here and convert it to the portal specific schema in the `update` function below
+                qmg_model = QualityMetricGenericModel(**{
+                    #"name": qc_json["name"],
+                    "url": qc_arg_zipped_s3_url if qc_arg_zipped_s3_url else None,
+                    "overall_quality_status": overall_quality_status,
+                    "qc_values": qc_json["qc_values"],
+                })
+                qmg_metadata.update(qmg_model)
+                qmg_metadata = vars(qmg_metadata)
                 qmg_uuid = qmg_metadata["uuid"]
-                if qc_arg_zipped_s3_url:
-                    qmg_metadata['url'] = qc_arg_zipped_s3_url
-                qmg_metadata.update(qc_json)
-                qm_item_name_in_schema = self.get_portal_specific_item_name("quality_metric")
                 qmg_item = post_metadata(qmg_metadata, qm_item_name_in_schema, key=ff_key, ff_env=ff_env)
                 logger.debug(f"Successfully created {qm_item_name_in_schema} item {qmg_uuid}: {str(qmg_item)}")
             except Exception as e:
                 raise GenericQcException(
-                    f"Could not post {qm_item_name_in_schema} item for  {qc_arg_json_name}. The JSON was: {json.dumps(qmg_metadata)}. Error: {str(e)}")
+                    f"Could not post {qm_item_name_in_schema} item for  {qc_arg_json_name}. Error: {str(e)}")
 
             # This QualityMetricGeneric item will now be linked to the corresponding input file.
             try:
@@ -1344,6 +1388,8 @@ class FourfrontUpdaterAbstract(object):
                 patch_dict = {
                     'quality_metrics': input_file_quality_metrics
                 }
+                logger.debug(f"Quality Metrics accession {input_file_accession}")
+                logger.debug(f"Quality Metrics patch dict {json.dumps(patch_dict)}")
                 patch_metadata(patch_dict, input_file_accession, key=ff_key, ff_env=ff_env)
             except Exception as e:
                 raise GenericQcException(

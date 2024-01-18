@@ -29,14 +29,17 @@ class IAM(_IAM):
         arnlist = super().policy_arn_list_for_role
 
         general_lambda_policy_types = ['vpc', 'bucket', 'cloudwatch', 'dynamodb']
+        kms_lambda_policy = []
         if S3_ENCRYPT_KEY_ID:  # if we have a value, this key is valid and we must add perms
-            general_lambda_policy_types.append('kms')
+            kms_lambda_policy.append('kms')
+        general_lambda_policy_types += kms_lambda_policy
 
         # Give EB read access to tibanna (for now, so perms are compatible in legacy account) - Will Sept 22 2021
         arnlist[self.start_run_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
                                               ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
         arnlist[self.run_task_lambda_name] += ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
-        arnlist[self.check_task_lambda_name] += ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
+        arnlist[self.check_task_lambda_name] += [self.policy_arn(_) for _ in kms_lambda_policy] + \
+                                                ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
         arnlist[self.update_cost_lambda_name] += ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
         arnlist[self.update_ffmeta_lambda_name] = [self.policy_arn(_) for _ in general_lambda_policy_types] + \
                                                   ['arn:aws:iam::aws:policy/AWSElasticBeanstalkReadOnly']
