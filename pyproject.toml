@@ -36,7 +36,7 @@ tibanna = ">=5.1.0,<6.0.0"
 dcicutils = "^8.0.0"
 boto3 = "^1.28.56"
 botocore = "^1.31.56"
-requests = "2.27.1" # Pin version as 2.28.* currently leads to warnings then running cwltool
+requests = "2.27.1" # Pin version as 2.28.* currently leads to warnings when running cwltool
 tomlkit = "^0.11.0"
 pydantic = "^2.4.2"
 
