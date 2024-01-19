@@ -14,16 +14,16 @@ TIBANNA_DEFAULT_STEP_FUNCTION_NAME = 'tibanna_' + LAMBDA_TYPE
 DEFAULT_AWARD = '1U01CA200059-01'
 DEFAULT_LAB = '4dn-dcic-lab'
 
-HIGLASS_BUCKETS = [BUCKET_NAME('data', 'FileProcessed'),
-                   BUCKET_NAME('fourfront-webdev', 'FileProcessed')]
+HIGLASS_BUCKETS = [BUCKET_NAME('data', FILE_PROCESSED),
+                   BUCKET_NAME('fourfront-webdev', FILE_PROCESSED)]
 
 DEV_ENV = 'webdev'
 PROD_ENV = 'data'
 
 
 def IAM_BUCKETS(env):
-    iam_buckets = [BUCKET_NAME(env, 'FileProcessed'),
-                   BUCKET_NAME(env, 'FileFastq'),
+    iam_buckets = [BUCKET_NAME(env, FILE_PROCESSED),
+                   BUCKET_NAME(env, FILE_FASTQ),
                    '4dn-open-data-public',
                    BUCKET_NAME(env, 'system'),
                    BUCKET_NAME(env, 'log')]

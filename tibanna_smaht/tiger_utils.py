@@ -20,6 +20,10 @@ from .vars import (
     DEFAULT_CONSORTIUM,
     ACCESSION_PREFIX,
     HIGLASS_BUCKETS,
+    OUTPUT_FILE,
+    SUBMITTED_FILE,
+    REFERENCE_FILE,
+    BUCKET_NAME  
 )
 from tibanna_ffcommon.wfr import WorkflowRunMetadataAbstract, aslist
 from tibanna_ffcommon.portal_utils import (
@@ -36,6 +40,21 @@ logger = create_logger(__name__)
 
 
 class TigerInputFile(FFInputFile):
+
+    def get_bucket_name_from_uuid(self, uuid):
+        file_meta = self.get_metadata(uuid)
+        file_types = file_meta['@type']
+        file_type = file_types[0] # This is what is used in 4DN and CGAP
+        # We only want to use core file types when determining the correct bucket
+        if SUBMITTED_FILE in file_types:
+            file_type = SUBMITTED_FILE
+        elif REFERENCE_FILE in file_types:
+            file_type = REFERENCE_FILE
+        elif OUTPUT_FILE in file_types:
+            file_type = OUTPUT_FILE
+
+        return BUCKET_NAME(self.ff_env, file_type)
+        
     def get_file_format_from_uuid(self, uuid):
         """returns parsed (cleaned) version of file format (e.g. 'bam')"""
         file_format_uuid = parse_formatstr(self.get_metadata(uuid)["file_format"])

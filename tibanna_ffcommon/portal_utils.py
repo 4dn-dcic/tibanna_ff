@@ -44,7 +44,8 @@ from .vars import (
     GENERIC_QC_FILE,
     OUTPUT_TO_BE_EXTRA_INPUT_FILE,
     INPUT_FILE,
-    AWSF_IMAGE
+    AWSF_IMAGE,
+    FILE_PROCESSED
 )
 from .config import (
     higlass_config
@@ -180,7 +181,7 @@ class FFInputAbstract(SerializableObject):
 
         # fill in output_bucket
         if not self.output_bucket:
-            self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, 'FileProcessed')
+            self.output_bucket = BUCKET_NAME(self.tibanna_settings.env, FILE_PROCESSED)
 
         # fill in subnet and security group, if they exist in env variable
         # and are not already set in the existing config (input JSON)
