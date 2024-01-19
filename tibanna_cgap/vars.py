@@ -26,8 +26,8 @@ def IAM_BUCKETS(env):
     """ This function determines the buckets for which the IAM policy is generated for.
         If you want tibanna to have access to more buckets, this is where to add them.
     """
-    iam_buckets = [BUCKET_NAME(env, 'FileProcessed'),
-                   BUCKET_NAME(env, 'FileFastq'),
+    iam_buckets = [BUCKET_NAME(env, FILE_PROCESSED),
+                   BUCKET_NAME(env, FILE_FASTQ),
                    BUCKET_NAME(env, 'system'),
                    BUCKET_NAME(env, 'log'),
                    BUCKET_NAME(env, 'cwl')]

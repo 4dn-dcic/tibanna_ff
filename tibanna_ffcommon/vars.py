@@ -19,14 +19,12 @@ if not GLOBAL_ENV_BUCKET:
     raise Exception('GLOBAL_ENV_BUCKET not present - redeploy Tibanna with it set!')
 AWSF_IMAGE = '%s.dkr.ecr.%s.amazonaws.com/tibanna-awsf:%s' % (AWS_ACCOUNT_NUMBER, AWS_REGION, tibanna_version)
 
-
 # cached bucket names (internally used by function BUCKET_NAME
 _BUCKET_NAME_PROCESSED_FILES = dict()
 _BUCKET_NAME_RAW_FILES = dict()
 _BUCKET_NAME_SYS = dict()
 _BUCKET_NAME_LOG = dict()
 _BUCKET_NAME_CWL = dict()
-
 
 # Workflow argument file types
 OUTPUT_PROCESSED_FILE = 'Output processed file'
@@ -35,6 +33,16 @@ OUTPUT_QC_FILE = 'Output QC file'
 GENERIC_QC_FILE = 'Generic QC file'
 OUTPUT_TO_BE_EXTRA_INPUT_FILE = 'Output to-be-extra-input file'
 INPUT_FILE = 'Input file'
+
+# Core file types
+OUTPUT_FILE  = 'OutputFile' # SMaHT
+SUBMITTED_FILE = 'SubmittedFile' # SMaHT
+REFERENCE_FILE = 'ReferenceFile' # SMaHT
+FILE_PROCESSED = 'FileProcessed' # CGAP/4DN
+FILE_FASTQ = 'FileFastq' # CGAP/4DN
+FILE_REFERENCE = 'FileReference' # CGAP/4DN
+FILE_SUBMITTED = 'FileSubmitted' # CGAP/4DN
+FILE_MICROSCOPY = 'FileMicroscopy' # 4DN
 
 
 # Secure Tibanna AMI
@@ -60,12 +68,12 @@ if AWS_REGION not in AMI_PER_REGION['x86']:
 def BUCKET_NAME(env, filetype):
     global _BUCKET_NAME_PROCESSED_FILES
     global _BUCKET_NAME_RAW_FILES
-    global _BUCKET_NAME_SYSG
+    global _BUCKET_NAME_SYS
     global _BUCKET_NAME_LOG
     global _BUCKET_NAME_CWL
 
-    processed_file_types = ['FileProcessed', 'OutputFile']
-    raw_file_types = ['FileFastq', 'FileReference', 'ReferenceFile', 'SubmittedFile', 'FileMicroscopy', 'FileSubmitted', 'UnalignedReads', 'AlignedReads', 'VariantCalls']
+    processed_file_types = [FILE_PROCESSED, OUTPUT_FILE]
+    raw_file_types = [FILE_FASTQ, FILE_REFERENCE, REFERENCE_FILE, SUBMITTED_FILE, FILE_MICROSCOPY, FILE_SUBMITTED]
 
     # use cache
     if filetype in processed_file_types and env in _BUCKET_NAME_PROCESSED_FILES:
