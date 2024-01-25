@@ -351,18 +351,26 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
             uuid = of["value"]
             of_metadata = self.get_metadata(uuid)
 
-            output_files.append(
-                {
-                    "workflow_argument_name": of["workflow_argument_name"],
-                    "type": of["type"],
-                    "upload_key": of_metadata["upload_key"],
-                    "format": of_metadata["file_format"],
-                    "extra_files": of_metadata["extra_files"]
-                    if "extra_files" in of_metadata
-                    else [],
-                    "value": uuid,
-                }
-            )
+            if of_metadata['type'] == OUTPUT_REPORT_FILE:
+                output_files.append(
+                    {
+                        "workflow_argument_name": of["workflow_argument_name"],
+                        "type": of["type"],
+                    }
+                )
+            else:
+                output_files.append(
+                    {
+                        "workflow_argument_name": of["workflow_argument_name"],
+                        "type": of["type"],
+                        "upload_key": of_metadata["upload_key"],
+                        "format": of_metadata["file_format"],
+                        "extra_files": of_metadata["extra_files"]
+                        if "extra_files" in of_metadata
+                        else [],
+                        "value": uuid,
+                    }
+                )
 
         return output_files
 
