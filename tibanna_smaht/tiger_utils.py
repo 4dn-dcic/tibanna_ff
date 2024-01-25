@@ -217,7 +217,10 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
                     "value": of["value"],
                 }
             )
-        patch_dict["output_files"] = restricted_output_files
+        if len(restricted_output_files) == 0:
+            del patch_dict["output_files"]
+        else:
+            patch_dict["output_files"] = restricted_output_files
         return patch_dict
 
 
