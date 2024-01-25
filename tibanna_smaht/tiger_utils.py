@@ -323,6 +323,9 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     @property
     def app_name(self):
+        logger.info(f"md5 title: {self.ff_meta.title}")
+        if self.ff_meta.title and self.ff_meta.title.startswith("md5"):
+            return "md5"
         return self.ff_meta.title
 
     def update_metadata(self):
