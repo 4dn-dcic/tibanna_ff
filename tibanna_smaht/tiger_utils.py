@@ -347,11 +347,8 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
     def set_ff_output_files(self):
         output_files = []
         for of in self.ff_meta.output_files:
-            # We need additional infos from the portal
-            uuid = of["value"]
-            of_metadata = self.get_metadata(uuid)
-
-            if of_metadata['type'] == OUTPUT_REPORT_FILE:
+            
+            if of['type'] == OUTPUT_REPORT_FILE:
                 output_files.append(
                     {
                         "workflow_argument_name": of["workflow_argument_name"],
@@ -359,6 +356,9 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
                     }
                 )
             else:
+                # We need additional infos from the portal
+                uuid = of["value"]
+                of_metadata = self.get_metadata(uuid)
                 output_files.append(
                     {
                         "workflow_argument_name": of["workflow_argument_name"],
