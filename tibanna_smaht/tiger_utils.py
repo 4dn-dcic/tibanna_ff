@@ -28,7 +28,8 @@ from tibanna_ffcommon.portal_utils import (
     FourfrontUpdaterAbstract,
     QualityMetricsGenericMetadataAbstract,
     FFInputAbstract,
-    QualityMetricGenericModel
+    QualityMetricGenericModel,
+    OUTPUT_REPORT_FILE
 )
 from tibanna import create_logger
 
@@ -208,7 +209,8 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         output_files = copy.deepcopy(patch_dict["output_files"])
         restricted_output_files = []
         for of in output_files:
-            logger.debug("Ouput file " + json.dumps(of))
+            if of['type'] == OUTPUT_REPORT_FILE:
+                continue
             restricted_output_files.append(
                 {
                     "workflow_argument_name": of["workflow_argument_name"],
