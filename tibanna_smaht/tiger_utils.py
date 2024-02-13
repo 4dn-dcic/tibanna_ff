@@ -28,7 +28,8 @@ from tibanna_ffcommon.portal_utils import (
     FourfrontUpdaterAbstract,
     QualityMetricsGenericMetadataAbstract,
     FFInputAbstract,
-    QualityMetricGenericModel
+    QualityMetricGenericModel,
+    OUTPUT_REPORT_FILE
 )
 from tibanna import create_logger
 
@@ -208,13 +209,18 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         output_files = copy.deepcopy(patch_dict["output_files"])
         restricted_output_files = []
         for of in output_files:
+            if of['type'] == OUTPUT_REPORT_FILE:
+                continue
             restricted_output_files.append(
                 {
                     "workflow_argument_name": of["workflow_argument_name"],
                     "value": of["value"],
                 }
             )
-        patch_dict["output_files"] = restricted_output_files
+        if len(restricted_output_files) == 0:
+            del patch_dict["output_files"]
+        else:
+            patch_dict["output_files"] = restricted_output_files
         return patch_dict
 
 
@@ -317,6 +323,9 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     @property
     def app_name(self):
+        logger.info(f"md5 title: {self.ff_meta.title}")
+        if self.ff_meta.title and self.ff_meta.title.startswith("md5"):
+            return "md5"
         return self.ff_meta.title
 
     def update_metadata(self):
@@ -341,22 +350,30 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
     def set_ff_output_files(self):
         output_files = []
         for of in self.ff_meta.output_files:
-            # We need additional infos from the portal
-            uuid = of["value"]
-            of_metadata = self.get_metadata(uuid)
-
-            output_files.append(
-                {
-                    "workflow_argument_name": of["workflow_argument_name"],
-                    "type": of["type"],
-                    "upload_key": of_metadata["upload_key"],
-                    "format": of_metadata["file_format"],
-                    "extra_files": of_metadata["extra_files"]
-                    if "extra_files" in of_metadata
-                    else [],
-                    "value": uuid,
-                }
-            )
+            
+            if of['type'] == OUTPUT_REPORT_FILE:
+                output_files.append(
+                    {
+                        "workflow_argument_name": of["workflow_argument_name"],
+                        "type": of["type"],
+                    }
+                )
+            else:
+                # We need additional infos from the portal
+                uuid = of["value"]
+                of_metadata = self.get_metadata(uuid)
+                output_files.append(
+                    {
+                        "workflow_argument_name": of["workflow_argument_name"],
+                        "type": of["type"],
+                        "upload_key": of_metadata["upload_key"],
+                        "format": of_metadata["file_format"],
+                        "extra_files": of_metadata["extra_files"]
+                        if "extra_files" in of_metadata
+                        else [],
+                        "value": uuid,
+                    }
+                )
 
         return output_files
 
