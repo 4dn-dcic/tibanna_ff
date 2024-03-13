@@ -1372,6 +1372,8 @@ class FourfrontUpdaterAbstract(object):
                     "qc_values": qc_json["qc_values"],
                 })
                 qmg_metadata.update(qmg_model)
+                if self.common_fields:
+                    qmg_metadata.update(self.common_fields)
                 qmg_metadata = vars(qmg_metadata)
                 qmg_uuid = qmg_metadata["uuid"]
                 qmg_item = post_metadata(qmg_metadata, qm_item_name_in_schema, key=ff_key, ff_env=ff_env)
