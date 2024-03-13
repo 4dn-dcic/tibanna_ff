@@ -144,6 +144,7 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         parameters=[],
         aliases=None,
         title="",
+        extra_meta=None,
         **kwargs,
     ):
         """
@@ -179,6 +180,9 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         self.parameters = parameters
         if postrun_json:
             self.postrun_json = postrun_json
+        if extra_meta:
+            for k, v in iter(extra_meta.items()):
+                self.__dict__[k] = v
 
     def set_postrun_json_url(self, url):
         self.postrun_json = url
@@ -292,6 +296,10 @@ class FourfrontStarter(FourfrontStarterAbstract):
     WorkflowRunMetadata = WorkflowRunMetadata
 
     def create_ff(self):
+        extra_meta = dict()
+        if self.inp.common_fields:
+            extra_meta.update(self.inp.common_fields)
+
         self.ff = self.WorkflowRunMetadata(
             workflow=self.inp.workflow_uuid,
             title=self.inp.wf_meta["title"],
@@ -300,6 +308,7 @@ class FourfrontStarter(FourfrontStarterAbstract):
             output_files=self.create_ff_output_files(),
             parameters=self.inp.parameters,
             job_id=self.inp.jobid,
+            extra_meta=extra_meta,
         )
 
 
@@ -323,7 +332,6 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     @property
     def app_name(self):
-        logger.info(f"md5 title: {self.ff_meta.title}")
         if self.ff_meta.title and self.ff_meta.title.startswith("md5"):
             return "md5"
         return self.ff_meta.title
