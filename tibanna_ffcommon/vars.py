@@ -43,12 +43,12 @@ INPUT_FILE = 'Input file'
 # accounts
 AMI_PER_REGION = {
     'x86': {
-        'us-east-1': 'ami-00ad035048da98fc2',
-        'us-east-2': 'ami-0afbf1ab3268ddf17'
+        'us-east-1': 'ami-0afc2a6bf9a8c35c6',
+        'us-east-2': 'ami-019d106d5006c260b'
     },
     'Arm': {
-        'us-east-1': 'ami-00936b73c712e5a11',
-        'us-east-2': 'ami-00420b06b90527d69'
+        'us-east-1': 'ami-0f62f740c44080b8f',
+        'us-east-2': 'ami-01bec7663ee3ab696'
     }
 }
 
