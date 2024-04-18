@@ -17,7 +17,7 @@
     "input_files": {
       "input_file": {
         "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
-        "object_key": "4f2d1906-4bdc-4384-981c-296c82836943/4DNFIT3D4WD9.bed.gz",
+        "object_key": "d52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz",
         "format_if_extra": "bed.gz"
       }
     }
@@ -61,7 +61,7 @@
         "Input_files_data": {
           "input_file": {
             "profile": "",
-            "path": "4f2d1906-4bdc-4384-981c-296c82836943/4DNFIT3D4WD9.bed.gz",
+            "path": "d52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz",
             "class": "File",
             "dir": "elasticbeanstalk-fourfront-webprod-wfoutput"
           }
@@ -98,14 +98,14 @@
         "    -i ",
         "    --volume=/data1/tmpODutf5:/var/spool/cwl:rw ",
         "    --volume=/data1/tmp3vTx3G:/tmp:rw ",
-        "    --volume=/data1/input/4f2d1906-4bdc-4384-981c-296c82836943/4DNFIT3D4WD9.bed.gz:/var/lib/cwl/stg4f2d1906-4bdc-4384-981c-296c82836943/4DNFIT3D4WD9.bed.gz:ro ",
+        "    --volume=/data1/input/d52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz:/var/lib/cwl/stgd52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz:ro ",
         "    --workdir=/var/spool/cwl ",
         "    --rm ",
         "    --env=TMPDIR=/tmp ",
         "    --env=HOME=/var/spool/cwl ",
         "    duplexa/md5:v2 ",
         "    run.sh ",
-        "    /var/lib/cwl/stg4f2d1906-4bdc-4384-981c-296c82836943/4DNFIT3D4WD9.bed.gz"
+        "    /var/lib/cwl/stgd52b1206-f2a7-439a-ac17-c442e3bafe1d/4DNFIIF1Y5CQ.bed.gz"
       ]
     ]
   },
@@ -132,7 +132,7 @@
       {
         "ordinal": 1,
         "workflow_argument_name": "input_file",
-        "value": "d52b1206-f2a7-439a-ac17-c442e3bafe1d",
+        "value": "4f2d1906-4bdc-4384-981c-296c82836943",
         "format_if_extra": "bed"
       }
     ]
@@ -158,8 +158,8 @@
       "format_if_extra": "pairs_px2",
       "workflow_argument_name": "input_file",
       "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
-      "uuid": "7d52b1206-f2a7-439a-ac17-c442e3bafe1d",
-      "object_key": "4DNFIT3D4WD9.bed.gz"
+      "uuid": "74f2d1906-4bdc-4384-981c-296c82836943",
+      "object_key": "4DNFIIF1Y5CQ.bed.gz"
     }
   ],
   "config": {
