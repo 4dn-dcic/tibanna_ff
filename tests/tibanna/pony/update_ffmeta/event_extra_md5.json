@@ -159,7 +159,7 @@
       "workflow_argument_name": "input_file",
       "bucket_name": "elasticbeanstalk-fourfront-webprod-wfoutput",
       "uuid": "7d52b1206-f2a7-439a-ac17-c442e3bafe1d",
-      "object_key": "4DNFIIF1Y5CQ.bed.gz"
+      "object_key": "4DNFIT3D4WD9.bed.gz"
     }
   ],
   "config": {
