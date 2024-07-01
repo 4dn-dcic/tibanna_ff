@@ -849,27 +849,27 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "dcicutils"
-version = "8.12.0.1b6"
+version = "8.12.0.1b8"
 description = "Utility package for interacting with the 4DN Data Portal and other 4DN resources"
 category = "main"
 optional = false
 python-versions = "<3.13,>=3.8.1"
 files = [
-    {file = "dcicutils-8.12.0.1b6-py3-none-any.whl", hash = "sha256:99411d522326bc0777f7a980c5713bcb4f15a9ef17b4e36c4de3fbdd7405426f"},
-    {file = "dcicutils-8.12.0.1b6.tar.gz", hash = "sha256:4b98e75e05a9776159a90dab36e19bd6aa3543b0baa45013a323c855b83e854c"},
+    {file = "dcicutils-8.12.0.1b8-py3-none-any.whl", hash = "sha256:1d0f2f9fbadfdad5436d035666ede5a9b94da39eb80e95c4649af6a0ccb3386c"},
+    {file = "dcicutils-8.12.0.1b8.tar.gz", hash = "sha256:e821286530759ed0fc3332602e716d00d269e97623e77944356784231a89ee9f"},
 ]
 
 [package.dependencies]
 appdirs = ">=1.4.4,<2.0.0"
 aws-requests-auth = ">=0.4.2,<1"
-boto3 = ">=1.34.93,<2.0.0"
-botocore = ">=1.34.93,<2.0.0"
+boto3 = ">=1.34.136,<2.0.0"
+botocore = ">=1.34.136,<2.0.0"
 chardet = ">=5.2.0,<6.0.0"
 docker = ">=4.4.4,<5.0.0"
 elasticsearch = "7.13.4"
 gitpython = ">=3.1.2,<4.0.0"
 jsonc-parser = ">=1.1.5,<2.0.0"
-jsonschema = ">=4.19.0,<5.0.0"
+jsonschema = ">=4.22.0,<5.0.0"
 openpyxl = ">=3.1.2,<4.0.0"
 opensearch-py = ">=2.0.1,<3.0.0"
 PyJWT = ">=2.6.0,<3.0.0"
@@ -886,7 +886,7 @@ structlog = ">=19.2.0,<20.0.0"
 toml = ">=0.10.1,<1"
 tqdm = ">=4.66.2,<5.0.0"
 typing-extensions = ">=3.8"
-urllib3 = ">=1.26.6,<2.0.0"
+urllib3 = ">=1.26.19,<2.0.0"
 webtest = ">=2.0.34,<3.0.0"
 
 [[package]]
@@ -2756,4 +2756,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.13"
-content-hash = "38fc05ad024c78b73e6c6428124c948eef7c6bfd9ac1fb54df15a143eef038e0"
+content-hash = "69abf6eb8aa8bbf64cdb331185218429aa07f70463be29256f5bfa1d651b0280"
