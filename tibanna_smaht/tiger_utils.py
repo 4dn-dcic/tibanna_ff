@@ -273,17 +273,18 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
         #self.name = qmg.name
         qc_values = []
         for qcv in qmg.qc_values:
-            qc_value = {
-                "key": qcv.key,
-                "value": qcv.value
-            }
-            available_keys = list(qcv.model_dump().keys()) # There does not seem to be a better way to get all keys (including extra fields) from a Pydantic model
+            qc_value = {}
+            # There does not seem to be a better way to get all keys (including extra fields) from a Pydantic model
+            # We are patching everything to the portal that we obtain from qc-parser and that is added by tibanna_ff
+            # in previous steps.
+            available_keys = list(qcv.model_dump().keys()) 
+            for key in available_keys:
+                qc_value[key] = qcv[key]
+
+            # flag come from the Tibanna internal model and needs to be converted to the SMaHT data model.
+            # This is, e.g., "Pass" as in the SMaHT data model
             if "flag" in available_keys:
-                qc_value["flag"] = qcv.flag.capitalize() # This is, e.g., "Pass" as in the SMaHT data model
-            if "tooltip" in available_keys:
-                qc_value["tooltip"] = qcv.tooltip
-            if "derived_from" in available_keys:
-                qc_value["derived_from"] = qcv.derived_from
+                qc_value["flag"] = qcv.flag.capitalize() 
 
             qc_values.append(qc_value)
 
