@@ -279,7 +279,7 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
             # in previous steps.
             available_keys = list(qcv.model_dump().keys()) 
             for key in available_keys:
-                qc_value[key] = qcv[key]
+                qc_value[key] = getattr(qcv, key)
 
             # flag come from the Tibanna internal model and needs to be converted to the SMaHT data model.
             # This is, e.g., "Pass" as in the SMaHT data model
