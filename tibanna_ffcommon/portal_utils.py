@@ -1374,6 +1374,8 @@ class FourfrontUpdaterAbstract(object):
                 })
                 qmg_metadata.update(qmg_model)
                 qmg_metadata = vars(qmg_metadata)
+                if self.common_fields:
+                    qmg_metadata.update(self.common_fields)
                 qmg_uuid = qmg_metadata["uuid"]
                 qmg_item = post_metadata(qmg_metadata, qm_item_name_in_schema, key=ff_key, ff_env=ff_env)
                 logger.debug(f"Successfully created {qm_item_name_in_schema} item {qmg_uuid}: {str(qmg_item)}")

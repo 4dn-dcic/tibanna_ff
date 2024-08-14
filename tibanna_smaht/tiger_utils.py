@@ -32,7 +32,8 @@ from tibanna_ffcommon.portal_utils import (
     FourfrontUpdaterAbstract,
     QualityMetricsGenericMetadataAbstract,
     FFInputAbstract,
-    QualityMetricGenericModel
+    QualityMetricGenericModel,
+    OUTPUT_REPORT_FILE
 )
 from tibanna import create_logger
 
@@ -162,6 +163,7 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         parameters=[],
         aliases=None,
         title="",
+        extra_meta=None,
         **kwargs,
     ):
         """
@@ -197,6 +199,9 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         self.parameters = parameters
         if postrun_json:
             self.postrun_json = postrun_json
+        if extra_meta:
+            for k, v in iter(extra_meta.items()):
+                self.__dict__[k] = v
 
     def set_postrun_json_url(self, url):
         self.postrun_json = url
@@ -227,13 +232,18 @@ class WorkflowRunMetadata(WorkflowRunMetadataAbstract):
         output_files = copy.deepcopy(patch_dict["output_files"])
         restricted_output_files = []
         for of in output_files:
+            if of['type'] == OUTPUT_REPORT_FILE:
+                continue
             restricted_output_files.append(
                 {
                     "workflow_argument_name": of["workflow_argument_name"],
                     "value": of["value"],
                 }
             )
-        patch_dict["output_files"] = restricted_output_files
+        if len(restricted_output_files) == 0:
+            del patch_dict["output_files"]
+        else:
+            patch_dict["output_files"] = restricted_output_files
         return patch_dict
 
 
@@ -282,17 +292,18 @@ class QualityMetricsGenericMetadata(QualityMetricsGenericMetadataAbstract):
         #self.name = qmg.name
         qc_values = []
         for qcv in qmg.qc_values:
-            qc_value = {
-                "key": qcv.key,
-                "value": qcv.value
-            }
-            available_keys = list(qcv.model_dump().keys()) # There does not seem to be a better way to get all keys (including extra fields) from a Pydantic model
+            qc_value = {}
+            # There does not seem to be a better way to get all keys (including extra fields) from a Pydantic model
+            # We are patching everything to the portal that we obtain from qc-parser and that is added by tibanna_ff
+            # in previous steps.
+            available_keys = list(qcv.model_dump().keys()) 
+            for key in available_keys:
+                qc_value[key] = getattr(qcv, key)
+
+            # flag come from the Tibanna internal model and needs to be converted to the SMaHT data model.
+            # This is, e.g., "Pass" as in the SMaHT data model
             if "flag" in available_keys:
-                qc_value["flag"] = qcv.flag.capitalize() # This is, e.g., "Pass" as in the SMaHT data model
-            if "tooltip" in available_keys:
-                qc_value["tooltip"] = qcv.tooltip
-            if "derived_from" in available_keys:
-                qc_value["derived_from"] = qcv.derived_from
+                qc_value["flag"] = qcv.flag.capitalize() 
 
             qc_values.append(qc_value)
 
@@ -305,6 +316,10 @@ class FourfrontStarter(FourfrontStarterAbstract):
     WorkflowRunMetadata = WorkflowRunMetadata
 
     def create_ff(self):
+        extra_meta = dict()
+        if self.inp.common_fields:
+            extra_meta.update(self.inp.common_fields)
+
         self.ff = self.WorkflowRunMetadata(
             workflow=self.inp.workflow_uuid,
             title=self.inp.wf_meta["title"],
@@ -313,6 +328,7 @@ class FourfrontStarter(FourfrontStarterAbstract):
             output_files=self.create_ff_output_files(),
             parameters=self.inp.parameters,
             job_id=self.inp.jobid,
+            extra_meta=extra_meta,
         )
 
 
@@ -336,6 +352,8 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
 
     @property
     def app_name(self):
+        if self.ff_meta.title and self.ff_meta.title.startswith("md5"):
+            return "md5"
         return self.ff_meta.title
 
     def update_metadata(self):
@@ -360,22 +378,30 @@ class FourfrontUpdater(FourfrontUpdaterAbstract):
     def set_ff_output_files(self):
         output_files = []
         for of in self.ff_meta.output_files:
-            # We need additional infos from the portal
-            uuid = of["value"]
-            of_metadata = self.get_metadata(uuid)
-
-            output_files.append(
-                {
-                    "workflow_argument_name": of["workflow_argument_name"],
-                    "type": of["type"],
-                    "upload_key": of_metadata["upload_key"],
-                    "format": of_metadata["file_format"],
-                    "extra_files": of_metadata["extra_files"]
-                    if "extra_files" in of_metadata
-                    else [],
-                    "value": uuid,
-                }
-            )
+            
+            if of['type'] == OUTPUT_REPORT_FILE:
+                output_files.append(
+                    {
+                        "workflow_argument_name": of["workflow_argument_name"],
+                        "type": of["type"],
+                    }
+                )
+            else:
+                # We need additional infos from the portal
+                uuid = of["value"]
+                of_metadata = self.get_metadata(uuid)
+                output_files.append(
+                    {
+                        "workflow_argument_name": of["workflow_argument_name"],
+                        "type": of["type"],
+                        "upload_key": of_metadata["upload_key"],
+                        "format": of_metadata["file_format"],
+                        "extra_files": of_metadata["extra_files"]
+                        if "extra_files" in of_metadata
+                        else [],
+                        "value": uuid,
+                    }
+                )
 
         return output_files
 
