@@ -2,6 +2,7 @@ from .exceptions import GenericQcException
 from typing import Any, List, Union, Optional
 from pydantic import BaseModel, ConfigDict, ValidationError, RootModel
 from .misc_utils import LogicalExpressionParser
+import builtins
 
 # Tibanna interal QC flags
 PASS = "pass"
@@ -89,6 +90,9 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
             return value == target
         elif operator == "!=":
             return value != target
+        elif operator == "is_type":
+            target_type = getattr(builtins, target)
+            return isinstance(value, target_type)
         else:
             raise GenericQcException(
                 f"The ruleset contains an unsupported operator: {operator}"

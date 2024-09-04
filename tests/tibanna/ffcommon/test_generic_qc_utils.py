@@ -234,6 +234,20 @@ def valid_ruleset_1():
                     "pass_target": 10,
                     "warn_target": 10,
                 },
+                {
+                    "id": "type_test",
+                    "metric": "Total Sequences [Samtools]",
+                    "operator": "is_type", 
+                    "pass_target": "int",
+                    "warn_target": "int",
+                },
+                {
+                    "id": "type_test_2",
+                    "metric": "Total Sequences [Samtools]",
+                    "operator": "is_type", 
+                    "pass_target": "str",
+                    "warn_target": "int",
+                },
             ],
             "overall_quality_status_rule": "{c1} and {ts}"
         }
@@ -413,6 +427,14 @@ def test_evaluate_qc_threshold_3(valid_ruleset_1, qc_json):
     qc_threshold = next((item for item in qc_thresholds if item.id == "test2"))
     result = evaluate_qc_threshold(qc_threshold, qc_json_model)
     assert result == PASS
+
+    qc_threshold = next((item for item in qc_thresholds if item.id == "type_test"))
+    result = evaluate_qc_threshold(qc_threshold, qc_json_model)
+    assert result == PASS
+
+    qc_threshold = next((item for item in qc_thresholds if item.id == "type_test_2"))
+    result = evaluate_qc_threshold(qc_threshold, qc_json_model)
+    assert result == WARN
 
     with pytest.raises(
         GenericQcException, match="The ruleset contains an unsupported operator"

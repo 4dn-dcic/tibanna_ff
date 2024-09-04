@@ -2,6 +2,10 @@
 Change Log
 ==========
 
+3.7.0
+=====
+* Support new operator `is_type` in QC rulesets
+
 3.6.0
 =====
 * Consider only core file types when determining the correct bucket of an input file in SMaHT
