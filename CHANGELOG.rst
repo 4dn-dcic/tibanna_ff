@@ -2,9 +2,10 @@
 Change Log
 ==========
 
-3.7.1
+3.8.0
 =====
 * Support file types `ResourceFile` and `SupplementaryFile` in SMaHT
+* Support new operator `in_between` in QC rulesets
 
 
 3.7.0
