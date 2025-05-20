@@ -248,6 +248,34 @@ def valid_ruleset_1():
                     "pass_target": "str",
                     "warn_target": "int",
                 },
+                {
+                    "id": "in_between_test_1",
+                    "metric": "test0",
+                    "operator": "in_between",  
+                    "pass_target": "9-11.1",
+                    "warn_target": "9-11.1",
+                },
+                {
+                    "id": "in_between_test_2",
+                    "metric": "test0",
+                    "operator": "in_between",  
+                    "pass_target": "10.1-11.1", 
+                    "warn_target": "9-12",
+                },
+                {
+                    "id": "in_between_test_3",
+                    "metric": "test0",
+                    "operator": "in_between",  
+                    "pass_target": "10.1:11.1", # invalid
+                    "warn_target": "9:12",
+                },
+                {
+                    "id": "in_between_test_4",
+                    "metric": "test0",
+                    "operator": "in_between",  
+                    "pass_target": "10.1-11.1", 
+                    "warn_target": "9-9.9",
+                },
             ],
             "overall_quality_status_rule": "{c1} and {ts}"
         }
@@ -436,10 +464,28 @@ def test_evaluate_qc_threshold_3(valid_ruleset_1, qc_json):
     result = evaluate_qc_threshold(qc_threshold, qc_json_model)
     assert result == WARN
 
+    qc_threshold = next((item for item in qc_thresholds if item.id == "in_between_test_1"))
+    result = evaluate_qc_threshold(qc_threshold, qc_json_model)
+    assert result == PASS
+
+    qc_threshold = next((item for item in qc_thresholds if item.id == "in_between_test_2"))
+    result = evaluate_qc_threshold(qc_threshold, qc_json_model)
+    assert result == WARN
+
+    qc_threshold = next((item for item in qc_thresholds if item.id == "in_between_test_4"))
+    result = evaluate_qc_threshold(qc_threshold, qc_json_model)
+    assert result == FAIL
+
     with pytest.raises(
         GenericQcException, match="The ruleset contains an unsupported operator"
     ):
         qc_threshold = next((item for item in qc_thresholds if item.id == "test3"))
+        result = evaluate_qc_threshold(qc_threshold, qc_json_model)
+
+    with pytest.raises(
+        GenericQcException, match="The target does not have the correct format for"
+    ):
+        qc_threshold = next((item for item in qc_thresholds if item.id == "in_between_test_3"))
         result = evaluate_qc_threshold(qc_threshold, qc_json_model)
 
 

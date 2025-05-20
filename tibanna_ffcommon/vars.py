@@ -38,6 +38,8 @@ INPUT_FILE = 'Input file'
 OUTPUT_FILE  = 'OutputFile' # SMaHT
 SUBMITTED_FILE = 'SubmittedFile' # SMaHT
 REFERENCE_FILE = 'ReferenceFile' # SMaHT
+RESOUCE_FILE = 'ResourceFile' # SMaHT
+SUPPLEMENTARY_FILE = 'SupplementaryFile' # SMaHT
 FILE_PROCESSED = 'FileProcessed' # CGAP/4DN
 FILE_FASTQ = 'FileFastq' # CGAP/4DN
 FILE_REFERENCE = 'FileReference' # CGAP/4DN
@@ -73,8 +75,16 @@ def BUCKET_NAME(env, filetype):
     global _BUCKET_NAME_CWL
 
     processed_file_types = [FILE_PROCESSED, OUTPUT_FILE]
-    raw_file_types = [FILE_FASTQ, FILE_REFERENCE, REFERENCE_FILE, SUBMITTED_FILE, FILE_MICROSCOPY, FILE_SUBMITTED]
-
+    raw_file_types = [
+        FILE_FASTQ,
+        FILE_REFERENCE,
+        REFERENCE_FILE,
+        SUBMITTED_FILE,
+        RESOUCE_FILE,
+        SUPPLEMENTARY_FILE,
+        FILE_MICROSCOPY,
+        FILE_SUBMITTED,
+    ]
     # use cache
     if filetype in processed_file_types and env in _BUCKET_NAME_PROCESSED_FILES:
         return _BUCKET_NAME_PROCESSED_FILES[env]

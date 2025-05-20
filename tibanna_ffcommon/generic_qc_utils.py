@@ -2,7 +2,7 @@ from .exceptions import GenericQcException
 from typing import Any, List, Union, Optional
 from pydantic import BaseModel, ConfigDict, ValidationError, RootModel
 from .misc_utils import LogicalExpressionParser
-import builtins
+import builtins, re
 
 # Tibanna interal QC flags
 PASS = "pass"
@@ -93,6 +93,15 @@ def evaluate_qc_threshold(qc_threshold: QC_threshold, qc_json: QC_json):
         elif operator == "is_type":
             target_type = getattr(builtins, target)
             return isinstance(value, target_type)
+        elif operator == "in_between":
+            if re.fullmatch(r'\d+(\.\d+)?-\d+(\.\d+)?', target):
+                lower, upper = map(float, target.split('-'))
+                return lower <= value <= upper
+            else:
+                raise GenericQcException(
+                    f"The target does not have the correct format for {operator}"
+                )
+
         else:
             raise GenericQcException(
                 f"The ruleset contains an unsupported operator: {operator}"
