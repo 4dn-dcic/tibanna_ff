@@ -11,7 +11,7 @@ config = {
     'runtime': 'python3.11',
     'role': 'lambda_full_s3',
     'description': 'Tibanna tiger update_ffmeta',
-    'timeout': 600,  # for BAMSNAP
+    'timeout': 800,  # for BAMSNAP
     'memory_size': 1024  # for BAMSNAP
 }
 

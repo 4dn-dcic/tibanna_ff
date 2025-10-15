@@ -12,7 +12,7 @@ config = {
     'runtime': 'python3.11',
     'role': 'lambda_full_s3',
     'description': 'Tibanna tiger start_run',
-    'timeout': 300,
+    'timeout': 800,
     'memory_size': 256
 }
 
