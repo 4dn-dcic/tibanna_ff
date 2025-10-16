@@ -33,7 +33,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<3.13"
-tibanna = "^5.5.3"
+tibanna = "^6.0.0"
 dcicutils = "^8.13.3"
 boto3 = "^1.34.147"
 botocore = "^1.34.147"
