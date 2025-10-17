@@ -2,6 +2,11 @@
 Change Log
 ==========
 
+3.9.0
+=====
+* Update to tibanna 6.0.0
+* Increase timeout of lambdas to 800 seconds to accommodate longer tasks
+
 3.8.0
 =====
 * Support file types `ResourceFile` and `SupplementaryFile` in SMaHT
