@@ -2,9 +2,9 @@
 Change Log
 ==========
 
-3.8.1
+3.9.0
 =====
-* Update to tibanna 5.5.3
+* Update to tibanna 6.0.0
 * Increase timeout of lambdas to 800 seconds to accommodate longer tasks
 
 3.8.0
