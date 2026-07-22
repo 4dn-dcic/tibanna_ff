@@ -22,6 +22,8 @@ def IAM_BUCKETS(env):
     """
     iam_buckets = [BUCKET_NAME(env, OUTPUT_FILE),
                    BUCKET_NAME(env, SUBMITTED_FILE),
+                   "smaht-open-data-public",
+                   "smaht-open-data-protected",
                    BUCKET_NAME(env, 'system'),
                    BUCKET_NAME(env, 'log'),
                    BUCKET_NAME(env, 'cwl')]
