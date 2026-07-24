@@ -2550,14 +2550,14 @@ files = [
 
 [[package]]
 name = "tibanna"
-version = "6.0.0"
+version = "6.0.1b4"
 description = "Tibanna runs portable pipelines (in CWL/WDL) on the AWS Cloud."
 category = "main"
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "tibanna-6.0.0-py3-none-any.whl", hash = "sha256:bc2a745bd83153ff759a2451a3651bee17e33c6957b2f1624824064a763670e7"},
-    {file = "tibanna-6.0.0.tar.gz", hash = "sha256:18693130818bae54c337310c5ecb7be4b3abc6339fdeb0f63c656ff230abe949"},
+    {file = "tibanna-6.0.1b4-py3-none-any.whl", hash = "sha256:1cff7f038206ec384a25bb02ccb6d26ffb207f123c76acbc12c10324a65ff017"},
+    {file = "tibanna-6.0.1b4.tar.gz", hash = "sha256:7f4c08299b8ea1b5fca5ffe600701d13b84a04d7aa3aa344fb5b003bc0b82118"},
 ]
 
 [package.dependencies]
@@ -2900,4 +2900,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.13"
-content-hash = "c99bc68bbaa892e0056e9701d1ce83a3fe83c9fe06b23a915111d91866c71a3a"
+content-hash = "3f29b69b28a280046f0fb87b9fb96d89f4baee4a9a5865c67bb9bf8adc9c078f"

@@ -53,7 +53,7 @@ FILE_MICROSCOPY = 'FileMicroscopy' # 4DN
 # accounts
 AMI_PER_REGION = {
     'x86': {
-        'us-east-1': 'ami-0afc2a6bf9a8c35c6',
+        'us-east-1': 'ami-06d4faf5c6fb2a886',
         'us-east-2': 'ami-019d106d5006c260b'
     },
     'Arm': {
