@@ -43,6 +43,12 @@ logger = create_logger(__name__)
 class TigerInputFile(FFInputFile):
 
     def get_bucket_name_from_uuid(self, uuid):
+
+        open_data_url = self.get_open_data_url_from_uuid(uuid)
+        if open_data_url:
+            bucket, key = self.parse_s3_url(open_data_url)
+            return bucket
+
         file_meta = self.get_metadata(uuid)
         file_types = file_meta['@type']
         file_type = file_types[0] # This is what is used in 4DN and CGAP
