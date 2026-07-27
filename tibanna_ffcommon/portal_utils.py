@@ -45,7 +45,8 @@ from .vars import (
     OUTPUT_TO_BE_EXTRA_INPUT_FILE,
     INPUT_FILE,
     AWSF_IMAGE,
-    FILE_PROCESSED
+    FILE_PROCESSED,
+    AMI_ID
 )
 from .config import (
     higlass_config
@@ -190,6 +191,13 @@ class FFInputAbstract(SerializableObject):
             self.config.subnet = possible_subnets  # pass all subnets to config
         if not self.config.security_group and os.environ.get('SECURITY_GROUPS', ''):
             self.config.security_group = os.environ['SECURITY_GROUPS'].split(',')[0]
+        # fill in the AMI from the deploy-time AMI_ID env var, same "config takes priority" rule
+        # as subnet/security_group above. Foursight stamps ami_per_region (not ami_id), and
+        # ec2_utils prefers a set ami_id over ami_per_region, so this env default still wins over
+        # whatever Foursight submits - letting a tibanna_ff redeploy switch the AMI - while an
+        # explicit ami_id in the input JSON still takes precedence.
+        if not self.config.ami_id and AMI_ID:
+            self.config.ami_id = AMI_ID
 
     def as_dict(self):
         d_shallow = self.__dict__.copy()

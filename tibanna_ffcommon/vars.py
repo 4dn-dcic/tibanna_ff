@@ -67,6 +67,14 @@ if AWS_REGION not in AMI_PER_REGION['x86']:
     raise Exception('')
 
 
+# Optional deploy-time AMI override (single id), baked into the Lambdas via env_list. Fills in
+# config.ami_id (an explicit ami_id in the input JSON still wins), which ec2_utils prefers over
+# ami_per_region for every instance - so it overrides the ami_per_region the caller (e.g.
+# Foursight) stamps at submission, letting a redeploy switch the AMI without bumping the
+# caller's tibanna_ff. Single x86 AMI in us-east-1 here; for multi-arch/region use ami_per_region.
+AMI_ID = os.environ.get('AMI_ID', None)
+
+
 def BUCKET_NAME(env, filetype):
     global _BUCKET_NAME_PROCESSED_FILES
     global _BUCKET_NAME_RAW_FILES
