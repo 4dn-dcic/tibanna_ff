@@ -51,14 +51,23 @@ FILE_MICROSCOPY = 'FileMicroscopy' # 4DN
 # Note that this means only these regions will work (replicate AMI in main account as needed)
 # Note additionally that these AMI's all must be configured to be launchable by our AWS
 # accounts
+# AMI_PER_REGION = {
+#     'x86': {
+#         'us-east-1': 'ami-06d4faf5c6fb2a886', # Ubuntu 26.04 secure AMI
+#         'us-east-2': 'ami-019d106d5006c260b' # Ubuntu 20.04 secure AMI
+#     },
+#     'Arm': {
+#         'us-east-1': 'ami-0f62f740c44080b8f', # Ubuntu 20.04 secure AMI
+#         'us-east-2': 'ami-01bec7663ee3ab696' # Ubuntu 20.04 secure AMI
+#     }
+# }
+
+# Our bioinformatics pipelines currently only support x86,
+# and we are only running in us-east-1.  Specific AMIs can be used
+# via the AMI_ID env var, which overrides the AMI_PER_REGION setting below.
 AMI_PER_REGION = {
     'x86': {
-        'us-east-1': 'ami-06d4faf5c6fb2a886',
-        'us-east-2': 'ami-019d106d5006c260b'
-    },
-    'Arm': {
-        'us-east-1': 'ami-0f62f740c44080b8f',
-        'us-east-2': 'ami-01bec7663ee3ab696'
+        'us-east-1': 'ami-06d4faf5c6fb2a886', # Ubuntu 26.04 secure AMI
     }
 }
 
