@@ -67,7 +67,7 @@ FILE_MICROSCOPY = 'FileMicroscopy' # 4DN
 # via the AMI_ID env var, which overrides the AMI_PER_REGION setting below.
 AMI_PER_REGION = {
     'x86': {
-        'us-east-1': 'ami-06d4faf5c6fb2a886', # Ubuntu 26.04 secure AMI
+        'us-east-1': 'ami-0a2ab24be8532f3bd', # Ubuntu 26.04 secure AMI
     }
 }
 
