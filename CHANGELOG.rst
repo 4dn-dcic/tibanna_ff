@@ -2,6 +2,12 @@
 Change Log
 ==========
 
+3.11.0
+=====
+* Add optional ``AMI_ID`` env var to override the EC2 AMI at deploy time (an explicit ``ami_id`` in the input JSON still takes precedence)
+* Update default AMI and pin tibanna to 6.1.0
+
+
 3.10.0
 =====
 * Support open data buckets in SMaHT

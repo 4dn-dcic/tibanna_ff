@@ -13,7 +13,8 @@ from .vars import (
     BUCKET_NAME,
     GLOBAL_ENV_BUCKET,
     AWSF_IMAGE,
-    AMI_PER_REGION
+    AMI_PER_REGION,
+    AMI_ID
 )
 
 
@@ -63,6 +64,9 @@ class API(_API):
             envlist_ff['update_ffmeta'].update({'GLOBAL_ENV_BUCKET': GLOBAL_ENV_BUCKET})
         if AWSF_IMAGE:
             envlist_ff['start_run'].update({'AWSF_IMAGE': AWSF_IMAGE})
+        if AMI_ID:
+            # start_run (FFInputAbstract) reads this to override the AMI at submission time
+            envlist_ff['start_run'].update({'AMI_ID': AMI_ID})
         for _, envs in envlist_ff.items():
             envs.update({'TIBANNA_FF_VERSION': __version__})
         return envlist_ff.get(name, '')

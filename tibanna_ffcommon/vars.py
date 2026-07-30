@@ -51,20 +51,37 @@ FILE_MICROSCOPY = 'FileMicroscopy' # 4DN
 # Note that this means only these regions will work (replicate AMI in main account as needed)
 # Note additionally that these AMI's all must be configured to be launchable by our AWS
 # accounts
+# AMI_PER_REGION = {
+#     'x86': {
+#         'us-east-1': 'ami-06d4faf5c6fb2a886', # Ubuntu 26.04 secure AMI
+#         'us-east-2': 'ami-019d106d5006c260b' # Ubuntu 20.04 secure AMI
+#     },
+#     'Arm': {
+#         'us-east-1': 'ami-0f62f740c44080b8f', # Ubuntu 20.04 secure AMI
+#         'us-east-2': 'ami-01bec7663ee3ab696' # Ubuntu 20.04 secure AMI
+#     }
+# }
+
+# Our bioinformatics pipelines currently only support x86,
+# and we are only running in us-east-1.  Specific AMIs can be used
+# via the AMI_ID env var, which overrides the AMI_PER_REGION setting below.
 AMI_PER_REGION = {
     'x86': {
-        'us-east-1': 'ami-0afc2a6bf9a8c35c6',
-        'us-east-2': 'ami-019d106d5006c260b'
-    },
-    'Arm': {
-        'us-east-1': 'ami-0f62f740c44080b8f',
-        'us-east-2': 'ami-01bec7663ee3ab696'
+        'us-east-1': 'ami-0a2ab24be8532f3bd', # Ubuntu 26.04 secure AMI
     }
 }
 
 if AWS_REGION not in AMI_PER_REGION['x86']:
     logger.warning("Secure Tibanna AMI for region %s is not available." % AWS_REGION)
     raise Exception('')
+
+
+# Optional deploy-time AMI override (single id), baked into the Lambdas via env_list. Fills in
+# config.ami_id (an explicit ami_id in the input JSON still wins), which ec2_utils prefers over
+# ami_per_region for every instance - so it overrides the ami_per_region the caller (e.g.
+# Foursight) stamps at submission, letting a redeploy switch the AMI without bumping the
+# caller's tibanna_ff. Single x86 AMI in us-east-1 here; for multi-arch/region use ami_per_region.
+AMI_ID = os.environ.get('AMI_ID', None)
 
 
 def BUCKET_NAME(env, filetype):
