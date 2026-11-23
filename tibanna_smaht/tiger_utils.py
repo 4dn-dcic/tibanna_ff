@@ -16,6 +16,7 @@ from tibanna.nnested_array import (
     flatten,
 )
 from .vars import (
+    DEFAULT_ROOT_EBS_SIZE,
     DEFAULT_SUBMISSION_CENTER,
     DEFAULT_CONSORTIUM,
     ACCESSION_PREFIX,
@@ -114,6 +115,10 @@ class TigerInput(FFInputAbstract):
             if new_name in config:
                 config[old_name] = config[new_name]
                 config.pop(new_name)
+
+        # tibanna's Config.fill_default always sets root_ebs_size, so a SMaHT-specific
+        # default has to be injected here, before Config is constructed.
+        config.setdefault("root_ebs_size", DEFAULT_ROOT_EBS_SIZE)
 
         super().__init__(
             workflow_uuid,

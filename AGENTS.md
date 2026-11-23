@@ -88,7 +88,9 @@ GitHub Actions, ubuntu-22.04, Python 3.11, Poetry 1.3.2. **Workflows key on bran
 `workflow_dispatch` (manual): `main-run-tests.yml` (post-deployment path), `main-deploy-pony-{data,webdev}.yml`
 (`tibanna_4dn deploy_pony`), `main-publish.yml` (PyPI, on tag push), `main-deploy-docs.yml` (ReadTheDocs).
 No zebra/smaht deploy workflows exist. Prod deploy details + required env vars: `docs/production.rst`,
-`docs/permissions.rst`.
+`docs/permissions.rst`. SMaHT AMI rebuild on a new HMS IT RHEL golden image: `scripts/smaht_ami/build-ami.sh`
+(operator-run, see its README); `--activate` sets `AMI_ID` on the start_run Lambda, the only consumer -
+a later deploy drops it unless `AMI_ID` is exported in the deploying shell.
 
 ## Sharp edges
 

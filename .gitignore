@@ -104,3 +104,7 @@ src/python-lambda
 
 # vim
 *.swp
+
+# SMaHT AMI build: per-account configs
+scripts/smaht_ami/*.env
+!scripts/smaht_ami/config.example.env

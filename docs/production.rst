@@ -55,6 +55,17 @@ Deploy Tibanna to isolated accounts with:
 For example:
 ``tibanna_cgap deploy_zebra --subnets subnet-07bac0312de6cff43 subnet-0d4a7670776d7c823 --env cgap-dbmi -r sg-033046050ef0b02c1``
 
+----------------------------
+Rebuilding the SMaHT AMI
+----------------------------
+
+SMaHT instances must run on the current HMS IT RHEL 9 golden image. When IT publishes a new one,
+build a new Tibanna AMI on it with ``scripts/smaht_ami/build-ami.sh <config.env> --activate``.
+``--activate`` sets ``AMI_ID`` on the start_run Lambda, the only change Tibanna needs; no redeploy.
+It skips that if Tibanna as deployed couldn't launch the AMI (root volume size or device, KMS key).
+Export that ``AMI_ID`` before any later deploy, or start_run falls back to ``AMI_PER_REGION``.
+Setup, permissions and troubleshooting: ``scripts/smaht_ami/README.md``.
+
 --------------
 Debugging Tips
 --------------

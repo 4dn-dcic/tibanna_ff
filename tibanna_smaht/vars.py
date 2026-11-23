@@ -16,6 +16,11 @@ HIGLASS_BUCKETS = []
 DEV_ENV = 'smaht-wolf'
 PROD_ENV = 'smaht-production'
 
+# Default root EBS size. Shadows tibanna.vars.DEFAULT_ROOT_EBS_SIZE (10), which arrives via
+# the star import above. It is applied in TigerInput.__init__, not by tibanna itself.
+DEFAULT_ROOT_EBS_SIZE = 15
+
+
 def IAM_BUCKETS(env):
     """ This function determines the buckets for which the IAM policy is generated for.
         If you want tibanna to have access to more buckets, this is where to add them.
